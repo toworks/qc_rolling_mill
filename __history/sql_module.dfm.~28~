@@ -1,0 +1,70 @@
+object DataModule1: TDataModule1
+  OldCreateOrder = False
+  OnCreate = DataModuleCreate
+  Height = 245
+  Width = 334
+  object pFIBDatabase1: TpFIBDatabase
+    AutoReconnect = True
+    SQLDialect = 1
+    Timeout = 0
+    WaitForRestoreConnect = 0
+    Left = 32
+    Top = 16
+  end
+  object pFibErrorHandler1: TpFibErrorHandler
+    OnFIBErrorEvent = pFibErrorHandler1FIBErrorEvent
+    Left = 32
+    Top = 72
+  end
+  object pFIBDataSet1: TpFIBDataSet
+    Left = 272
+    Top = 16
+  end
+  object pFIBQuery1: TpFIBQuery
+    Transaction = pFIBTransaction1
+    Database = pFIBDatabase1
+    Left = 200
+    Top = 16
+  end
+  object pFIBTransaction1: TpFIBTransaction
+    DefaultDatabase = pFIBDatabase1
+    TimeoutAction = TACommit
+    TRParams.Strings = (
+      'write'
+      'isc_tpb_nowait'
+      'read_committed'
+      'rec_version')
+    TPBMode = tpbDefault
+    Left = 120
+    Top = 16
+  end
+  object OraSession1: TOraSession
+    Left = 24
+    Top = 168
+  end
+  object OraQuery1: TOraQuery
+    Left = 88
+    Top = 168
+  end
+  object ZConnection1: TZConnection
+    ControlsCodePage = cCP_UTF16
+    UTF8StringsAsWideField = True
+    Catalog = ''
+    Connected = True
+    AfterConnect = ZConnection1AfterConnect
+    HostName = '10.21.115.4'
+    Port = 3050
+    Database = 'e:\termo\db\TERMOMS3SPC1.FDB'
+    User = 'SYSDBA'
+    Password = 'MASTERKEY'
+    Protocol = 'firebird-2.0'
+    LibraryLocation = 'C:\tmp\quality_control_ms_250_5\Win32\Release\fbclient.dll'
+    Left = 232
+    Top = 104
+  end
+  object ZQuery1: TZQuery
+    Params = <>
+    Left = 224
+    Top = 160
+  end
+end

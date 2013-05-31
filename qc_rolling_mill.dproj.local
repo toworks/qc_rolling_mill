@@ -1,0 +1,33 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<BorlandProject>
+	<Transactions>
+    <Transaction>1899.12.30 00:00:00.000.095,C:\tmp\quality_control_ms_250_5\Unit1.pas=C:\tmp\quality_control_ms_250_5\settings.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.766,C:\tmp\quality_control_ms_250_5\main.dfm=C:\Users\saarhipov.EUROPE\Documents\RAD Studio\Projects\main.dfm</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.822,C:\Users\saarhipov.EUROPE\Documents\RAD Studio\Projects\quality_control_ms.dproj=C:\Users\saarhipov.EUROPE\Documents\RAD Studio\Projects\Project1.dproj</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.272,=C:\tmp\quality_control_ms_250_5\Unit1.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.576,=C:\tmp\quality_control_ms_250_5\Unit1.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.608,=C:\tmp\quality_control_ms_250_5\Unit1.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.378,=C:\tmp\quality_control_ms_250_5\Unit1.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.133,C:\tmp\quality_control_ms_250_5\sql.pas=</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.282,C:\Users\saarhipov.EUROPE\Documents\RAD Studio\Projects\main.pas=C:\Users\saarhipov.EUROPE\Documents\RAD Studio\Projects\Unit1.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.115,C:\tmp\quality_control_ms_250_5\sql_module.pas=C:\tmp\quality_control_ms_250_5\Unit1.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.360,=C:\tmp\quality_control_ms_250_5\verysimplexml\Xml.VerySimple.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.283,C:\Users\saarhipov.EUROPE\Documents\RAD Studio\Projects\main.dfm=C:\Users\saarhipov.EUROPE\Documents\RAD Studio\Projects\Unit1.dfm</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.382,C:\Users\saarhipov.EUROPE\Documents\RAD Studio\Projects\quality_control_ms_250_5.dproj=C:\Users\saarhipov.EUROPE\Documents\RAD Studio\Projects\quality_control_ms.dproj</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.492,=C:\tmp\quality_control_ms_250_5\logging.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.920,C:\tmp\quality_control_ms_250_5\Thread.pas=C:\tmp\quality_control_ms_250_5\thread_chart.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.766,C:\tmp\quality_control_ms_250_5\main.pas=C:\Users\saarhipov.EUROPE\Documents\RAD Studio\Projects\main.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.570,=C:\tmp\quality_control_ms_250_5\Unit1.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.999,C:\tmp\quality_control_ms_250_5\quality_control_ms_250_5.dproj=C:\tmp\quality_control_ms_250_5\qc_rolling_mill.dproj</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.115,C:\tmp\quality_control_ms_250_5\sql_module.dfm=C:\tmp\quality_control_ms_250_5\Unit1.dfm</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.062,=C:\Users\saarhipov.EUROPE\Documents\RAD Studio\Projects\Unit1.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.154,C:\tmp\quality_control_ms_250_5\quality_control_ms_250_5.dproj=C:\Users\saarhipov.EUROPE\Documents\RAD Studio\Projects\quality_control_ms_250_5.dproj</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.818,C:\tmp\quality_control_ms_250_5\Unit1.pas=C:\tmp\quality_control_ms_250_5\Thread.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.628,C:\tmp\quality_control_ms_250_5\Unit1.pas=C:\tmp\quality_control_ms_250_5\Chart.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.083,=C:\tmp\quality_control_ms_250_5\Unit1.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.160,=C:\tmp\quality_control_ms_250_5\Unit1.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.296,C:\tmp\quality_control_ms_250_5\Unit1.pas=C:\tmp\quality_control_ms_250_5\thread_sql.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.103,C:\tmp\quality_control_ms_250_5\Unit1.pas=C:\tmp\quality_control_ms_250_5\sql.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.429,C:\tmp\quality_control_ms_250_5\Unit1.pas=C:\tmp\quality_control_ms_250_5\thread_sql_chemistry.pas</Transaction>
+  </Transactions>
+</BorlandProject>

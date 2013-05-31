@@ -1,0 +1,20 @@
+krr =
+  (DESCRIPTION =
+    (ADDRESS_LIST =
+      (ADDRESS = (PROTOCOL = TCP) (HOST = 10.21.10.139) (PORT = 1521))
+    )
+    (CONNECT_DATA =
+	  (SERVER = DEDICATED)
+      (SERVICE_NAME = ovp68)
+    )
+  )
+ 
+sql13 =
+   (DESCRIPTION =
+     (ADDRESS_LIST =
+       (ADDRESS = (PROTOCOL = TCP) (HOST = 10.21.10.139) (PORT = 1521))
+     )
+     (CONNECT_DATA =
+       (SID = ovp68)
+     )
+   )

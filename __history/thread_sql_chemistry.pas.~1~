@@ -1,0 +1,130 @@
+unit thread_sql_chemistry;
+
+
+interface
+
+uses
+  SysUtils, Classes, Windows, ActiveX, Graphics, Forms;
+
+type
+  //Здесь необходимо описать класс TThreadSql:
+  TThreadSqlChemistry = class(TThread)
+
+  private
+    { Private declarations }
+  protected
+    procedure Execute; override;
+  end;
+
+var
+  ThreadSqlChemistry: TThreadSqlChemistry;
+  m2: bool = false;
+
+  function ThreadSqlChemistryInit: bool;
+  function ReadChemistryAnalysis: bool;
+  procedure WrapperSqlChemistry;//обертка для синхронизации и выполнения с другим потоком
+
+
+
+
+implementation
+
+uses
+  main, sql_module, thread_chart, chart;
+
+
+
+
+
+procedure TThreadSqlChemistry.Execute;
+var
+  i:integer;
+  e:bool;
+begin
+  CoInitialize(nil);
+  while True do
+   begin
+      Synchronize(WrapperSqlChemistry);
+      sleep(1000);
+   end;
+   CoUninitialize;
+end;
+
+
+function ThreadSqlInit: bool;
+begin
+        //создаем поток
+        ThreadSqlChemistry:=TThreadSqlChemistry.Create(False);
+        ThreadSqlChemistry.Priority:=tpNormal;
+        ThreadSqlChemistry.FreeOnTerminate := True;
+end;
+
+
+procedure WrapperSql;
+begin
+      ViewAnalysis;
+end;
+
+
+function ViewAnalysis: bool;
+var
+  time: TDateTime;
+begin
+  time := Time;
+
+  if m2 = false then
+   begin
+    DataModule1.pFIBDatabase1.Connected := false;
+    DataModule1.pFIBDatabase1.LibraryName := '.\fbclient.dll';
+    DataModule1.pFIBDatabase1.DBName := '10.21.115.4:e:\termo\db\TERMOMS3SPC1.FDB';
+    DataModule1.pFIBDatabase1.ConnectParams.UserName := 'sysdba';
+    DataModule1.pFIBDatabase1.ConnectParams.Password := 'masterkey';
+    DataModule1.pFIBDatabase1.SQLDialect := 3;
+    DataModule1.pFIBDatabase1.UseLoginPrompt := false;
+    DataModule1.pFIBDatabase1.Timeout := 0;
+    DataModule1.pFIBDatabase1.Connected := true;
+    DataModule1.pFIBTransaction1.Active := false;
+    DataModule1.pFIBTransaction1.Timeout := 0;
+    DataModule1.pFIBQuery1.Database := DataModule1.pFIBDatabase1;
+    DataModule1.pFIBQuery1.Transaction := DataModule1.pFIBTransaction1;
+    m2 := true;
+   end;
+
+
+              DataModule1.pFIBQuery1.Close;
+              DataModule1.pFIBQuery1.SQL.Clear;
+              DataModule1.pFIBQuery1.SQL.Add('select *');
+              DataModule1.pFIBQuery1.SQL.Add('FROM melts');
+              DataModule1.pFIBQuery1.SQL.Add('where begindt=(select max(begindt) FROM melts)');
+              DataModule1.pFIBQuery1.ExecQuery;
+              DataModule1.pFIBQuery1.Transaction.Commit;
+
+              if LastDate < DataModule1.pFIBQuery1.FieldByName('begindt').AsDateTime then
+              begin
+                     LastDate:=DataModule1.pFIBQuery1.FieldByName('begindt').AsDateTime;
+                     Heat:=StringReplace(DataModule1.pFIBQuery1.FieldByName('NOPLAV').AsString,'-','_', [rfReplaceAll]);
+              end;
+
+
+
+        DataModule1.pFIBQuery1.Close;
+        DataModule1.pFIBQuery1.SQL.Clear;
+        DataModule1.pFIBQuery1.SQL.Add('select *');
+        DataModule1.pFIBQuery1.SQL.Add('FROM P'+FormatDateTime('yymmdd', LastDate)+'N'+Heat);
+        DataModule1.pFIBQuery1.SQL.Add('where recordid=(select max(recordid) FROM P'+FormatDateTime('yymmdd', LastDate)+'N'+Heat+')');
+        DataModule1.pFIBQuery1.ExecQuery;
+        DataModule1.pFIBQuery1.Transaction.Commit;
+
+        Form1.Caption := floattostr(DataModule1.pFIBQuery1.FieldByName('recordid').AsFloat);
+        Application.Title := floattostr(DataModule1.pFIBQuery1.FieldByName('recordid').AsFloat);
+//        form1.Edit1.text :=Heat+'  (P'+FormatDateTime('yymmdd', LastDate)+'N'+Heat+')';
+
+        form1.Edit1.Text := DataModule1.pFIBQuery1.FieldByName('TMOUTL').AsString;
+
+end;
+
+
+
+
+end.
+
