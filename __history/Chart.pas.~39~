@@ -20,7 +20,7 @@ uses
 
 var}
 
-//  {$DEFINE DEBUG}
+  {$DEFINE DEBUG}
 
 //  ViewThread: TViewThread;
   function ViewsCharts: bool;

@@ -85,6 +85,7 @@ type
 
     function RolledMelting(InHeat: string): string;
     function CarbonEquivalent(InHeat: string): bool;
+    function InsertQualityManagement(InData, InData2, InData3, InData4: string): bool;
     function HeatToIn(InHeat: string): string;
 //    function SqlCarbonEquivalent(InHeat: string): array of array of variant;
     function SqlCarbonEquivalent(InHeat: string): TArray;//array of array of variant;
@@ -170,6 +171,46 @@ begin
 end;
 
 
+function InsertQualityManagement(InData, InData2, InData3, InData4: string): bool;
+begin
+//  if m_sql = false then
+//   begin
+   DataModule1.pFIBDatabase1.Connected := false;
+   DataModule1.pFIBDatabase1.LibraryName := '.\fbclient.dll';
+   DataModule1.pFIBDatabase1.DBName := 'localhost:c:\tmp\mc_250-5\Ms250-5.fdb';
+   DataModule1.pFIBDatabase1.ConnectParams.UserName := 'sysdba';
+   DataModule1.pFIBDatabase1.ConnectParams.Password := 'masterkey';
+   DataModule1.pFIBDatabase1.SQLDialect := 3;
+   DataModule1.pFIBDatabase1.UseLoginPrompt := false;
+   DataModule1.pFIBDatabase1.Timeout := 0;
+   DataModule1.pFIBDatabase1.Connected := true;
+   DataModule1.pFIBTransaction1.Active := false;
+   DataModule1.pFIBTransaction1.Timeout := 0;
+   DataModule1.pFIBQuery1.Database := DataModule1.pFIBDatabase1;
+   DataModule1.pFIBQuery1.Transaction := DataModule1.pFIBTransaction1;
+//   m_sql := true;
+//  end;
+
+
+   DataModule1.pFIBQuery1.Close;
+   DataModule1.pFIBQuery1.SQL.Clear;
+   DataModule1.pFIBQuery1.SQL.Add('UPDATE or INSERT INTO QUALITY_MANAGEMENT');
+   DataModule1.pFIBQuery1.SQL.Add('(id, heat, grade, CARBON_EQUIVALENT, datetime)');
+   DataModule1.pFIBQuery1.SQL.Add('values (GEN_ID(GEN_QUALITY_MANAGEMENT_ID, 1), '''+InData+''', '''+InData2+''', '''+InData3+''', '''+InData4+''')');
+   DataModule1.pFIBQuery1.SQL.Add('matching (heat)');
+
+
+
+    {$IFDEF DEBUG}
+      SaveLog('debug'+#9#9+DataModule1.pFIBQuery1.SQL.Text);
+    {$ENDIF}
+
+   DataModule1.pFIBQuery1.ExecQuery;
+   DataModule1.pFIBQuery1.Transaction.Commit;
+   m_chart := false;//установка нового соединения
+end;
+
+
 function RolledMelting(InHeat: string): string;
 var
   i: integer;
@@ -187,7 +228,7 @@ begin
     DataModule1.pFIBQuery1.SQL.Add('select distinct m.noplav, m.begindt')
   else
 //    DataModule1.pFIBQuery1.SQL.Add('select FIRST 125 distinct m.noplav, m.begindt');
-    DataModule1.pFIBQuery1.SQL.Add('select FIRST 3 distinct m.noplav, m.begindt');
+    DataModule1.pFIBQuery1.SQL.Add('select FIRST 125 distinct m.noplav, m.begindt');
         DataModule1.pFIBQuery1.SQL.Add(', ''P''||SUBSTRING(extract(year from max(m.begindt)) from cast(CHAR_LENGTH(extract(year from max(m.begindt)))-1 as integer))');
         DataModule1.pFIBQuery1.SQL.Add('||CASE WHEN CHAR_LENGTH(extract(month from max(m.begindt)))=1');
         DataModule1.pFIBQuery1.SQL.Add('then ''0''||extract(month from max(m.begindt)) ELSE extract(month from max(m.begindt))END');
@@ -368,39 +409,39 @@ begin
 
     rangeMin := range[0];
 
-    for i:=low(range) To high(range) Do
-     begin
+    For i:=low(range) To high(range) Do
+     Begin
         If range[i]<rangeMin Then rangeMin:=range[i];
-     end;
+     End;
 
-{    for i:=low(range) To high(range) Do
+    for i:=low(range) To high(range) Do
      begin
         If range[i]=rangeMin Then
          begin
           if (i=0) and (CeHeatStringMin <> '') then
             begin
- }             CalculatingInMechanicalCharacteristics(CeHeatStringMin);
+              CalculatingInMechanicalCharacteristics(CeHeatStringMin);
               {$IFDEF DEBUG}
                 SaveLog('debug'+#9#9+'CeMinRangeHeat -> '+CeHeatStringMin);
               {$ENDIF}
-{            end;
+            end;
           if (i=3) and (CeHeatStringMax <> '') then
             begin
               CalculatingInMechanicalCharacteristics(CeHeatStringMax);
               {$IFDEF DEBUG}
-//                SaveLog('debug'+#9#9+'CeMaxRangeHeat -> '+CeHeatStringMax);
-//              {$ENDIF}
-{            end;
+                SaveLog('debug'+#9#9+'CeMaxRangeHeat -> '+CeHeatStringMax);
+              {$ENDIF}
+            end;
           if ((i=1) or (i=2)) and (CeHeatStringAvg <> '') then
             begin
               CalculatingInMechanicalCharacteristics(CeHeatStringAvg);
               {$IFDEF DEBUG}
-//                SaveLog('debug'+#9#9+'CeAvgRangeHeat -> '+CeHeatStringAvg);
-//              {$ENDIF}
-{            end;
+                SaveLog('debug'+#9#9+'CeAvgRangeHeat -> '+CeHeatStringAvg);
+              {$ENDIF}
+            end;
          end;
+
      end;
-}
 
   {$IFDEF DEBUG}
     SaveLog('debug'+#9#9+'CeRangeMinValue -> '+floattostr(rangeMin));
@@ -654,7 +695,7 @@ form1.edit1.Text := 'ora 01';
        AdjustmentMin := Round(strtofloat(Cmin) * strtofloat(R));
        AdjustmentMax := Round(strtofloat(Cmax) * strtofloat(R));
 
-    if (limitsM = 0) or (limitsM <> 1) then
+    if limitsM = 0 then
      begin
       LowRed := SQuery.FieldByName('yield_point_min').AsInteger+AdjustmentMin;
       HighRed := SQuery.FieldByName('yield_point_max').AsInteger+AdjustmentMax;

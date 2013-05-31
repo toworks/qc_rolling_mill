@@ -20,7 +20,7 @@ uses
 
 var}
 
-//  {$DEFINE DEBUG}
+  {$DEFINE DEBUG}
 
 //  ViewThread: TViewThread;
   function ViewsCharts: bool;
@@ -50,9 +50,9 @@ begin
   DataModule1.pFIBQuery1.ExecQuery;
   DataModule1.pFIBQuery1.Transaction.Commit;
 
-  Heat:= DataModule1.pFIBQuery1.FieldByName('NOPLAV').AsString; //плавка
-  Grade:= '%'+DataModule1.pFIBQuery1.FieldByName('MARKA').AsString; //'%СТ3ТРПС'; //марка стали
-  Section:= '%10%'; //профиль
+  Heat:= DataModule1.pFIBQuery1.FieldByName('NOPLAV').AsAnsiString; //плавка
+  Grade:= '%'+DataModule1.pFIBQuery1.FieldByName('MARKA').AsAnsiString; //'%СТ3ТРПС'; //марка стали
+  Section:= '%'+DataModule1.pFIBQuery1.FieldByName('RAZM1').AsAnsiString+'%'; //'%10%'; //профиль
   Standard:= 'ДСТУ%3760%2006'; //стандарт
   StrengthClass:= '%А500С%'; //клас прочности
 

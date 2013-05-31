@@ -19,9 +19,6 @@ uses
   end;
 
 var}
-
-//  {$DEFINE DEBUG}
-
 //  ViewThread: TViewThread;
   function ViewsCharts: bool;
 
@@ -30,7 +27,7 @@ var}
 implementation
 
 uses
-  main, sql_module, thread_chart, thread_sql, logging;
+  main, sql_module, thread_chart, thread_sql;
 
 
 
@@ -42,28 +39,33 @@ begin
     Form1.Chart1.Series[2].XValues.DateTime := true;
     Form1.Chart1.BottomAxis.Automatic := false;
 
-  DataModule1.pFIBQuery1.Close;
-  DataModule1.pFIBQuery1.SQL.Clear;
-  DataModule1.pFIBQuery1.SQL.Add('select *');
-  DataModule1.pFIBQuery1.SQL.Add('FROM melts');
-  DataModule1.pFIBQuery1.SQL.Add('where begindt=(select max(begindt) FROM melts)');
-  DataModule1.pFIBQuery1.ExecQuery;
-  DataModule1.pFIBQuery1.Transaction.Commit;
 
-  Heat:= DataModule1.pFIBQuery1.FieldByName('NOPLAV').AsString; //плавка
-  Grade:= '%'+DataModule1.pFIBQuery1.FieldByName('MARKA').AsString; //'%СТ3ТРПС'; //марка стали
-  Section:= '%10%'; //профиль
-  Standard:= 'ДСТУ%3760%2006'; //стандарт
-  StrengthClass:= '%А500С%'; //клас прочности
+  if m_chart = false then
+   begin
+    DataModule1.pFIBDatabase1.Connected := false;
+    DataModule1.pFIBDatabase1.LibraryName := '.\fbclient.dll';
+    DataModule1.pFIBDatabase1.DBName := '10.21.115.4:e:\termo\db\TERMOMS3SPC1.FDB';
+    DataModule1.pFIBDatabase1.ConnectParams.UserName := 'sysdba';
+    DataModule1.pFIBDatabase1.ConnectParams.Password := 'masterkey';
+    DataModule1.pFIBDatabase1.SQLDialect := 3;
+    DataModule1.pFIBDatabase1.UseLoginPrompt := false;
+    DataModule1.pFIBDatabase1.Timeout := 0;
+    DataModule1.pFIBDatabase1.Connected := true;
+    DataModule1.pFIBTransaction1.Active := false;
+    DataModule1.pFIBTransaction1.Timeout := 0;
+    DataModule1.pFIBQuery1.Database := DataModule1.pFIBDatabase1;
+    DataModule1.pFIBQuery1.Transaction := DataModule1.pFIBTransaction1;
+    m_chart := true;
+   end;
 
-  {$IFDEF DEBUG}
-    SaveLog('debug'+#9#9+'CurrentHeat='+Heat);
-    SaveLog('debug'+#9#9+'CurrentGrade='+Grade);
-    SaveLog('debug'+#9#9+'CurrentSection='+Section);
-    SaveLog('debug'+#9#9+'CurrentStandard='+Standard);
-    SaveLog('debug'+#9#9+'CurrentStrengthClass='+StrengthClass);
-  {$ENDIF}
-
+{   DataModule1.pFIBQuery1.Close;
+   DataModule1.pFIBQuery1.SQL.Clear;
+   DataModule1.pFIBQuery1.SQL.Add('select *');
+   DataModule1.pFIBQuery1.SQL.Add('FROM melts');
+   DataModule1.pFIBQuery1.SQL.Add('where begindt=(select max(begindt) FROM melts)');
+   DataModule1.pFIBQuery1.ExecQuery;
+   DataModule1.pFIBQuery1.Transaction.Commit;
+}
    if LastDate < DataModule1.pFIBQuery1.FieldByName('begindt').AsDateTime then
     begin
       LastDate := DataModule1.pFIBQuery1.FieldByName('begindt').AsDateTime;
@@ -116,6 +118,8 @@ begin
     DataModule1.pFIBQuery1.ExecQuery;
     DataModule1.pFIBQuery1.Transaction.Commit;
 }
+
+    m_sql := false;//установка нового соединения
 
 end;
 

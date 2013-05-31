@@ -654,7 +654,13 @@ form1.edit1.Text := 'ora 01';
        AdjustmentMin := Round(strtofloat(Cmin) * strtofloat(R));
        AdjustmentMax := Round(strtofloat(Cmax) * strtofloat(R));
 
-    if (limitsM = 0) or (limitsM <> 1) then
+    if (limitsM = 0 or limitsM <> 1) then
+     begin
+      LowRed := SQuery.FieldByName('yield_point_min').AsInteger+AdjustmentMin;
+      HighRed := SQuery.FieldByName('yield_point_max').AsInteger+AdjustmentMax;
+      {$IFDEF DEBUG}
+        SaveLog('debug'+#9#9+'LowRed -> '+inttostr(LowRed));
+        SaveLog('debug'+#9#9then
      begin
       LowRed := SQuery.FieldByName('yield_point_min').AsInteger+AdjustmentMin;
       HighRed := SQuery.FieldByName('yield_point_max').AsInteger+AdjustmentMax;

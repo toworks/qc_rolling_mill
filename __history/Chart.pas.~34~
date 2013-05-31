@@ -19,9 +19,6 @@ uses
   end;
 
 var}
-
-//  {$DEFINE DEBUG}
-
 //  ViewThread: TViewThread;
   function ViewsCharts: bool;
 
@@ -30,7 +27,7 @@ var}
 implementation
 
 uses
-  main, sql_module, thread_chart, thread_sql, logging;
+  main, sql_module, thread_chart, thread_sql;
 
 
 
@@ -41,28 +38,6 @@ begin
     T := Time;
     Form1.Chart1.Series[2].XValues.DateTime := true;
     Form1.Chart1.BottomAxis.Automatic := false;
-
-  DataModule1.pFIBQuery1.Close;
-  DataModule1.pFIBQuery1.SQL.Clear;
-  DataModule1.pFIBQuery1.SQL.Add('select *');
-  DataModule1.pFIBQuery1.SQL.Add('FROM melts');
-  DataModule1.pFIBQuery1.SQL.Add('where begindt=(select max(begindt) FROM melts)');
-  DataModule1.pFIBQuery1.ExecQuery;
-  DataModule1.pFIBQuery1.Transaction.Commit;
-
-  Heat:= DataModule1.pFIBQuery1.FieldByName('NOPLAV').AsString; //плавка
-  Grade:= '%'+DataModule1.pFIBQuery1.FieldByName('MARKA').AsString; //'%СТ3ТРПС'; //марка стали
-  Section:= '%10%'; //профиль
-  Standard:= 'ДСТУ%3760%2006'; //стандарт
-  StrengthClass:= '%А500С%'; //клас прочности
-
-  {$IFDEF DEBUG}
-    SaveLog('debug'+#9#9+'CurrentHeat='+Heat);
-    SaveLog('debug'+#9#9+'CurrentGrade='+Grade);
-    SaveLog('debug'+#9#9+'CurrentSection='+Section);
-    SaveLog('debug'+#9#9+'CurrentStandard='+Standard);
-    SaveLog('debug'+#9#9+'CurrentStrengthClass='+StrengthClass);
-  {$ENDIF}
 
    if LastDate < DataModule1.pFIBQuery1.FieldByName('begindt').AsDateTime then
     begin

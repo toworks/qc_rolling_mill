@@ -20,7 +20,7 @@ uses
 
 var}
 
-//  {$DEFINE DEBUG}
+  {$DEFINE DEBUG}
 
 //  ViewThread: TViewThread;
   function ViewsCharts: bool;
@@ -52,7 +52,7 @@ begin
 
   Heat:= DataModule1.pFIBQuery1.FieldByName('NOPLAV').AsString; //плавка
   Grade:= '%'+DataModule1.pFIBQuery1.FieldByName('MARKA').AsString; //'%СТ3ТРПС'; //марка стали
-  Section:= '%10%'; //профиль
+  Section:= '%'+DataModule1.pFIBQuery1.FieldByName('RAZM1').AsString+'%'; //'%10%'; //профиль
   Standard:= 'ДСТУ%3760%2006'; //стандарт
   StrengthClass:= '%А500С%'; //клас прочности
 

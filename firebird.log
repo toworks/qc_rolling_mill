@@ -58,3 +58,19 @@ KRR-WS03485 (Client)	Mon May 27 14:00:29 2013
 KRR-WS03485 (Client)	Tue May 28 09:04:24 2013
 	INET/inet_error: send errno = 10054
 
+
+KRR-WS03485 (Client)	Tue May 28 12:22:47 2013
+	INET/inet_error: send errno = 10054
+
+
+KRR-WS03485 (Client)	Tue May 28 15:43:24 2013
+	INET/inet_error: send errno = 10054
+
+
+KRR-WS03485 (Client)	Thu May 30 12:24:36 2013
+	INET/inet_error: send errno = 10054
+
+
+KRR-WS03485 (Client)	Fri May 31 11:37:14 2013
+	INET/inet_error: send errno = 10054
+

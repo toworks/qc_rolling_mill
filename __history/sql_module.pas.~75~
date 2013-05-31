@@ -101,8 +101,8 @@ begin
     DataModule1.pFIBDatabase1.DBName := FbSqlConfigArray[1,1]+':'+FbSqlConfigArray[1,2];
     DataModule1.pFIBDatabase1.ConnectParams.UserName := FbSqlConfigArray[1,5];
     DataModule1.pFIBDatabase1.ConnectParams.Password := FbSqlConfigArray[1,6];
-    DataModule1.pFIBDatabase1.ConnectParams.CharSet := 'NONE';//'UNICODE_FSS';//'UTF8';//'ASCII';//'WIN1251';
-    DataModule1.pFIBDatabase1.SQLDialect := 3;//strtoint(FbSqlConfigArray[1,4]);
+    DataModule1.pFIBDatabase1.ConnectParams.CharSet := 'NONE';//'UTF8';//'ASCII';//'WIN1251';
+    DataModule1.pFIBDatabase1.SQLDialect := strtoint(FbSqlConfigArray[1,4]);
     DataModule1.pFIBDatabase1.UseLoginPrompt := false;
     DataModule1.pFIBDatabase1.Timeout := 0;
     DataModule1.pFIBDatabase1.Connected := true;

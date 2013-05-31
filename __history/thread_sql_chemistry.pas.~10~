@@ -139,7 +139,7 @@ begin
                       (DataModule1.OraQuery1.FieldByName('si').AsFloat/10);
                 DateTime := DataModule1.OraQuery1.FieldByName('Date_Time').AsString;
 
-//                InsertQualityManagement(heat, grade, StringReplace(floattostr(Ce),',','.', [rfReplaceAll]), DateTime);
+                InsertQualityManagement(heat, grade, StringReplace(floattostr(Ce),',','.', [rfReplaceAll]), DateTime);
                 form1.edit1.Text := timetostr(time);
 //                sleep(500);
                 DataModule1.OraQuery1.Next;
