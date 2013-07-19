@@ -1,0 +1,121 @@
+unit settings;
+
+interface
+
+uses
+  SysUtils, Classes, Windows, ActiveX, ZAbstractDataset, ZDataset,
+  ZAbstractConnection, ZConnection, ZAbstractRODataset, ZStoredProcedure;
+
+type
+  TSettings = class
+
+
+  private
+    { Private declarations }
+  protected
+
+  end;
+
+var
+   SettingsApp: TSettings;
+   SConnect: TZConnection;
+   SQuery: TZQuery;
+
+   OraSqlConfigArray: Array[1..5] of String;
+   TcpClientConfigArray: Array[1..2] of String;
+
+//   {$DEFINE DEBUG}
+
+   function ConfigSettings(InData: bool): bool;
+   function ReadConfigSettings: bool;
+
+
+implementation
+
+uses
+  main, logging;
+
+
+
+function ConfigSettings(InData: bool): bool;
+var
+  f: File of Word;
+begin
+
+  if InData then
+   begin
+
+      SConnect := TZConnection.Create(nil);
+      SQuery := TZQuery.Create(nil);
+
+      try
+//      SConnect.Database := CurrentDir+'\'+DBFile;
+        SConnect.Database := PathDBFile+'\'+DBFile;
+        SConnect.LibraryLocation := CurrentDir+'\sqlite3.dll';
+        SConnect.Protocol := 'sqlite-3';
+        SConnect.Connect;
+        SQuery.Connection := SConnect;
+
+        ReadConfigSettings;
+
+      Except
+        SaveLog('error'+#9#9+'not connect sqlite');
+      end;
+   end
+  else
+   begin
+      SQuery.Destroy;
+      SConnect.Destroy;
+   end;
+
+end;
+
+
+function ReadConfigSettings: bool;
+var
+  i: integer;
+begin
+
+    SQuery.Close;
+    SQuery.SQL.Clear;
+    SQuery.SQL.Add('SELECT * FROM settings');
+    SQuery.Open;
+
+
+    while not SQuery.Eof do
+     begin
+      //orasql
+      if SQuery.FieldByName('name').AsString = '::OraSql::ip' then
+        OraSqlConfigArray[1] := SQuery.FieldByName('value').AsString;
+      if SQuery.FieldByName('name').AsString = '::OraSql::port' then
+        OraSqlConfigArray[2] := SQuery.FieldByName('value').AsString;
+      if SQuery.FieldByName('name').AsString = '::OraSql::db_name' then
+        OraSqlConfigArray[3] := SQuery.FieldByName('value').AsString;
+      if SQuery.FieldByName('name').AsString = '::OraSql::user' then
+        OraSqlConfigArray[4] := SQuery.FieldByName('value').AsString;
+      if SQuery.FieldByName('name').AsString = '::OraSql::password' then
+        OraSqlConfigArray[5] := SQuery.FieldByName('value').AsString;
+
+      //tcp_remote
+      if SQuery.FieldByName('name').AsString = '::TCP::remote_ip' then
+        TcpClientConfigArray[1] := SQuery.FieldByName('value').AsString;
+      if SQuery.FieldByName('name').AsString = '::TCP::remote_port' then
+        TcpClientConfigArray[2] := SQuery.FieldByName('value').AsString;
+
+
+        SQuery.Next;
+     end;
+
+end;
+
+
+
+// При загрузке программы класс будет создаваться
+initialization
+  SettingsApp := TSettings.Create;
+
+//При закрытии программы уничтожаться
+finalization
+  SettingsApp.Destroy;
+
+end.

@@ -1,0 +1,27 @@
+program ReadExternalSql;
+
+uses
+  logging in 'logging.pas',
+  settings in 'settings.pas',
+  Classes;
+
+type
+  TThreadMain = class(TThread)
+
+  private
+    { Private declarations }
+  protected
+    procedure Execute; override;
+  end;
+
+var
+ ThreadMain: TThreadMain;
+
+{$R *.RES}
+
+begin
+  ThreadMain := TThreadMain.Create(True);
+  ThreadMain.Priority := tpNormal;
+  ThreadMain.FreeOnTerminate := True;
+  ThreadMain.Resume;
+end.

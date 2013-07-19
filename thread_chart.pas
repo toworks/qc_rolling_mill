@@ -18,52 +18,54 @@ type
 var
   ThreadChart: TThreadChart;
 
-  function ThreadChartInit: bool;
-  procedure WrapperChart;//обертка дл€ синхронизации и выполнени€ с другим потоком
+  {$DEFINE DEBUG}
 
+  procedure WrapperChart;//обертка дл€ синхронизации и выполнени€ с другим потоком
 
 
 implementation
 
 uses
-  main, sql_module, chart, thread_sql;
+  main, settings, logging, sql_module, chart, thread_sql;
 
 
 
 
 procedure TThreadChart.Execute;
-var
-  i:integer;
-  e:bool;
 begin
   CoInitialize(nil);
   while True do
    begin
       Synchronize(WrapperChart);
-      sleep(100);
+      sleep(500);
    end;
    CoUninitialize;
 end;
 
 
-function ThreadChartInit: bool;
-begin
-        //создаем поток
-        ThreadChart:=TThreadChart.Create(False);
-        ThreadChart.Priority:=tpNormal;
-        ThreadChart.FreeOnTerminate := True;
-end;
-
-
 procedure WrapperChart;
 begin
-      Application.ProcessMessages;//следующа€ операци€ не тормозит интерфейс
-      ViewsCharts;
+  Application.ProcessMessages;//следующа€ операци€ не тормозит интерфейс
+  try
+    ViewsCharts;
+  except
+    on E : Exception do
+      SaveLog('error'+#9#9+E.ClassName+', с сообщением: '+E.Message);
+  end;
 end;
 
 
 
 
+// ѕри загрузке программы класс будет создаватьс€
+initialization
+  //создаем поток
+  ThreadChart := TThreadChart.Create(true);
+  ThreadChart.Priority := tpNormal;
+  ThreadChart.FreeOnTerminate := True;
 
+//ѕри закрытии программы уничтожатьс€
+finalization
+  ThreadChart.Terminate;
 
 end.

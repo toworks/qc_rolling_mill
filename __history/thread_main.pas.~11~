@@ -1,0 +1,78 @@
+unit thread_main;
+
+interface
+
+uses
+  SysUtils, Classes, Windows, ActiveX, Forms, SyncObjs;
+
+type
+  //Здесь необходимо описать класс TThreadMain:
+  TThreadMain = class(TThread)
+
+  private
+    { Private declarations }
+  protected
+    procedure Execute; override;
+  end;
+
+var
+  ThreadMain: TThreadMain;
+
+  {$DEFINE DEBUG}
+
+  procedure WrapperMain;//обертка для синхронизации и выполнения с другим потоком
+
+
+implementation
+
+uses
+  main, settings, logging, sql_module, chart, sql;
+
+
+
+
+procedure TThreadMain.Execute;
+begin
+  CoInitialize(nil);
+  while True do
+   begin
+      Synchronize(WrapperMain);
+      sleep(500);
+   end;
+   CoUninitialize;
+end;
+
+
+procedure WrapperMain;
+begin
+  try
+      Application.ProcessMessages;//следующая операция не тормозит интерфейс
+      SqlReadCurrentHeat;
+  except
+    on E : Exception do
+      SaveLog('error'+#9#9+E.ClassName+', с сообщением: '+E.Message);
+  end;
+  try
+      Application.ProcessMessages;//следующая операция не тормозит интерфейс
+      ViewsCharts;
+  except
+    on E : Exception do
+      SaveLog('error'+#9#9+E.ClassName+', с сообщением: '+E.Message);
+  end;
+end;
+
+
+
+
+// При загрузке программы класс будет создаваться
+initialization
+  //создаем поток
+  ThreadMain := TThreadMain.Create(true);
+  ThreadMain.Priority := tpNormal;
+  ThreadMain.FreeOnTerminate := True;
+
+//При закрытии программы уничтожаться
+finalization
+  ThreadMain.Terminate;
+
+end.

@@ -1,0 +1,246 @@
+unit chart;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, VCLTee.TeEngine,
+  VCLTee.Series, Vcl.ExtCtrls, VCLTee.TeeProcs, VCLTee.Chart, VCLTee.DBChart,
+  VCLTee.TeeSpline;
+
+type
+  TArrayLimit = array[0..1] of integer;
+
+//  private
+    { Private declarations }
+//  protected
+
+//end;
+
+var
+  TimestampLastLeft: integer = 0;
+  TimestampLastRight: integer = 0;
+  CountLeft: integer = 1;
+  CountRight: integer = 1;
+  TimestampOldLeft: integer = 0;
+  TimestampOldRight: integer = 0;
+
+//  {$DEFINE DEBUG}
+
+  function ViewsCharts: bool;
+  function LimitMinMax(InTemperature: integer): TArrayLimit;
+
+
+
+implementation
+
+uses
+  main, settings, sql_module, sql, logging;
+
+
+
+function ViewsCharts: bool;
+var
+  TimeLeft, TimeRight: TDateTime;
+  TemperatureLeft, TemperatureRight, i, q: integer;
+  LimitLeft, LimitRight: TArrayLimit;
+begin
+
+  TimeLeft := Time;
+  TimeRight := Time;
+
+  //-- left
+  Form1.chart_left_side.Series[2].XValues.DateTime := true;
+  Form1.chart_left_side.BottomAxis.Automatic := false;
+
+  //-- right
+  Form1.chart_right_side.Series[2].XValues.DateTime := true;
+  Form1.chart_right_side.BottomAxis.Automatic := false;
+
+  {$IFDEF DEBUG}
+    SaveLog('debug'+#9#9+'ViewsCharts -> '+timetostr(time));
+  {$ENDIF}
+
+  //-- left
+  Settings.SQuery.Close;
+  Settings.SQuery.SQL.Clear;
+//  Settings.SQuery.SQL.Add('SELECT datetime(timestamp, ''unixepoch'', ''localtime'') as timestamp');
+  Settings.SQuery.SQL.Add('SELECT timestamp');
+  Settings.SQuery.SQL.Add(', temperature FROM temperature where side=0');
+  Settings.SQuery.SQL.Add('order by id desc limit 1');
+  Settings.SQuery.Open;
+
+  TemperatureLeft := Settings.SQuery.FieldByName('temperature').AsInteger;
+
+  {$IFDEF DEBUG}
+    SaveLog('debug'+#9#9+'TemperatureCurrentLeft -> '+inttostr(TemperatureLeft));
+  {$ENDIF}
+
+  if Settings.SQuery.FieldByName('timestamp').AsInteger <> TimestampOldLeft then
+    TimestampOldLeft := Settings.SQuery.FieldByName('timestamp').AsInteger
+  else
+    TemperatureLeft := 0;
+
+
+  //LimitLeft[0] - min, LimitLeft[1] - max
+  LimitLeft := LimitMinMax(TemperatureLeft);
+
+  {$IFDEF DEBUG}
+    SaveLog('debug'+#9#9+'LimitLeft min -> '+inttostr(LimitLeft[0]));
+    SaveLog('debug'+#9#9+'LimitLeft max -> '+inttostr(LimitLeft[1]));
+  {$ENDIF}
+
+  if time > form1.chart_left_side.BottomAxis.Maximum then
+   begin
+     form1.chart_left_side.BottomAxis.Maximum := TimeLeft;
+     //form1.Chart1.BottomAxis.Minimum := T - 10./(60*60*24);
+     form1.chart_left_side.BottomAxis.Minimum := TimeLeft - strtotime('00:01:00');
+   end;
+
+  if time = strtotime('00:00:00') then
+    form1.chart_left_side.BottomAxis.Maximum := strtotime('00:00:00');
+
+
+  //построение оси с права
+  form1.chart_left_side.Series[2].VertAxis := aRightAxis;
+  form1.chart_left_side.RightAxis.SetMinMax(LimitLeft[0], LimitLeft[1]);
+  form1.chart_left_side.LeftAxis.SetMinMax(LimitLeft[0], LimitLeft[1]);
+
+  //пределы red
+  form1.chart_left_side.Series[4].AddXY(Time, LowRedLeft, timetostr(TimeLeft), clRed); //min
+  form1.chart_left_side.Series[0].AddXY(Time, HighRedLeft, timetostr(TimeLeft), clRed); //max
+
+  //пределы green
+  form1.chart_left_side.Series[3].AddXY(Time, LowGreenLeft, timetostr(TimeLeft), clGreen); //min
+  form1.chart_left_side.Series[1].AddXY(Time, HighGreenLeft, timetostr(TimeLeft), clGreen); //max
+
+//  if Settings.SQuery.FieldByName('timestamp').AsInteger > TimestampLastLeft then
+//   begin
+    form1.chart_left_side.Series[2].AddXY(Time, TemperatureLeft, timetostr(TimeLeft), clBlue);
+//    TimestampLastLeft := Settings.SQuery.FieldByName('timestamp').AsInteger;
+//   end
+//  else
+//    form1.chart_left_side.Series[2].AddXY(Time, 1, timetostr(TimeLeft), clBlue);
+
+  try
+     //left chart clean old data
+     if CountLeft < form1.chart_left_side.Series[2].Count then
+      begin
+        for i := form1.chart_left_side.Series[2].Count-101 downto 0 do
+         begin
+          for q:=0 to form1.chart_left_side.SeriesCount-1 do
+            form1.chart_left_side.Series[q].Delete(i);
+         end;
+        CountLeft := form1.chart_left_side.Series[2].Count+100;
+      end;
+  except
+    on E : Exception do
+      SaveLog('error'+#9#9+E.ClassName+', с сообщением: '+E.Message);
+  end;
+
+
+  //-- right
+  Settings.SQuery.Close;
+  Settings.SQuery.SQL.Clear;
+//  Settings.SQuery.SQL.Add('SELECT datetime(timestamp, ''unixepoch'', ''localtime'') as timestamp');
+  Settings.SQuery.SQL.Add('SELECT timestamp');
+  Settings.SQuery.SQL.Add(', temperature FROM temperature where side=1');
+  Settings.SQuery.SQL.Add('order by id desc limit 1');
+  Settings.SQuery.Open;
+
+  TemperatureRight := Settings.SQuery.FieldByName('temperature').AsInteger;
+
+  {$IFDEF DEBUG}
+    SaveLog('debug'+#9#9+'TemperatureCurrentRight -> '+inttostr(TemperatureRight));
+  {$ENDIF}
+
+  if Settings.SQuery.FieldByName('timestamp').AsInteger <> TimestampOldRight then
+    TimestampOldRight := Settings.SQuery.FieldByName('timestamp').AsInteger
+  else
+    TemperatureRight := 0;
+
+  //LimitRight[0] - min, LimitRight[1] - max
+  LimitRight := LimitMinMax(Settings.SQuery.FieldByName('temperature').AsInteger);
+
+  {$IFDEF DEBUG}
+    SaveLog('debug'+#9#9+'LimitRight min -> '+inttostr(LimitRight[0]));
+    SaveLog('debug'+#9#9+'LimitRight max -> '+inttostr(LimitRight[1]));
+  {$ENDIF}
+
+  if time > form1.chart_right_side.BottomAxis.Maximum then
+   begin
+     form1.chart_right_side.BottomAxis.Maximum := TimeRight;
+     //form1.Chart1.BottomAxis.Minimum := T - 10./(60*60*24);
+     form1.chart_right_side.BottomAxis.Minimum := TimeRight - strtotime('00:01:00');
+   end;
+
+  if time = strtotime('00:00:00') then
+    form1.chart_right_side.BottomAxis.Maximum := strtotime('00:00:00');
+
+
+  //построение оси с права
+  form1.chart_right_side.Series[2].VertAxis := aRightAxis;
+  form1.chart_right_side.RightAxis.SetMinMax(LimitRight[0], LimitRight[1]);
+  form1.chart_right_side.LeftAxis.SetMinMax(LimitRight[0], LimitRight[1]);
+
+  //пределы red
+  form1.chart_right_side.Series[4].AddXY(Time, LowRedRight, timetostr(TimeRight), clRed); //min
+  form1.chart_right_side.Series[0].AddXY(Time, HighRedRight, timetostr(TimeRight), clRed); //max
+
+  //пределы green
+  form1.chart_right_side.Series[3].AddXY(Time, LowGreenRight, timetostr(TimeRight), clGreen); //min
+  form1.chart_right_side.Series[1].AddXY(Time, HighGreenRight, timetostr(TimeRight), clGreen); //max
+
+{  if Settings.SQuery.FieldByName('timestamp').AsInteger <> TimestampLastRight then
+   begin
+}    form1.chart_right_side.Series[2].AddXY(Time, Settings.SQuery.FieldByName('temperature').AsInteger, timetostr(TimeRight), clBlue);
+{    TimestampLastRight := Settings.SQuery.FieldByName('timestamp').AsInteger;
+   end
+  else
+    form1.chart_right_side.Series[2].AddXY(Time, 1, timetostr(TimeRight), clBlue);
+ }
+
+  try
+     //right chart clean old data
+     if CountRight < form1.chart_right_side.Series[2].Count then
+      begin
+        for i := form1.chart_right_side.Series[2].Count-101 downto 0 do
+         begin
+          for q:=0 to form1.chart_right_side.SeriesCount-1 do
+            form1.chart_right_side.Series[q].Delete(i);
+         end;
+        CountRight := form1.chart_right_side.Series[2].Count+100;
+      end;
+  except
+    on E : Exception do
+      SaveLog('error'+#9#9+E.ClassName+', с сообщением: '+E.Message);
+  end;
+
+end;
+
+
+function LimitMinMax(InTemperature: integer): TArrayLimit;
+begin
+  if InTemperature < 650 then
+   begin
+      Result[0] := 250;
+      Result[1] := 650;
+   end;
+
+  if (InTemperature < 950) and (InTemperature > 650) then
+   begin
+      Result[0] := 550;
+      Result[1] := 950;
+   end;
+
+  if (InTemperature < 1250) and (InTemperature > 950) then
+   begin
+      Result[0] := 850;
+      Result[1] := 1250;
+   end;
+end;
+
+
+
+
+end.

@@ -1,8 +1,8 @@
-object DataModule1: TDataModule1
+object Module: TModule
   OldCreateOrder = False
   OnCreate = DataModuleCreate
-  Height = 245
-  Width = 334
+  Height = 190
+  Width = 189
   object pFIBDatabase1: TpFIBDatabase
     AutoReconnect = True
     SQLDialect = 1
@@ -11,20 +11,15 @@ object DataModule1: TDataModule1
     Left = 32
     Top = 16
   end
-  object pFibErrorHandler1: TpFibErrorHandler
-    OnFIBErrorEvent = pFibErrorHandler1FIBErrorEvent
-    Left = 32
-    Top = 72
-  end
   object pFIBDataSet1: TpFIBDataSet
-    Left = 272
-    Top = 16
+    Left = 120
+    Top = 72
   end
   object pFIBQuery1: TpFIBQuery
     Transaction = pFIBTransaction1
     Database = pFIBDatabase1
-    Left = 200
-    Top = 16
+    Left = 32
+    Top = 72
   end
   object pFIBTransaction1: TpFIBTransaction
     DefaultDatabase = pFIBDatabase1
@@ -40,11 +35,11 @@ object DataModule1: TDataModule1
   end
   object OraSession1: TOraSession
     LoginPrompt = False
-    Left = 24
-    Top = 168
+    Left = 32
+    Top = 128
   end
   object OraQuery1: TOraQuery
-    Left = 88
-    Top = 168
+    Left = 120
+    Top = 128
   end
 end

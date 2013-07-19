@@ -1,0 +1,142 @@
+unit main;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Classes, Vcl.Menus,
+  Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ActnPopup, ActiveX;
+
+type
+  TThreadTrayIcon = class(TThread)
+
+  private
+    { Private declarations }
+//    procedure TrayPopUpCloseClick(Sender: TObject);
+  public
+    { Public declarations }
+  protected
+    procedure Execute; override;
+  end;
+
+var
+    ThreadTrayIcon: TThreadTrayIcon;
+    LastDate: TDateTime = 0;
+    CurrentDir: string;
+    HeadName: string = 'управление качеством MC 250-5';
+    Version: string = '0.0alpha';
+    DBFile: string = 'data.sdb';
+    LogFile: string = 'app.log';
+    PopupTray: TPopupMenu;
+    TrayMark: bool = false;
+
+
+    {$DEFINE DEBUG}
+
+
+    function ThreadTrayIconInit: bool;
+//    procedure WrapperTrayIcon;//обертка дл€ синхронизации и выполнени€ с другим потоком
+    function TrayAppRun: bool;
+    function CheckAppRun: bool;
+
+
+implementation
+
+uses
+  settings, logging, sql;
+
+
+
+function ThreadTrayIconInit: bool;
+begin
+  ThreadTrayIcon := TThreadTrayIcon.Create(False);
+  ThreadTrayIcon.Priority := tpNormal;
+  ThreadTrayIcon.FreeOnTerminate := True;
+end;
+
+
+procedure TThreadTrayIcon.Execute;
+begin
+//  CoInitialize(nil);
+  while True do
+   begin
+//      Synchronize(WrapperTrayIcon);
+      sleep(500);
+   end;
+//   CoUninitialize;
+end;
+
+
+function TrayAppRun: bool;
+begin
+    PopupTray := TPopupMenu.Create(nil);
+    Module.Trayicon.Hint := HeadName;
+    Module.Trayicon.PopupMenu := PopupTray;
+    PopupTray.OnPopup := ThreadTrayIcon.TrayPopUpCloseClick;
+    PopupTray.Items.Add(NewItem('выход', 0, False, True, ThreadTrayIcon.TrayPopUpCloseClick, 0, 'close'));
+    Module.Trayicon.Visible := True;
+end;
+
+
+procedure TrayPopUpCloseClick(Sender: TObject);
+var
+  buttonSelected: Integer;
+begin
+  //закрываем OPC
+//  ConfigOPCServer(false);
+  //удал€ем потоки
+//  ThreadOpc.Terminate;
+//  ThreadSql.Terminate;
+//  ThreadChart.Terminate;
+
+  SaveLog('close'+#9#9+'app');
+
+  Module.Trayicon.Visible := false;
+  //закрываем приложение
+  TerminateProcess(GetCurrentProcess, 0);
+end;
+
+
+function CheckAppRun: bool;
+var
+  hMutex : THandle;
+begin
+    // закрытие 2 экземл€ра программы
+    hMutex := CreateMutex(0, true , 'ReadExternalSql');
+    if GetLastError = ERROR_ALREADY_EXISTS then
+     begin
+        Application.Title := HeadName+' v'+Version;
+        //пр€чим форму и выводим сообщение
+        Application.ShowMainForm:=false;
+        showmessage('Ёкземпл€р программы уже запущен');
+
+        CloseHandle(hMutex);
+        TerminateProcess(GetCurrentProcess, 0);
+     end;
+
+end;
+
+
+// ѕри загрузке программы класс будет создаватьс€
+initialization
+  ThreadTrayIcon := TThreadTrayIcon.Create;
+
+  //текуща€ дириктори€
+  CurrentDir := GetCurrentDir;
+//--  ConfigSettings(true);
+
+  ThreadTrayIconInit;
+
+  //проверка 1 экземпл€ра программы
+  CheckAppRun;
+
+  SaveLog('start'+#9#9+'app');
+
+
+
+//ѕри закрытии программы уничтожатьс€
+finalization
+  ThreadTrayIcon.Destroy;
+
+
+
+end.

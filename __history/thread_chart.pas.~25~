@@ -1,0 +1,75 @@
+unit thread_chart;
+
+interface
+
+uses
+  SysUtils, Classes, Windows, ActiveX, Forms, SyncObjs;
+
+type
+  //Здесь необходимо описать класс TViewThread:
+  TThreadChart = class(TThread)
+
+  private
+    { Private declarations }
+  protected
+    procedure Execute; override;
+  end;
+
+var
+  ThreadChart: TThreadChart;
+
+  function ThreadChartInit: bool;
+  procedure WrapperChart;//обертка для синхронизации и выполнения с другим потоком
+
+
+  {$DEFINE DEBUG}
+
+
+implementation
+
+uses
+  main, settings, logging, sql_module, chart, thread_sql;
+
+
+
+
+procedure TThreadChart.Execute;
+begin
+  CoInitialize(nil);
+  while True do
+   begin
+      Synchronize(WrapperChart);
+      sleep(500);
+   end;
+   CoUninitialize;
+end;
+
+
+function ThreadChartInit: bool;
+begin
+  //создаем поток
+  ThreadChart := TThreadChart.Create(False);
+  ThreadChart.Priority := tpNormal;
+  ThreadChart.FreeOnTerminate := True;
+end;
+
+
+procedure WrapperChart;
+begin
+  Application.ProcessMessages;//следующая операция не тормозит интерфейс
+  try
+    ViewsCharts;
+  {$IFDEF DEBUG}
+    SaveLog('debug'+#9#9+'ThreadChartInit time start -> '+timetostr(time));
+  {$ENDIF}
+  except
+    on E : Exception do
+      SaveLog('error'+#9#9+E.ClassName+', с сообщением: '+E.Message);
+  end;
+end;
+
+
+
+
+
+end.
