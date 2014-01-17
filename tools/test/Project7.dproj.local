@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<BorlandProject>
+	<Transactions>
+    <Transaction>1899.12.30 00:00:00.000.482,C:\tmp\qc_rolling_mill.git\tools\test\Unit8.dfm=C:\tmp\qc_rolling_mill.git\tools\test\main.dfm</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.870,C:\Users\saarhipov.EUROPE\Documents\RAD Studio\Projects\Unit8.dfm=C:\tmp\qc_rolling_mill.git\tools\test\Unit8.dfm</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.870,C:\Users\saarhipov.EUROPE\Documents\RAD Studio\Projects\Unit8.pas=C:\tmp\qc_rolling_mill.git\tools\test\Unit8.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.597,=C:\Users\saarhipov.EUROPE\Documents\RAD Studio\Projects\Unit8.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.482,C:\tmp\qc_rolling_mill.git\tools\test\Unit8.pas=C:\tmp\qc_rolling_mill.git\tools\test\main.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.337,C:\Users\saarhipov.EUROPE\Documents\RAD Studio\Projects\Project7.dproj=C:\tmp\qc_rolling_mill.git\tools\test\Project7.dproj</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.509,=C:\tmp\qc_rolling_mill.git\tools\test\logging.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.334,=C:\tmp\qc_rolling_mill.git\tools\test\settings.pas</Transaction>
+  </Transactions>
+</BorlandProject>

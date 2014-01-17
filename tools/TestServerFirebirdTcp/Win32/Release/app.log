@@ -1,0 +1,11 @@
+30.09.2013 12:29:00	error		EFIBInterBaseError, с сообщением: Can't format message 13:99 -- message file c:\tmp\qc_rolling_mill.git\tools\TestServerFirebirdTcp\Win32\firebird.msg not found.
+Invalid request handle.
+
+30.09.2013 12:29:01	error		EFIBInterBaseError, с сообщением: Can't format message 13:393 -- message file c:\tmp\qc_rolling_mill.git\tools\TestServerFirebirdTcp\Win32\firebird.msg not found.
+Unsuccessful metadata update.
+Table QC_TEMPERATURE already exists.
+
+30.09.2013 12:33:02	error		EIdCouldNotBindSocket, с сообщением: Could not bind socket. Address and port are already in use.
+07.10.2013 14:10:49	error		EFIBInterBaseError, с сообщением: Can't format message 13:98 -- message file C:\tmp\qc_rolling_mill.git\tools\TestServerFirebirdTcp\Win32\firebird.msg not found.
+Your user name and password are not defined. Ask your database administrator to set up a Firebird login.
+

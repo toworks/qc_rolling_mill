@@ -1,0 +1,164 @@
+unit thread_sql_chemistry;
+
+
+interface
+
+uses
+  SysUtils, Classes, Windows, ActiveX, Graphics, Forms;
+
+type
+  //Здесь необходимо описать класс TThreadSql:
+  TThreadSqlChemistry = class(TThread)
+
+  private
+    { Private declarations }
+  protected
+    procedure Execute; override;
+  end;
+
+var
+  ThreadSqlChemistry: TThreadSqlChemistry;
+  m2: bool = false;
+  count_chemical: integer = 0;
+
+  {$DEFINE DEBUG}
+
+  function ThreadSqlChemistryInit: bool;
+  function ReadChemistryAnalysis: bool;
+  procedure WrapperSqlChemistry;//обертка для синхронизации и выполнения с другим потоком
+
+
+
+
+implementation
+
+uses
+  main, sql_module, thread_chart, thread_sql, chart, logging;
+
+
+
+
+
+procedure TThreadSqlChemistry.Execute;
+var
+  i:integer;
+  e:bool;
+begin
+  CoInitialize(nil);
+  while True do
+   begin
+      Synchronize(WrapperSqlChemistry);
+      sleep(1000);
+   end;
+   CoUninitialize;
+end;
+
+
+function ThreadSqlChemistryInit: bool;
+begin
+        //создаем поток
+        ThreadSqlChemistry:=TThreadSqlChemistry.Create(False);
+        ThreadSqlChemistry.Priority:=tpNormal;
+        ThreadSqlChemistry.FreeOnTerminate := True;
+end;
+
+
+procedure WrapperSqlChemistry;
+begin
+      ReadChemistryAnalysis;
+end;
+
+{
+function ReadChemistryAnalysis: bool;
+var
+  heat, grade, DateTime: string;
+  Ce: real;
+begin
+
+         DataModule1.ADOQuery1.Close;
+         DataModule1.ADOQuery1.SQL.Clear;
+         DataModule1.ADOQuery1.SQL.Add('SELECT * FROM [kc_visualisation].[dbo].[ready_steel]');
+         DataModule1.ADOQuery1.SQL.Add('where year(date_time)=year(getdate())');
+         DataModule1.ADOQuery1.Open;
+
+      if count_chemical < DataModule1.ADOQuery1.RecordCount then
+       begin
+
+        while not DataModule1.ADOQuery1.Eof do
+          begin
+                heat := DataModule1.ADOQuery1.FieldByName('fuse').AsString;
+                grade := DataModule1.ADOQuery1.FieldByName('mark').AsString;
+                Ce := DataModule1.ADOQuery1.FieldByName('C').AsFloat+
+                      (DataModule1.ADOQuery1.FieldByName('mn').AsFloat/6)+
+                      (DataModule1.ADOQuery1.FieldByName('cr').AsFloat/5)+
+                      (DataModule1.ADOQuery1.FieldByName('si').AsFloat/10);
+                DateTime := DataModule1.ADOQuery1.FieldByName('Date_Time').AsString;
+
+                InsertQualityManagement(heat, grade, StringReplace(floattostr(Ce),',','.', [rfReplaceAll]), DateTime);
+                form1.edit1.Text := timetostr(time);
+//                sleep(500);
+                DataModule1.ADOQuery1.Next;
+          end;
+
+          count_chemical := DataModule1.ADOQuery1.RecordCount;
+
+       end;
+
+  form1.edit1.Text := timetostr(time);
+
+  {$IFDEF DEBUG}
+{    SaveLog('debug'+#9#9+inttostr(DataModule1.ADOQuery1.RecordCount));
+  {$ENDIF}
+
+{end;}
+
+
+function ReadChemistryAnalysis: bool;
+var
+  heat, grade, DateTime: string;
+  Ce: real;
+begin
+
+//    DataModule1.OraQuery1.FetchAll := true;
+    DataModule1.OraQuery1.Close;
+    DataModule1.OraQuery1.SQL.Clear;
+    DataModule1.OraQuery1.SQL.Add('select * from czl_n where year=''2013'' order by data desc');
+    DataModule1.OraQuery1.Open;
+
+      if count_chemical < DataModule1.ADOQuery1.RecordCount then
+       begin
+
+        while not DataModule1.ADOQuery1.Eof do
+          begin
+                heat := DataModule1.ADOQuery1.FieldByName('fuse').AsString;
+                grade := DataModule1.ADOQuery1.FieldByName('mark').AsString;
+                Ce := DataModule1.ADOQuery1.FieldByName('C').AsFloat+
+                      (DataModule1.ADOQuery1.FieldByName('mn').AsFloat/6)+
+                      (DataModule1.ADOQuery1.FieldByName('cr').AsFloat/5)+
+                      (DataModule1.ADOQuery1.FieldByName('si').AsFloat/10);
+                DateTime := DataModule1.ADOQuery1.FieldByName('Date_Time').AsString;
+
+                InsertQualityManagement(heat, grade, StringReplace(floattostr(Ce),',','.', [rfReplaceAll]), DateTime);
+                form1.edit1.Text := timetostr(time);
+//                sleep(500);
+                DataModule1.ADOQuery1.Next;
+          end;
+
+          count_chemical := DataModule1.ADOQuery1.RecordCount;
+
+       end;
+
+  form1.edit1.Text := timetostr(time);
+
+  {$IFDEF DEBUG}
+    SaveLog('debug'+#9#9+inttostr(DataModule1.ADOQuery1.RecordCount));
+  {$ENDIF}
+
+end;
+
+
+
+
+
+end.
+

@@ -1,0 +1,85 @@
+unit sql;
+
+interface
+
+uses
+  System.SysUtils, System.Classes, Vcl.ExtCtrls, Windows, Ora, ZAbstractDataset,
+  ZDataset, ZAbstractConnection, ZConnection, ZAbstractRODataset,
+  ZStoredProcedure, Data.DB, MemDS, DBAccess;
+
+type
+  TModule = class(TDataModule)
+    TrayIcon: TTrayIcon;
+    OraSession1: TOraSession;
+    OraQuery1: TOraQuery;
+    procedure DataModuleCreate(Sender: TObject);
+
+
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+  Module: TModule;
+    function OraDbInit: bool;
+
+implementation
+
+{%CLASSGROUP 'Vcl.Controls.TControl'}
+
+uses
+  main, settings, logging;
+
+{$R *.dfm}
+
+
+
+function OraDbInit: bool;
+begin
+  module.OraSession1.Username := OraSqlConfigArray[4];
+  module.OraSession1.Password := OraSqlConfigArray[5];
+  module.OraSession1.Server := OraSqlConfigArray[1]+':'+OraSqlConfigArray[2]+
+                                    ':'+OraSqlConfigArray[3];//'krr-sql13:1521:ovp68';
+  module.OraSession1.Options.Direct := true;
+  module.OraSession1.Options.DateFormat := 'DD.MM.RR';//формат даты дд.мм.гг
+  module.OraSession1.Options.Charset := 'CL8MSWIN1251';// 'AL32UTF8';//CL8MSWIN1251
+//  module.OraSession1.Options.UseUnicode := true;
+end;
+
+procedure TModule.DataModuleCreate(Sender: TObject);
+begin
+
+  MainApp.ConfigSettings(true);
+
+  //проверка 1 экземпл€ра программы
+  MainApp.CheckAppRun;
+
+  //текуща€ дириктори€
+  CurrentDir := GetCurrentDir;
+
+  //запрет на изменение формы
+  Form1.BorderStyle := bsToolWindow;
+  Form1.BorderIcons :=  Form1.BorderIcons - [biMaximize];
+
+  SaveLog('start'+#9#9+'app');
+
+  //инициализаци€ тре€
+  TrayAppRun;
+
+  ViewClear;
+
+  LowRed := 0;
+  HighRed := LowRed;
+  LowGreen := LowRed;
+  HighGreen := LowRed;
+
+  ConfigSettings(true);
+
+  ConfigOPCServer(true);
+
+    OraDbInit;
+end;
+
+end.

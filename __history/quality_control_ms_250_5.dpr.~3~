@@ -1,0 +1,18 @@
+program quality_control_ms_250_5;
+
+uses
+  Vcl.Forms,
+  main in 'main.pas' {Form1},
+  sql_module in 'sql_module.pas' {DataModule1: TDataModule},
+  Thread in 'Thread.pas',
+  Chart in 'Chart.pas';
+
+{$R *.res}
+
+begin
+  Application.Initialize;
+  Application.MainFormOnTaskbar := True;
+  Application.CreateForm(TForm1, Form1);
+  Application.CreateForm(TDataModule1, DataModule1);
+  Application.Run;
+end.

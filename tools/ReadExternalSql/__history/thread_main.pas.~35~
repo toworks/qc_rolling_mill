@@ -1,0 +1,183 @@
+unit thread_main;
+
+interface
+
+uses
+  SysUtils, Classes, Windows, ActiveX, OPCAutomation_TLB, OleServer, Forms,
+  Vcl.Menus, Vcl.ActnPopup, ShellAPI;
+
+type
+  TThreadMain = class(TThread)
+
+
+  private
+    { Private declarations }
+  protected
+    procedure Execute; override;
+  end;
+
+var
+  ThreadMain: TThreadMain;
+  HeatLeftLast: string = '';
+  HeatRightLast: string = '';
+
+//  {$DEFINE DEBUG}
+
+  function ThreadMainInit: bool;
+  procedure WrapperMain;//обертка для синхронизации и выполнения с другим потоком
+  function SqlWorks: bool;
+  function ShowTrayMessage(InMessage: string): bool;
+  function GetHeatLast(InSide: integer): string;
+  function GetChemicalAnalysis(InHeat: string): bool;
+  function ReplaceComa(InData: string): string;
+
+
+implementation
+
+uses
+  main, logging, settings;
+
+
+
+procedure TThreadMain.Execute;
+begin
+  CoInitialize(nil);
+  while True do
+   begin
+      Synchronize(WrapperMain);
+      sleep(60000);
+   end;
+   CoUninitialize;
+end;
+
+
+function ThreadMainInit: bool;
+begin
+  //создаем поток
+  ThreadMain := TThreadMain.Create(False);
+  ThreadMain.Priority := tpNormal;
+  ThreadMain.FreeOnTerminate := True;
+end;
+
+
+procedure WrapperMain;
+begin
+  Application.ProcessMessages;//следующая операция не тормозит интерфейс
+
+  try
+    SqlWorks;
+  Except
+    SaveLog('error'+#9#9+'поток ThreadMain сломан');
+  end;
+end;
+
+
+function SqlWorks: bool;
+begin
+  if HeatLeftLast <> GetHeatLast(0) then
+   begin
+      HeatLeftLast := GetHeatLast(0);
+      GetChemicalAnalysis(HeatLeftLast);
+   end;
+
+  if HeatRightLast <> GetHeatLast(1) then
+   begin
+      HeatRightLast := GetHeatLast(1);
+      GetChemicalAnalysis(HeatRightLast);
+   end;
+end;
+
+
+function GetChemicalAnalysis(InHeat: string): bool;
+begin
+  form1.OraQuery1.FetchAll := true;
+  form1.OraQuery1.Close;
+  form1.OraQuery1.SQL.Clear;
+  form1.OraQuery1.SQL.Add('select DATE_IN_HIM, NPL, MST, GOST, C, MN, SI, S, CR, B');
+  form1.OraQuery1.SQL.Add('from him_steel');
+  form1.OraQuery1.SQL.Add('where DATE_IN_HIM<=sysdate');
+  form1.OraQuery1.SQL.Add('and DATE_IN_HIM>=sysdate-305'); //-- 305 = 10 month
+  form1.OraQuery1.SQL.Add('and NUMBER_TEST=''0''');
+  form1.OraQuery1.SQL.Add('and NPL in ('''+InHeat+''')');
+  form1.OraQuery1.SQL.Add('order by DATE_IN_HIM desc');
+  form1.OraQuery1.Open;
+
+  Settings.SQuery.Close;
+  Settings.SQuery.SQL.Clear;
+  Settings.SQuery.SQL.Add('CREATE TABLE IF NOT EXISTS chemical_it (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL UNIQUE');
+  Settings.SQuery.SQL.Add(', datetime DATETIME NOT NULL, heat VARCHAR(26) NOT NULL, grade VARCHAR(50) NOT NULL');
+  Settings.SQuery.SQL.Add(', standard VARCHAR(50), c REAL, mn REAL, si REAL, s REAL, cr REAL, b REAL)');
+  Settings.SQuery.ExecSQL;
+
+  //-- clean table chemical_it
+  SQuery.Close;
+  SQuery.SQL.Clear;
+  SQuery.SQL.Add('delete from chemical_it where datetime > date(''now'',''-305 day'')');
+  SQuery.ExecSQL;
+
+  SQuery.Close;
+  SQuery.SQL.Clear;
+  SQuery.SQL.Add('insert into chemical_it (datetime, heat, grade, standard');
+  SQuery.SQL.Add(', c, mn, si, s, cr, b)');
+{  SQuery.SQL.Add('values ('''+DateToStr(form1.OraQuery1.FieldByName('DATE_IN_HIM').AsDateTime)+'''');
+  SQuery.SQL.Add(', '''+form1.OraQuery1.FieldByName('NPL').AsString+'''');
+  SQuery.SQL.Add(', '''+form1.OraQuery1.FieldByName('MST').AsString+'''');
+  SQuery.SQL.Add(', '''+form1.OraQuery1.FieldByName('GOST').AsString+'''');
+  SQuery.SQL.Add(', '''+form1.OraQuery1.FieldByName('C').AsString+'''');
+  SQuery.SQL.Add(', '''+form1.OraQuery1.FieldByName('MN').AsString+'''');
+  SQuery.SQL.Add(', '''+form1.OraQuery1.FieldByName('SI').AsString+'''');
+  SQuery.SQL.Add(', '''+form1.OraQuery1.FieldByName('S').AsString+'''');
+  SQuery.SQL.Add(', '''+form1.OraQuery1.FieldByName('CR').AsString+'''');
+  SQuery.SQL.Add(', '''+form1.OraQuery1.FieldByName('B').AsString+''')');}
+
+  SQuery.SQL.Add('select '''+DateToStr(form1.OraQuery1.FieldByName('DATE_IN_HIM').AsDateTime)+'''');
+  SQuery.SQL.Add(', '''+form1.OraQuery1.FieldByName('NPL').AsString+'''');
+  SQuery.SQL.Add(', '''+form1.OraQuery1.FieldByName('MST').AsString+'''');
+  SQuery.SQL.Add(', '''+form1.OraQuery1.FieldByName('GOST').AsString+'''');
+  SQuery.SQL.Add(', '''+form1.OraQuery1.FieldByName('C').AsString+'''');
+  SQuery.SQL.Add(', '''+form1.OraQuery1.FieldByName('MN').AsString+'''');
+  SQuery.SQL.Add(', '''+form1.OraQuery1.FieldByName('SI').AsString+'''');
+  SQuery.SQL.Add(', '''+form1.OraQuery1.FieldByName('S').AsString+'''');
+  SQuery.SQL.Add(', '''+form1.OraQuery1.FieldByName('CR').AsString+'''');
+  SQuery.SQL.Add(', '''+form1.OraQuery1.FieldByName('B').AsString+'''');
+  SQuery.SQL.Add('Where not exists(select heat from chemical_it where heat='''+InHeat+''')');
+  SQuery.ExecSQL;
+
+  SaveLog('sql'+#9#9+'write'+#9+'heat -> '+InHeat);
+  ShowTrayMessage(InHeat);
+end;
+
+
+function GetHeatLast(InSide: integer): string;
+begin
+  Settings.SQuery.Close;
+  Settings.SQuery.SQL.Clear;
+  Settings.SQuery.SQL.Add('select heat from temperature');
+  Settings.SQuery.SQL.Add('where side='+inttostr(InSide)+'');
+  Settings.SQuery.SQL.Add('order by timestamp desc limit 1');
+  Settings.SQuery.Open;
+
+  {$IFDEF DEBUG}
+    SaveLog('debug'+#9#9+'heat -> '+Settings.SQuery.FieldByName('heat').AsString);
+    SaveLog('debug'+#9#9+'InSide -> '+inttostr(InSide));
+  {$ENDIF}
+
+  Result := Settings.SQuery.FieldByName('heat').AsString;
+end;
+
+
+function ShowTrayMessage(InMessage: string): bool;
+begin
+  form1.TrayIcon.BalloonHint := TimeToStr(NOW)+' '+InMessage;
+  form1.TrayIcon.ShowBalloonHint;
+end;
+
+
+function ReplaceComa(InData: string): string;
+begin
+  result := Trim(StringReplace(InData,'%',' ',[rfReplaceAll]));
+end;
+
+
+
+end.

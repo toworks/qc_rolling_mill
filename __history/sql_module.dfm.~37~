@@ -1,0 +1,85 @@
+object DataModule1: TDataModule1
+  OldCreateOrder = False
+  OnCreate = DataModuleCreate
+  Height = 245
+  Width = 334
+  object pFIBDatabase1: TpFIBDatabase
+    AutoReconnect = True
+    SQLDialect = 1
+    Timeout = 0
+    WaitForRestoreConnect = 0
+    Left = 32
+    Top = 16
+  end
+  object pFibErrorHandler1: TpFibErrorHandler
+    OnFIBErrorEvent = pFibErrorHandler1FIBErrorEvent
+    Left = 32
+    Top = 72
+  end
+  object pFIBDataSet1: TpFIBDataSet
+    Left = 272
+    Top = 16
+  end
+  object pFIBQuery1: TpFIBQuery
+    Transaction = pFIBTransaction1
+    Database = pFIBDatabase1
+    Left = 200
+    Top = 16
+  end
+  object pFIBTransaction1: TpFIBTransaction
+    DefaultDatabase = pFIBDatabase1
+    TimeoutAction = TACommit
+    TRParams.Strings = (
+      'write'
+      'isc_tpb_nowait'
+      'read_committed'
+      'rec_version')
+    TPBMode = tpbDefault
+    Left = 120
+    Top = 16
+  end
+  object OraSession1: TOraSession
+    LoginPrompt = False
+    Left = 24
+    Top = 168
+  end
+  object OraQuery1: TOraQuery
+    Left = 88
+    Top = 168
+  end
+  object ZConnection1: TZConnection
+    ControlsCodePage = cCP_UTF16
+    UTF8StringsAsWideField = True
+    Catalog = ''
+    Connected = True
+    HostName = 'krr-app-pamix01'
+    Port = 1433
+    Database = 'gsm_online'
+    User = 'gsmpmonline'
+    Password = 'gsmpmAMKRbof123456'
+    Protocol = 'FreeTDS_MsSQL>=2005'
+    LibraryLocation = 'C:\tmp\quality_control_ms_250_5\Win32\Release\msdblibr.dll'
+    Left = 192
+    Top = 176
+  end
+  object ZStoredProc1: TZStoredProc
+    Connection = ZConnection1
+    Params = <
+      item
+        DataType = ftString
+        Name = 'heat'
+        ParamType = ptInput
+        Value = '1'
+      end>
+    StoredProcName = 'dbo.multilab_test'
+    Left = 192
+    Top = 128
+    ParamData = <
+      item
+        DataType = ftString
+        Name = 'heat'
+        ParamType = ptInput
+        Value = '1'
+      end>
+  end
+end

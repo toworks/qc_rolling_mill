@@ -1,0 +1,125 @@
+unit sql;
+
+interface
+
+uses
+  SysUtils, Classes, Windows, ActiveX, DBAccess, Ora, ZAbstractDataset, ZDataset,
+  ZAbstractConnection, ZConnection, ZAbstractRODataset;
+
+type
+  TSql = class
+
+  private
+    { Private declarations }
+  protected
+
+  end;
+
+  TArray = array of array of variant;
+  TIdHeat = Record
+    tid           : integer;
+    Heat          : string[26]; // плавка
+    Grade         : string[50]; // марка стали
+    Section       : string[50]; // профиль
+    Standard      : string[50]; // стандарт
+    StrengthClass : string[50]; // клас прочности
+    c             : string[50];
+    mn            : string[50];
+    cr            : string[50];
+    si            : string[50];
+    b             : string[50];
+    ce            : string[50];
+    marker        : bool;
+  end;
+
+var
+  SqlService: TSql;
+  OraQuery: TOraQuery;
+  OraSession: TOraSession;
+  PConnect: TZConnection;
+  PQuery: TZQuery;
+  left, right: TIdHeat;
+
+//  {$DEFINE DEBUG}
+
+  function ConfigOracleSetting(InData: bool): bool;
+  function ConfigPostgresSetting(InData: bool): bool;
+
+
+implementation
+
+uses
+  settings, logging, main;
+
+
+
+function ConfigPostgresSetting(InData: bool): bool;
+begin
+  if InData then
+  begin
+    PConnect := TZConnection.Create(nil);
+    PQuery := TZQuery.Create(nil);
+
+    try
+        PConnect.LibraryLocation := CurrentDir + '\'+ PgSqlConfigArray[3];
+        PConnect.Protocol := 'postgresql-9';
+        PConnect.HostName := PgSqlConfigArray[1];
+        PConnect.Port := strtoint(PgSqlConfigArray[6]);
+        PConnect.User := PgSqlConfigArray[4];
+        PConnect.Password := PgSqlConfigArray[5];
+        PConnect.Database := PgSqlConfigArray[2];
+        PConnect.Connect;
+        PQuery.Connection := PConnect;
+    except
+      on E: Exception do
+        SaveLog('error' + #9#9 + E.ClassName + ', с сообщением: ' + E.Message);
+    end;
+  end
+  else
+  begin
+      FreeAndNil(PQuery);
+      FreeAndNil(PConnect);
+  end;
+end;
+
+
+function ConfigOracleSetting(InData: bool): bool;
+begin
+  if InData then
+  begin
+      try
+        OraSession := TOraSession.Create(nil);
+        OraQuery := TOraQuery.Create(nil);
+        OraSession.Username := OraSqlConfigArray[4];
+        OraSession.Password := OraSqlConfigArray[5];
+        OraSession.Server := OraSqlConfigArray[1]+':'+
+                              OraSqlConfigArray[2]+':'+
+                              OraSqlConfigArray[3];//'krr-sql13:1521:ovp68';
+        OraSession.Options.Direct := true;
+        OraSession.Options.DateFormat := 'DD.MM.RRRR';//формат даты дд.мм.гггг
+        OraSession.Options.Charset := 'CL8MSWIN1251';// 'AL32UTF8';//CL8MSWIN1251
+      //  OraSession.Options.UseUnicode := true;
+      except
+        on E: Exception do
+          SaveLog('error' + #9#9 + E.ClassName + ', с сообщением: ' + E.Message);
+      end;
+  end
+  else
+  begin
+        FreeAndNil(OraSession);
+        FreeAndNil(OraQuery);
+  end;
+end;
+
+// При загрузке программы класс будет создаваться
+initialization
+
+SqlService := TSql.Create;
+
+
+// При закрытии программы уничтожаться
+finalization
+
+SqlService.Destroy;
+
+end.

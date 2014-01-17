@@ -1,0 +1,135 @@
+unit tcp_send_read;
+
+interface
+
+uses
+  SysUtils, Classes, Windows, ActiveX, IdContext, IdCustomTCPServer,
+  IdTCPServer, IdBaseComponent, IdComponent, IdTCPConnection, IdTCPClient;
+
+type
+  TTcpWorks = class
+  procedure IdTCPServerExecute(AContext: TIdContext);
+
+
+  private
+    { Private declarations }
+  protected
+
+  end;
+
+var
+   TcpWorks: TTcpWorks;
+   IdTCPServer: TIdTCPServer;
+   IdTCPClient: TIdTCPClient;
+
+   //id для идентификации сообщения
+   IdMsg: string = 'Q0yiEOEf3QHdlmhxQFCFif7ArgmzQsdxqZvLl2r5KL4kebXx1BykPfaGzzVhCNFCYlRiTLtGWhcEFOte7Nl9X5rSfDUBbGeYyseW';
+
+//   {$DEFINE DEBUG}
+
+   function TcpConfig(InData: bool): bool;
+   function GetHeatChemicalAnalysis: string;
+   function SendHeatToChemicalAnalysis(InData: string): bool;
+
+
+
+implementation
+
+uses
+  main, settings, logging, sql;
+
+
+
+function TcpConfig(InData: bool): bool;
+begin
+  if InData then
+   begin
+    try
+        IdTCPServer := TIdTCPServer.Create(nil);
+        IdTCPServer.Bindings.Add.IP := '0.0.0.0';
+        IdTCPServer.Bindings.Add.Port := strtoint(TcpConfigArray[2]);
+        IdTCPServer.DefaultPort := strtoint(TcpConfigArray[2]);
+        IdTCPServer.OnExecute := TcpWorks.IdTCPServerExecute;
+        IdTCPServer.Active := true;
+
+        IdTCPClient := TIdTCPClient.Create(nil);
+        IdTCPClient.Host := TcpConfigArray[1];
+        IdTCPClient.Port := strtoint(TcpConfigArray[2]);
+
+        SaveLog('tcp'+#9#9+'start');
+
+    except
+      on E : Exception do
+        SaveLog('error'+#9#9+E.ClassName+', с сообщением: '+E.Message);
+    end;
+   end
+  else
+   begin
+    try
+        IdTCPServer.Active := false;
+        IdTCPClient.Free;
+        SaveLog('tcp'+#9#9+'stop');
+    except
+      on E : Exception do
+        SaveLog('error'+#9#9+E.ClassName+', с сообщением: '+E.Message);
+    end;
+   end;
+end;
+
+
+procedure TTcpWorks.IdTCPServerExecute(AContext: TIdContext);
+var
+  stream: TStringStream;
+  msg: string;
+begin
+  msg := AContext.Connection.IOHandler.ReadLn();
+
+  if  AnsiPos(IdMsg, msg) <> 0 then
+  begin
+      msg := StringReplace(msg, IdMsg, '', [rfReplaceAll]);
+      SaveLog('tcp'+#9#9+'recive'+#9+'Chemical Analysis -> '+msg);
+      SqlWriteCemicalAnalysis(msg);
+  end;
+end;
+
+function GetHeatChemicalAnalysis: string;
+begin
+  Settings.SQuery.Close;
+  Settings.SQuery.SQL.Clear;
+  Settings.SQuery.SQL.Add('SELECT timestamp, heat FROM chemical_analysis');
+  Settings.SQuery.SQL.Add('where timestamp IS NULL');
+  Settings.SQuery.SQL.Add('order by id asc LIMIT 1');
+  Settings.SQuery.Open;
+
+  SendHeatToChemicalAnalysis(Settings.SQuery.FieldByName('heat').AsString);
+end;
+
+
+function SendHeatToChemicalAnalysis(InData: string): bool;
+begin
+  try
+      if not InData.IsEmpty then
+      begin
+        IdTCPClient.Connect;
+        IdTCPClient.IOHandler.WriteLn(InData+IdMsg);
+        IdTCPClient.Disconnect;
+        SaveLog('tcp'+#9#9+'send'+#9+'heat -> '+InData);
+      end;
+  except
+    on E : Exception do
+      SaveLog('error'+#9#9+E.ClassName+', с сообщением: '+E.Message);
+  end;
+end;
+
+
+
+
+// При загрузке программы класс будет создаваться
+initialization
+  TcpWorks := TTcpWorks.Create;
+
+//При закрытии программы уничтожаться
+finalization
+  TcpWorks.Destroy;
+
+end.

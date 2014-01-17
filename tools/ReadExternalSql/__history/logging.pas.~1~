@@ -1,0 +1,70 @@
+unit Logging;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, OoMisc;
+
+
+  function SaveLog(InData: string): bool;
+//  function ReadLog: bool;
+
+
+implementation
+
+uses
+  main, chart, sql_module, thread_chart, thread_sql;
+
+
+
+//--| start |--
+function SaveLog(InData: string): bool;
+var
+   f: TextFile;
+begin
+    AssignFile(f, CurrentDir+'\'+LogFile);
+    if not FileExists(CurrentDir+'\'+LogFile) then
+     begin
+        Rewrite(f);
+        CloseFile(f);
+     end;
+
+    Append(f);
+
+    Writeln(f,DateTimeToStr(NOW)+#9+InData);
+
+    Flush(f);
+    CloseFile(f);
+
+//    form1.m_log.Lines.Add(DateTimeToStr(NOW)+#9+InData);
+{    form1.m_log.Lines.Insert(0,DateTimeToStr(NOW)+#9+InData);
+    form1.m_log.SelStart := 0;
+    form1.m_log.SelLength := 0;}
+end;
+{
+function ReadLog: bool;
+var
+  s: TStrings;
+  i: word;
+begin
+
+ if FileExists(CurrentDir+'\'+LogFile) then
+   begin
+      FileExists(CurrentDir+'\'+LogFile);
+      s := TStringList.Create;
+      s.LoadFromFile(CurrentDir+'\'+LogFile);
+      form1.m_log.Clear;
+      // вывод в обратном порядке
+      for i:= s.Count-1 downto 0 do
+          form1.m_log.Lines.Add(s[i]);
+
+      s.Free;
+      form1.m_log.SelStart := 0;
+      form1.m_log.SelLength := 0;
+  end;
+end;
+}
+
+
+end.

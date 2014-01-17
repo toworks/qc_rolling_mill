@@ -1,0 +1,15 @@
+object Service1: TService1
+  OldCreateOrder = False
+  OnCreate = ServiceCreate
+  DisplayName = 'Service1'
+  AfterInstall = ServiceAfterInstall
+  OnShutdown = ServiceShutdown
+  OnStart = ServiceStart
+  OnStop = ServiceStop
+  Height = 150
+  Width = 215
+  object DCOMConnection1: TDCOMConnection
+    Left = 56
+    Top = 16
+  end
+end

@@ -1,0 +1,62 @@
+unit Thread;
+
+interface
+
+uses
+  SysUtils, Classes, Windows, ActiveX;
+
+type
+  //Здесь необходимо описать класс TViewThread:
+  TViewThread = class(TThread)
+
+  private
+    { Private declarations }
+  protected
+    procedure Execute; override;
+  end;
+
+var
+  ViewThread: TViewThread;
+  function CheckThreadInit: bool;
+  procedure Wrapper;//обертка для синхронизации и выполнения с другим потоком
+
+
+
+implementation
+
+uses
+  main, sql_module, chart;
+
+
+
+
+procedure TViewThread.Execute;
+var
+  i:integer;
+  e:bool;
+begin
+  CoInitialize(nil);
+  while True do
+   begin
+
+      Synchronize(Wrapper);
+
+      sleep(10);//не лезет лишнее в сообщение
+   end;
+   CoUninitialize;
+end;
+
+
+function CheckThreadInit:bool;
+begin
+        //создаем поток
+        ViewThread:=TViewThread.Create(False);
+        ViewThread.Priority:=tpNormal;
+        ViewThread.FreeOnTerminate := True;
+//        CheckThread.Start;
+end;
+
+
+
+
+end.

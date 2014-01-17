@@ -1,0 +1,161 @@
+unit sql;
+
+interface
+
+uses
+  SysUtils, Classes, Windows, ActiveX, DBAccess, Ora, ZAbstractDataset, ZDataset,
+  ZAbstractConnection, ZConnection, ZAbstractRODataset;
+
+type
+  TSql = class
+
+  private
+    { Private declarations }
+  protected
+
+  end;
+
+var
+  SqlService: TSql;
+  OraQuery: TOraQuery;
+  OraSession: TOraSession;
+  PConnect: TZConnection;
+  PQuery: TZQuery;
+
+//  {$DEFINE DEBUG}
+
+  function ConfigOracleSetting(InData: bool): bool;
+  function ConfigPostgresSetting(InData: bool): bool;
+
+
+implementation
+
+uses
+  settings, logging, main, thread_calculated_data;
+
+
+
+function ConfigPostgresSetting(InData: bool): bool;
+begin
+  if InData then
+  begin
+    PConnect := TZConnection.Create(nil);
+    PQuery := TZQuery.Create(nil);
+
+    try
+        PConnect.LibraryLocation := CurrentDir + '\'+ PgSqlConfigArray[3];
+        PConnect.Protocol := 'postgresql-9';
+        PConnect.HostName := PgSqlConfigArray[1];
+        PConnect.Port := strtoint(PgSqlConfigArray[6]);
+        PConnect.User := PgSqlConfigArray[4];
+        PConnect.Password := PgSqlConfigArray[5];
+        PConnect.Database := PgSqlConfigArray[2];
+        PConnect.Connect;
+        PQuery.Connection := PConnect;
+    except
+      on E: Exception do
+        SaveLog('error' + #9#9 + E.ClassName + ', с сообщением: ' + E.Message);
+    end;
+  end
+  else
+  begin
+      FreeAndNil(PQuery);
+      FreeAndNil(PConnect);
+  end;
+end;
+
+
+function ConfigOracleSetting(InData: bool): bool;
+begin
+  if InData then
+  begin
+      try
+        OraSession := TOraSession.Create(nil);
+        OraQuery := TOraQuery.Create(nil);
+        OraSession.Username := OraSqlConfigArray[4];
+        OraSession.Password := OraSqlConfigArray[5];
+        OraSession.Server := OraSqlConfigArray[1]+':'+
+                              OraSqlConfigArray[2]+':'+
+                              OraSqlConfigArray[3];//'krr-sql13:1521:ovp68';
+        OraSession.Options.Direct := true;
+        OraSession.Options.DateFormat := 'DD.MM.RRRR';//формат даты дд.мм.гггг
+        OraSession.Options.Charset := 'CL8MSWIN1251';// 'AL32UTF8';//CL8MSWIN1251
+      //  OraSession.Options.UseUnicode := true;
+      except
+        on E: Exception do
+          SaveLog('error' + #9#9 + E.ClassName + ', с сообщением: ' + E.Message);
+      end;
+  end
+  else
+  begin
+        FreeAndNil(OraSession);
+        FreeAndNil(OraQuery);
+  end;
+end;
+
+
+function CalculatedData(InSide: integer; InData: string): bool;
+var
+  PQueryCalculatedData: TZQuery;
+  tid, heat: string;
+begin
+  PQueryCalculatedData := TZQuery.Create(nil);
+  PQueryCalculatedData.Connection := PConnect;
+
+  if InSide = 0 then
+    heat := left.Heat
+  else
+    heat := right.Heat;
+
+  PQueryCalculatedData.Close;
+  PQueryCalculatedData.sql.Clear;
+  PQueryCalculatedData.sql.Add('select tid FROM temperature_current');
+  PQueryCalculatedData.sql.Add('where heat=''' + heat + '''');
+  PQueryCalculatedData.sql.Add('and side=' + inttostr(InSide) + '');
+  PQueryCalculatedData.sql.Add('ORDER BY timestamp desc LIMIT 1');
+  PQueryCalculatedData.Open;
+
+  tid := PQueryCalculatedData.FieldByName('tid').AsString;
+
+  PQueryCalculatedData.Close;
+  PQueryCalculatedData.sql.Clear;
+  PQueryCalculatedData.sql.Add('select cid FROM calculated_data');
+  PQueryCalculatedData.sql.Add('where cid='+tid+'');
+  PQueryCalculatedData.Open;
+
+  if PQueryCalculatedData.FieldByName('cid').IsNull then
+  begin
+    PQueryCalculatedData.Close;
+    PQueryCalculatedData.sql.Clear;
+    PQueryCalculatedData.sql.Add('INSERT INTO calculated_data (cid)');
+    PQueryCalculatedData.sql.Add('VALUES ('+tid+')');
+    PQueryCalculatedData.ExecSQL;
+  end;
+//  else
+  begin
+    PQueryCalculatedData.Close;
+    PQueryCalculatedData.sql.Clear;
+    PQueryCalculatedData.sql.Add('UPDATE calculated_data SET ' + InData + '');
+    PQueryCalculatedData.sql.Add('where cid='+tid+'');
+    PQueryCalculatedData.ExecSQL;
+  end;
+
+  FreeAndNil(PQueryCalculatedData);
+
+end;
+
+
+
+
+// При загрузке программы класс будет создаваться
+initialization
+
+SqlService := TSql.Create;
+
+
+// При закрытии программы уничтожаться
+finalization
+
+SqlService.Destroy;
+
+end.

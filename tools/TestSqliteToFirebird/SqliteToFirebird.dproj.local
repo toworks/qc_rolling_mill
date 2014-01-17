@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<BorlandProject>
+	<Transactions>
+    <Transaction>1899.12.30 00:00:00.000.051,C:\Users\saarhipov.EUROPE\Documents\RAD Studio\Projects\SaveTemperature.dproj=C:\Users\saarhipov.EUROPE\Documents\RAD Studio\Projects\Project7.dproj</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.914,=C:\Users\saarhipov.EUROPE\Documents\RAD Studio\Projects\Unit8.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.719,=C:\Users\saarhipov.EUROPE\Documents\RAD Studio\Projects\Unit8.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.134,C:\tmp\qc_rolling_mill.git\tools\TestTemperature\SaveTemperature.dproj=C:\tmp\qc_rolling_mill.git\tools\TestSqliteToFirebird\SqliteToFirebird.dproj</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.167,C:\tmp\qc_rolling_mill.git\tools\TestSqliteToFirebird\Unit8.pas=C:\Users\saarhipov.EUROPE\Documents\RAD Studio\Projects\Unit8.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.167,C:\tmp\qc_rolling_mill.git\tools\TestSqliteToFirebird\Unit8.dfm=C:\Users\saarhipov.EUROPE\Documents\RAD Studio\Projects\Unit8.dfm</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.512,C:\tmp\qc_rolling_mill.git\tools\TestTemperature\SaveTemperature.dproj=C:\Users\saarhipov.EUROPE\Documents\RAD Studio\Projects\SaveTemperature.dproj</Transaction>
+  </Transactions>
+</BorlandProject>
