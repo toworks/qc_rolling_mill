@@ -1,0 +1,177 @@
+unit main;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ExtCtrls, Vcl.StdCtrls, Math, IdContext,
+  IdBaseComponent, IdComponent, IdTCPConnection, IdTCPServer;
+
+type
+  TForm1 = class(TForm)
+    Memo1: TMemo;
+
+    procedure IdTCPServerConnect(AContext: TIdContext);
+    procedure IdTCPServerExecute(AContext: TIdContext);
+    procedure FormCreate(Sender: TObject);
+
+
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+  Form1: TForm1;
+var
+  IdTCPServer: TIdTCPServer;
+
+  CurrentDir: string;
+  HeadName: string = 'Сервер - управление качеством MC 250-5';
+  Version: string = ' v0.0beta';
+  DBFile: string = 'data.sdb';
+  LogFile: string = 'app.log';
+  // id для идентификации сообщения
+  IdMsg: string = 'Q0yiEOEf3QHdlmhxQFCFif7ArgmzQsdxqZvLl2r5KL4kebXx1BykPfaGzzVhCNFCYlRiTLtGWhcEFOte7Nl9X5rSfDUBbGeYyseW';
+  msg_send: string = '';
+
+  function Send: bool;
+
+type
+ сlient = record
+  clIP:String;//ip клиента
+  Con:TIdContext;
+  Used:boolean//занят слот или нет
+ end;
+
+var
+  clients: array [1..2] of сlient;//на 50 клиентов
+
+implementation
+
+uses
+  settings, sql, logging;
+
+{$R *.dfm}
+
+
+
+procedure TForm1.FormCreate(Sender: TObject);
+begin
+
+  CurrentDir := GetCurrentDir;
+  ConfigSettings(true);
+  ConfigFirebirdSetting(true);
+
+
+   try
+      IdTCPServer := TIdTCPServer.Create(nil);
+      IdTCPServer.Bindings.Add.IP := '0.0.0.0';
+      IdTCPServer.Bindings.Add.Port := strtoint('33333');
+      IdTCPServer.DefaultPort := strtoint('33333');
+      IdTCPServer.OnExecute := IdTCPServerExecute;
+      IdTCPServer.OnConnect := IdTCPServerConnect;
+      IdTCPServer.Active := true;
+    except
+      on E: Exception do
+        SaveLog('error' + #9#9 + E.ClassName + ', с сообщением: ' + E.Message);
+    end;
+end;
+
+
+procedure TForm1.IdTCPServerConnect(AContext: TIdContext);
+var
+  stream: TStringStream;
+  msg: string;
+  i: integer;
+begin
+{//    msg := inttostr(RandomRange(250, 1300));
+    form1.Memo1.Lines.Add(msg+#9+'send');
+//    form1.Memo1.SelStart := 0;
+          try
+            // поток чтобы избежать проблемы с кодировкой
+            stream := TStringStream.Create;
+    //        msg.WriteString(InData+#9+datetimetostr(now)+IdMsg); // запись сообщения в поток
+            stream.WriteString(msg+IdMsg); // запись сообщения в поток
+            stream.Position := 0; // установка позиция на начало потока
+            AContext.Connection.IOHandler.Write(stream, stream.Size, true);
+          finally
+            stream.Free;
+            AContext.Connection.Disconnect;
+          end;
+ }
+
+ for i:=1 to High(clients) do
+  if not clients[i].Used then //если не занят слот
+   begin
+    clients[i].clIP:=AContext.Connection.Socket.Binding.PeerIP;
+    clients[i].Con:=AContext;
+    clients[i].Used := true;//слот занят
+   form1.Memo1.Lines.Add('tcp'+#9+'connect -> '+clients[i].clIP);
+   end;
+
+end;
+
+
+procedure TForm1.IdTCPServerExecute(AContext: TIdContext);
+var
+  stream: TStringStream;
+  msg: string;
+begin
+  try
+    stream := TStringStream.Create;
+    AContext.Connection.IOHandler.ReadStream(stream);
+    // чтение из контекста в поток
+    stream.Position := 0; // установка позиция на начало потока
+    msg := stream.ReadString(stream.Size);
+  finally
+    stream.Free;
+  end;
+
+  if AnsiPos(IdMsg, msg) <> 0 then
+  begin
+    msg := StringReplace(msg, IdMsg, '', [rfReplaceAll]);
+    form1.Memo1.Lines.Add(msg);
+    msg_send := msg;
+  end
+  else
+  begin
+      msg_send := '';
+  end;
+end;
+
+
+function Send: bool;
+var
+  stream: TStringStream;
+  i: integer;
+begin
+         try
+            // поток чтобы избежать проблемы с кодировкой
+            stream := TStringStream.Create;
+    //        msg.WriteString(InData+#9+datetimetostr(now)+IdMsg); // запись сообщения в поток
+            stream.WriteString(msg_send+IdMsg); // запись сообщения в поток
+            stream.Position := 0; // установка позиция на начало потока
+
+                for i := 1 to High(clients) do
+                begin
+                if clients[i].Used and (clients[i].clIP = '10.21.69.21') then
+                begin
+                  try
+                    form1.Memo1.Lines.Add('send ip -> '+clients[i].clIP);
+                    clients[i].Con.Connection.IOHandler.Write(stream, stream.Size, true);
+                  finally
+                     clients[i].Con.Connection.Disconnect;
+                  end;
+                end;
+                end;
+//            AContext.Connection.IOHandler.Write(stream, stream.Size, true);
+          finally
+            stream.Free;
+//            AContext.Connection.Disconnect;
+          end;
+end;
+
+
+end.

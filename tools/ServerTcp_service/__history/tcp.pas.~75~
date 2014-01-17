@@ -1,0 +1,178 @@
+unit tcp;
+
+interface
+
+uses
+  Windows, SysUtils, Classes, IdContext, IdBaseComponent, IdComponent, IdTCPConnection,
+  IdTCPServer, FIBQuery, pFIBQuery;
+
+type
+  TTcpWorks = class
+    procedure IdTCPServerExecute(AContext: TIdContext);
+
+  private
+    { Private declarations }
+  protected
+
+  end;
+
+var
+  TcpWorks: TTcpWorks;
+  IdTCPServer: TIdTCPServer;
+  // id для идентификации сообщения
+  IdMsg: string = '70xZv3jlnS9KrrCHxXO44I10NKaFfvjXlVhYYugdprEIT8QgVG';
+
+//  {$DEFINE DEBUG}
+
+  function ConfigTcpSetting(InData: bool): bool;
+  function SqlWriteTemperature(InData: string): bool;
+
+implementation
+
+uses
+  settings, sql, logging;
+
+
+function ConfigTcpSetting(InData: bool): bool;
+begin
+  if InData then
+  begin
+      try
+        IdTCPServer := TIdTCPServer.Create(nil);
+        IdTCPServer.Bindings.Add.IP := '0.0.0.0';
+        IdTCPServer.Bindings.Add.Port := strtoint(TcpConfigArray[2]);
+        IdTCPServer.DefaultPort := strtoint(TcpConfigArray[2]);
+        IdTCPServer.OnExecute := TcpWorks.IdTCPServerExecute;
+        IdTCPServer.Active := true;
+      except
+        on E: Exception do
+          SaveLog('error' + #9#9 + E.ClassName + ', с сообщением: ' + E.Message);
+      end;
+  end
+  else
+      IdTCPServer.Free;
+end;
+
+
+procedure TTcpWorks.IdTCPServerExecute(AContext: TIdContext);
+var
+  stream: TStringStream;
+  msg: string;
+begin
+  try
+    stream := TStringStream.Create;
+    AContext.Connection.IOHandler.ReadStream(stream);
+    // чтение из контекста в поток
+    stream.Position := 0; // установка позиция на начало потока
+    msg := stream.ReadString(stream.Size);
+  finally
+    stream.Free;
+  end;
+  if AnsiPos(IdMsg, msg) <> 0 then
+  begin
+    msg := StringReplace(msg, IdMsg, '', [rfReplaceAll]);
+//    SaveLog('tcp'+#9#9+' data -> '+msg);
+    try
+        SqlWriteTemperature(msg);
+        except
+      on E: Exception do
+        SaveLog('error' + #9#9 + E.ClassName + ', с сообщением: ' + E.Message);
+    end;
+  end;
+end;
+
+
+function SqlWriteTemperature(InData: string): bool;
+var
+  str: TStringList;
+  FQuery: TFIBQuery;
+begin
+  try
+      FQuery := TpFIBQuery.Create(nil);
+      FQuery.Database := pFIBDatabase1;
+      FQuery.Transaction := pFIBTransaction1;
+  except
+    on E: Exception do
+      SaveLog('error' + #9#9 + E.ClassName + ', с сообщением: ' + E.Message);
+  end;
+
+  try
+    FQuery.Close;
+    FQuery.SQL.Clear;
+    FQuery.SQL.Add('select FIRST 1 * from qc_temperature');
+    FQuery.ExecQuery;
+  except
+    FQuery.Close;
+    FQuery.SQL.Clear;
+    FQuery.SQL.Add('EXECUTE BLOCK AS BEGIN');
+    FQuery.SQL.Add('if (not exists(select 1 from rdb$relations where rdb$relation_name = ''qc_temperature'')) then');
+    FQuery.SQL.Add('execute statement ''create table qc_temperature (');
+    FQuery.SQL.Add('id NUMERIC(18,0) NOT NULL, DATETIME TIMESTAMP NOT NULL,');
+    FQuery.SQL.Add('heat VARCHAR(26) NOT NULL, grade VARCHAR(50),');
+    FQuery.SQL.Add('strength_class VARCHAR(50), section VARCHAR(50),');
+    FQuery.SQL.Add('standard VARCHAR(50), side integer NOT NULL, temperature integer,');
+    FQuery.SQL.Add('PRIMARY KEY (id));'';');
+    FQuery.SQL.Add('execute statement ''CREATE SEQUENCE gen_qc_temperature;'';');
+    FQuery.SQL.Add('END');
+    FQuery.ExecQuery;
+    FQuery.Transaction.Commit;
+  end;
+
+  try
+      // чистим таблицу от старых данных
+      FQuery.Close;
+      FQuery.SQL.Clear;
+      // удаляем записи старше 10 месяцев (300 дней)
+      FQuery.SQL.Add('DELETE FROM qc_temperature where');
+      FQuery.SQL.Add('datetime < current_timestamp-300');
+      FQuery.ExecQuery;
+      FQuery.Transaction.Commit;
+  except
+    on E: Exception do
+      SaveLog('error' + #9#9 + E.ClassName + ', с сообщением: ' + E.Message);
+  end;
+
+  str := TStringList.Create;
+  str.Text := StringReplace(InData, '|', #13#10, [rfReplaceAll]);
+
+{$IFDEF DEBUG}
+  for i := 0 to str.Count - 1 do
+  begin
+  SaveLog('debug'+#9#9+inttostr(i)+' -> ' + str.Strings[i]);
+  end;
+{$ENDIF}
+
+  try
+      FQuery.Close;
+      FQuery.SQL.Clear;
+      FQuery.SQL.Add('insert INTO qc_temperature');
+      FQuery.SQL.Add('(id, datetime, heat, grade, strength_class, section, standard, side, temperature)');
+      FQuery.SQL.Add('values(GEN_ID(gen_qc_temperature, 1), current_timestamp,');
+      FQuery.SQL.Add(''''+str.Strings[0]+''', '''+str.Strings[1]+''', '''+str.Strings[2]+''',');
+      FQuery.SQL.Add(''+str.Strings[3]+', '''+str.Strings[4]+''', '+str.Strings[5]+',');
+      FQuery.SQL.Add(''+str.Strings[6]+')');
+{$IFDEF DEBUG}
+  SaveLog('debug' + #9#9 + 'FQuery side -> ' + FQuery.SQL.Text);
+{$ENDIF}
+      FQuery.ExecQuery;
+      FQuery.Transaction.Commit;
+    except
+      on E: Exception do
+        SaveLog('error' + #9#9 + E.ClassName + ', с сообщением: ' + E.Message);
+    end;
+
+  FQuery.Free;
+  str.Free;
+end;
+
+
+
+// При загрузке программы класс будет создаваться
+initialization
+  TcpWorks := TTcpWorks.Create;
+
+//При закрытии программы уничтожаться
+finalization
+  TcpWorks.Destroy;
+
+end.

@@ -1,0 +1,82 @@
+unit main;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ExtCtrls, Vcl.StdCtrls, Math, IdContext,
+  IdBaseComponent, IdComponent, IdTCPConnection, IdTCPServer;
+
+type
+  TForm1 = class(TForm)
+    Memo1: TMemo;
+
+    procedure IdTCPServerExecute(AContext: TIdContext);
+    procedure FormCreate(Sender: TObject);
+
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+  Form1: TForm1;
+var
+
+  IdTCPServer: TIdTCPServer;
+  // id для идентификации сообщения
+  IdMsg: string = 'Q0yiEOEf3QHdlmhxQFCFif7ArgmzQsdxqZvLl2r5KL4kebXx1BykPfaGzzVhCNFCYlRiTLtGWhcEFOte7Nl9X5rSfDUBbGeYyseW';
+
+
+implementation
+
+uses
+  settings, sql, logging;
+
+{$R *.dfm}
+
+
+
+procedure TForm1.FormCreate(Sender: TObject);
+begin
+   try
+      IdTCPServer := TIdTCPServer.Create(nil);
+      IdTCPServer.Bindings.Add.IP := '0.0.0.0';
+      IdTCPServer.Bindings.Add.Port := strtoint('33333');
+      IdTCPServer.DefaultPort := strtoint('33333');
+      IdTCPServer.OnExecute := IdTCPServerExecute;
+      IdTCPServer.Active := true;
+    except
+      on E: Exception do
+        SHOWMESSAGE('error' + #9#9 + E.ClassName + ', с сообщением: ' + E.Message);
+    end;
+end;
+
+
+procedure TForm1.IdTCPServerExecute(AContext: TIdContext);
+var
+  stream: TStringStream;
+  msg: string;
+begin
+  try
+    stream := TStringStream.Create;
+    AContext.Connection.IOHandler.ReadStream(stream);
+    // чтение из контекста в поток
+    stream.Position := 0; // установка позиция на начало потока
+    msg := stream.ReadString(stream.Size);
+  finally
+    stream.Free;
+  end;
+
+  if AnsiPos(IdMsg, msg) <> 0 then
+  begin
+    msg := StringReplace(msg, IdMsg, '', [rfReplaceAll]);
+    form1.Memo1.Lines.Add(msg);
+    form1.Memo1.SelStart := 0;
+  end;
+end;
+
+
+
+end.

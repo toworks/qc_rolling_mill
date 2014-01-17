@@ -1,0 +1,320 @@
+01.10.2013 15:49:06	debug		InTempLeft -> 537
+01.10.2013 15:49:06	debug		InTempRight -> 537
+01.10.2013 15:49:06	debug		FQueryOPC side 0 -> insert INTO qc_temperature
+(id, datetime, heat, grade, strength_class, section, standard, side, temperature)
+select FIRST 1 GEN_ID(gen_qc_temperature, 1), current_timestamp,
+NOPLAV, MARKA, KLASS, RAZM1, STANDART, SIDE,
+537
+FROM melts
+where side=0
+order by begindt desc
+
+01.10.2013 15:49:07	debug		FQueryOPC side 1 -> insert INTO qc_temperature
+(id, datetime, heat, grade, strength_class, section, standard, side, temperature)
+select FIRST 1 GEN_ID(gen_qc_temperature, 1), current_timestamp,
+NOPLAV, MARKA, KLASS, RAZM1, STANDART, SIDE,
+537
+FROM melts
+where side=1
+order by begindt desc
+
+01.10.2013 15:49:07	debug		InTempLeft -> 949
+01.10.2013 15:49:07	debug		InTempRight -> 949
+01.10.2013 15:49:07	debug		FQueryOPC side 0 -> insert INTO qc_temperature
+(id, datetime, heat, grade, strength_class, section, standard, side, temperature)
+select FIRST 1 GEN_ID(gen_qc_temperature, 1), current_timestamp,
+NOPLAV, MARKA, KLASS, RAZM1, STANDART, SIDE,
+949
+FROM melts
+where side=0
+order by begindt desc
+
+01.10.2013 15:49:08	debug		FQueryOPC side 1 -> insert INTO qc_temperature
+(id, datetime, heat, grade, strength_class, section, standard, side, temperature)
+select FIRST 1 GEN_ID(gen_qc_temperature, 1), current_timestamp,
+NOPLAV, MARKA, KLASS, RAZM1, STANDART, SIDE,
+949
+FROM melts
+where side=1
+order by begindt desc
+
+01.10.2013 15:49:08	debug		InTempLeft -> 601
+01.10.2013 15:49:08	debug		InTempRight -> 601
+01.10.2013 15:49:09	debug		FQueryOPC side 0 -> insert INTO qc_temperature
+(id, datetime, heat, grade, strength_class, section, standard, side, temperature)
+select FIRST 1 GEN_ID(gen_qc_temperature, 1), current_timestamp,
+NOPLAV, MARKA, KLASS, RAZM1, STANDART, SIDE,
+601
+FROM melts
+where side=0
+order by begindt desc
+
+01.10.2013 15:49:09	debug		FQueryOPC side 1 -> insert INTO qc_temperature
+(id, datetime, heat, grade, strength_class, section, standard, side, temperature)
+select FIRST 1 GEN_ID(gen_qc_temperature, 1), current_timestamp,
+NOPLAV, MARKA, KLASS, RAZM1, STANDART, SIDE,
+601
+FROM melts
+where side=1
+order by begindt desc
+
+01.10.2013 15:49:09	debug		InTempLeft -> 1012
+01.10.2013 15:49:09	debug		InTempRight -> 1012
+01.10.2013 15:49:10	debug		FQueryOPC side 0 -> insert INTO qc_temperature
+(id, datetime, heat, grade, strength_class, section, standard, side, temperature)
+select FIRST 1 GEN_ID(gen_qc_temperature, 1), current_timestamp,
+NOPLAV, MARKA, KLASS, RAZM1, STANDART, SIDE,
+1012
+FROM melts
+where side=0
+order by begindt desc
+
+01.10.2013 15:49:10	debug		FQueryOPC side 1 -> insert INTO qc_temperature
+(id, datetime, heat, grade, strength_class, section, standard, side, temperature)
+select FIRST 1 GEN_ID(gen_qc_temperature, 1), current_timestamp,
+NOPLAV, MARKA, KLASS, RAZM1, STANDART, SIDE,
+1012
+FROM melts
+where side=1
+order by begindt desc
+
+01.10.2013 15:49:10	debug		InTempLeft -> 959
+01.10.2013 15:49:10	debug		InTempRight -> 959
+01.10.2013 15:49:11	debug		FQueryOPC side 0 -> insert INTO qc_temperature
+(id, datetime, heat, grade, strength_class, section, standard, side, temperature)
+select FIRST 1 GEN_ID(gen_qc_temperature, 1), current_timestamp,
+NOPLAV, MARKA, KLASS, RAZM1, STANDART, SIDE,
+959
+FROM melts
+where side=0
+order by begindt desc
+
+01.10.2013 15:49:11	debug		FQueryOPC side 1 -> insert INTO qc_temperature
+(id, datetime, heat, grade, strength_class, section, standard, side, temperature)
+select FIRST 1 GEN_ID(gen_qc_temperature, 1), current_timestamp,
+NOPLAV, MARKA, KLASS, RAZM1, STANDART, SIDE,
+959
+FROM melts
+where side=1
+order by begindt desc
+
+01.10.2013 15:49:11	debug		InTempLeft -> 659
+01.10.2013 15:49:11	debug		InTempRight -> 659
+01.10.2013 15:49:12	debug		FQueryOPC side 0 -> insert INTO qc_temperature
+(id, datetime, heat, grade, strength_class, section, standard, side, temperature)
+select FIRST 1 GEN_ID(gen_qc_temperature, 1), current_timestamp,
+NOPLAV, MARKA, KLASS, RAZM1, STANDART, SIDE,
+659
+FROM melts
+where side=0
+order by begindt desc
+
+01.10.2013 15:49:12	debug		FQueryOPC side 1 -> insert INTO qc_temperature
+(id, datetime, heat, grade, strength_class, section, standard, side, temperature)
+select FIRST 1 GEN_ID(gen_qc_temperature, 1), current_timestamp,
+NOPLAV, MARKA, KLASS, RAZM1, STANDART, SIDE,
+659
+FROM melts
+where side=1
+order by begindt desc
+
+01.10.2013 15:49:12	debug		InTempLeft -> 328
+01.10.2013 15:49:13	debug		InTempRight -> 328
+01.10.2013 15:49:13	debug		FQueryOPC side 0 -> insert INTO qc_temperature
+(id, datetime, heat, grade, strength_class, section, standard, side, temperature)
+select FIRST 1 GEN_ID(gen_qc_temperature, 1), current_timestamp,
+NOPLAV, MARKA, KLASS, RAZM1, STANDART, SIDE,
+328
+FROM melts
+where side=0
+order by begindt desc
+
+01.10.2013 15:49:13	debug		FQueryOPC side 1 -> insert INTO qc_temperature
+(id, datetime, heat, grade, strength_class, section, standard, side, temperature)
+select FIRST 1 GEN_ID(gen_qc_temperature, 1), current_timestamp,
+NOPLAV, MARKA, KLASS, RAZM1, STANDART, SIDE,
+328
+FROM melts
+where side=1
+order by begindt desc
+
+01.10.2013 15:49:14	debug		InTempLeft -> 1009
+01.10.2013 15:49:14	debug		InTempRight -> 1009
+01.10.2013 15:49:14	debug		FQueryOPC side 0 -> insert INTO qc_temperature
+(id, datetime, heat, grade, strength_class, section, standard, side, temperature)
+select FIRST 1 GEN_ID(gen_qc_temperature, 1), current_timestamp,
+NOPLAV, MARKA, KLASS, RAZM1, STANDART, SIDE,
+1009
+FROM melts
+where side=0
+order by begindt desc
+
+01.10.2013 15:49:14	debug		FQueryOPC side 1 -> insert INTO qc_temperature
+(id, datetime, heat, grade, strength_class, section, standard, side, temperature)
+select FIRST 1 GEN_ID(gen_qc_temperature, 1), current_timestamp,
+NOPLAV, MARKA, KLASS, RAZM1, STANDART, SIDE,
+1009
+FROM melts
+where side=1
+order by begindt desc
+
+01.10.2013 15:49:15	debug		InTempLeft -> 875
+01.10.2013 15:49:15	debug		InTempRight -> 875
+01.10.2013 15:49:15	debug		FQueryOPC side 0 -> insert INTO qc_temperature
+(id, datetime, heat, grade, strength_class, section, standard, side, temperature)
+select FIRST 1 GEN_ID(gen_qc_temperature, 1), current_timestamp,
+NOPLAV, MARKA, KLASS, RAZM1, STANDART, SIDE,
+875
+FROM melts
+where side=0
+order by begindt desc
+
+01.10.2013 15:49:15	debug		FQueryOPC side 1 -> insert INTO qc_temperature
+(id, datetime, heat, grade, strength_class, section, standard, side, temperature)
+select FIRST 1 GEN_ID(gen_qc_temperature, 1), current_timestamp,
+NOPLAV, MARKA, KLASS, RAZM1, STANDART, SIDE,
+875
+FROM melts
+where side=1
+order by begindt desc
+
+01.10.2013 15:49:16	debug		InTempLeft -> 1216
+01.10.2013 15:49:16	debug		InTempRight -> 1216
+01.10.2013 15:49:16	debug		FQueryOPC side 0 -> insert INTO qc_temperature
+(id, datetime, heat, grade, strength_class, section, standard, side, temperature)
+select FIRST 1 GEN_ID(gen_qc_temperature, 1), current_timestamp,
+NOPLAV, MARKA, KLASS, RAZM1, STANDART, SIDE,
+1216
+FROM melts
+where side=0
+order by begindt desc
+
+01.10.2013 15:49:16	debug		FQueryOPC side 1 -> insert INTO qc_temperature
+(id, datetime, heat, grade, strength_class, section, standard, side, temperature)
+select FIRST 1 GEN_ID(gen_qc_temperature, 1), current_timestamp,
+NOPLAV, MARKA, KLASS, RAZM1, STANDART, SIDE,
+1216
+FROM melts
+where side=1
+order by begindt desc
+
+01.10.2013 15:49:17	debug		InTempLeft -> 969
+01.10.2013 15:49:17	debug		InTempRight -> 969
+01.10.2013 15:49:17	debug		FQueryOPC side 0 -> insert INTO qc_temperature
+(id, datetime, heat, grade, strength_class, section, standard, side, temperature)
+select FIRST 1 GEN_ID(gen_qc_temperature, 1), current_timestamp,
+NOPLAV, MARKA, KLASS, RAZM1, STANDART, SIDE,
+969
+FROM melts
+where side=0
+order by begindt desc
+
+01.10.2013 15:49:17	debug		FQueryOPC side 1 -> insert INTO qc_temperature
+(id, datetime, heat, grade, strength_class, section, standard, side, temperature)
+select FIRST 1 GEN_ID(gen_qc_temperature, 1), current_timestamp,
+NOPLAV, MARKA, KLASS, RAZM1, STANDART, SIDE,
+969
+FROM melts
+where side=1
+order by begindt desc
+
+01.10.2013 15:49:18	debug		InTempLeft -> 337
+01.10.2013 15:49:18	debug		InTempRight -> 337
+01.10.2013 15:49:18	debug		FQueryOPC side 0 -> insert INTO qc_temperature
+(id, datetime, heat, grade, strength_class, section, standard, side, temperature)
+select FIRST 1 GEN_ID(gen_qc_temperature, 1), current_timestamp,
+NOPLAV, MARKA, KLASS, RAZM1, STANDART, SIDE,
+337
+FROM melts
+where side=0
+order by begindt desc
+
+01.10.2013 15:49:18	debug		FQueryOPC side 1 -> insert INTO qc_temperature
+(id, datetime, heat, grade, strength_class, section, standard, side, temperature)
+select FIRST 1 GEN_ID(gen_qc_temperature, 1), current_timestamp,
+NOPLAV, MARKA, KLASS, RAZM1, STANDART, SIDE,
+337
+FROM melts
+where side=1
+order by begindt desc
+
+01.10.2013 15:49:19	debug		InTempLeft -> 791
+01.10.2013 15:49:19	debug		InTempRight -> 791
+01.10.2013 15:49:19	debug		FQueryOPC side 0 -> insert INTO qc_temperature
+(id, datetime, heat, grade, strength_class, section, standard, side, temperature)
+select FIRST 1 GEN_ID(gen_qc_temperature, 1), current_timestamp,
+NOPLAV, MARKA, KLASS, RAZM1, STANDART, SIDE,
+791
+FROM melts
+where side=0
+order by begindt desc
+
+01.10.2013 15:49:19	debug		FQueryOPC side 1 -> insert INTO qc_temperature
+(id, datetime, heat, grade, strength_class, section, standard, side, temperature)
+select FIRST 1 GEN_ID(gen_qc_temperature, 1), current_timestamp,
+NOPLAV, MARKA, KLASS, RAZM1, STANDART, SIDE,
+791
+FROM melts
+where side=1
+order by begindt desc
+
+01.10.2013 15:49:20	debug		InTempLeft -> 350
+01.10.2013 15:49:20	debug		InTempRight -> 350
+01.10.2013 15:49:20	debug		FQueryOPC side 0 -> insert INTO qc_temperature
+(id, datetime, heat, grade, strength_class, section, standard, side, temperature)
+select FIRST 1 GEN_ID(gen_qc_temperature, 1), current_timestamp,
+NOPLAV, MARKA, KLASS, RAZM1, STANDART, SIDE,
+350
+FROM melts
+where side=0
+order by begindt desc
+
+01.10.2013 15:49:20	debug		FQueryOPC side 1 -> insert INTO qc_temperature
+(id, datetime, heat, grade, strength_class, section, standard, side, temperature)
+select FIRST 1 GEN_ID(gen_qc_temperature, 1), current_timestamp,
+NOPLAV, MARKA, KLASS, RAZM1, STANDART, SIDE,
+350
+FROM melts
+where side=1
+order by begindt desc
+
+01.10.2013 15:49:21	debug		InTempLeft -> 505
+01.10.2013 15:49:21	debug		InTempRight -> 505
+01.10.2013 15:49:21	debug		FQueryOPC side 0 -> insert INTO qc_temperature
+(id, datetime, heat, grade, strength_class, section, standard, side, temperature)
+select FIRST 1 GEN_ID(gen_qc_temperature, 1), current_timestamp,
+NOPLAV, MARKA, KLASS, RAZM1, STANDART, SIDE,
+505
+FROM melts
+where side=0
+order by begindt desc
+
+01.10.2013 15:49:21	debug		FQueryOPC side 1 -> insert INTO qc_temperature
+(id, datetime, heat, grade, strength_class, section, standard, side, temperature)
+select FIRST 1 GEN_ID(gen_qc_temperature, 1), current_timestamp,
+NOPLAV, MARKA, KLASS, RAZM1, STANDART, SIDE,
+505
+FROM melts
+where side=1
+order by begindt desc
+
+01.10.2013 15:49:22	debug		InTempLeft -> 642
+01.10.2013 15:49:22	debug		InTempRight -> 642
+01.10.2013 15:49:22	debug		FQueryOPC side 0 -> insert INTO qc_temperature
+(id, datetime, heat, grade, strength_class, section, standard, side, temperature)
+select FIRST 1 GEN_ID(gen_qc_temperature, 1), current_timestamp,
+NOPLAV, MARKA, KLASS, RAZM1, STANDART, SIDE,
+642
+FROM melts
+where side=0
+order by begindt desc
+
+01.10.2013 15:49:22	debug		FQueryOPC side 1 -> insert INTO qc_temperature
+(id, datetime, heat, grade, strength_class, section, standard, side, temperature)
+select FIRST 1 GEN_ID(gen_qc_temperature, 1), current_timestamp,
+NOPLAV, MARKA, KLASS, RAZM1, STANDART, SIDE,
+642
+FROM melts
+where side=1
+order by begindt desc
+
