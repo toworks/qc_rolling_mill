@@ -1,8 +1,0 @@
-object Service8: TService8
-  OldCreateOrder = False
-  DisplayName = 'Service8'
-  AfterInstall = ServiceAfterInstall
-  AfterUninstall = ServiceAfterUninstall
-  Height = 150
-  Width = 215
-end
