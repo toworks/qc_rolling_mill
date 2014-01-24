@@ -1,9 +1,0 @@
-object Module: TModule
-  OldCreateOrder = False
-  Height = 171
-  Width = 208
-  object TrayIcon: TTrayIcon
-    Left = 160
-    Top = 120
-  end
-end

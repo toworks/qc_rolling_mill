@@ -1,0 +1,135 @@
+unit sql_module;
+
+interface
+
+uses
+  System.SysUtils, System.Classes, Messages, Windows, Graphics, Dialogs, FIB, FIBQuery, pFIBQuery,
+  FIBDatabase, pFIBDatabase, pFIBErrorHandler, Data.DB, FIBDataSet, pFIBDataSet,
+  Data.Win.ADODB, MemDS, DBAccess, Ora, Vcl.ExtCtrls;
+
+type
+  TModule = class(TDataModule)
+    pFIBDatabase1: TpFIBDatabase;
+    pFIBDataSet1: TpFIBDataSet;
+    pFIBQuery1: TpFIBQuery;
+    pFIBTransaction1: TpFIBTransaction;
+    OraSession1: TOraSession;
+    OraQuery1: TOraQuery;
+
+
+    procedure DataModuleCreate(Sender: TObject);
+
+
+
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+    Module: TModule;
+    pFIBQueryCalculation: TpFIBQuery;
+
+//    {$DEFINE DEBUG}
+
+    function FbInit: bool;
+    function OraDbInit: bool;
+
+
+implementation
+
+uses
+  main, logging, settings;
+
+{%CLASSGROUP 'Vcl.Controls.TControl'}
+
+{$R *.dfm}
+
+
+
+
+
+
+function FbInit: bool;
+begin
+
+{    Module.pFIBDatabase1.LibraryName := '.\fbclient.dll';
+    Module.pFIBDatabase1.DBName := 'localhost:c:\tmp\mc_250-5\Ms250-5.fdb';
+    Module.pFIBDatabase1.ConnectParams.UserName := 'sysdba';
+    Module.pFIBDatabase1.ConnectParams.Password := 'masterkey';
+    Module.pFIBDatabase1.SQLDialect := 3;
+    Module.pFIBDatabase1.UseLoginPrompt := false;
+    Module.pFIBDatabase1.Timeout := 0;
+    Module.pFIBDatabase1.Connected := true;
+    Module.pFIBTransaction1.Active := false;
+    Module.pFIBTransaction1.Timeout := 0;
+    Module.pFIBQuery1.Database := Module.pFIBDatabase1;
+    Module.pFIBQuery1.Transaction := Module.pFIBTransaction1;
+ }
+{      Module.ZConnection1.Database := 'e:\termo\db\TERMOMS3SPC1.FDB';
+    Module.ZConnection1.HostName := '10.21.115.4';
+    Module.ZConnection1.Port := 3050;
+    Module.ZConnection1.User := 'sysdba';
+    Module.ZConnection1.Password := 'masterkey';
+    Module.ZConnection1.LibraryLocation := CurrentDir+'\fbclient.dll';
+    Module.ZConnection1.Protocol := 'firebird-2.0';
+    Module.ZConnection1.Connect;
+    Module.ZReadOnlyQuery1.Connection := Module.ZConnection1;
+
+    Module.ZReadOnlyQuery1.Close;
+    Module.ZReadOnlyQuery1.SQL.Clear;
+    Module.ZReadOnlyQuery1.SQL.Add('select *');
+    Module.ZReadOnlyQuery1.SQL.Add('FROM melts');
+    Module.ZReadOnlyQuery1.SQL.Add('where begindt=(select max(begindt) FROM melts)');
+    Module.ZReadOnlyQuery1.Open;
+
+    edit1.Text := Module.ZReadOnlyQuery1.FieldByName('NOPLAV').AsString;
+ }
+  try
+      Module.pFIBDatabase1.Connected := false;
+      Module.pFIBDatabase1.LibraryName := '.\'+FbSqlConfigArray[3];
+      Module.pFIBDatabase1.DBName := FbSqlConfigArray[1]+':'+FbSqlConfigArray[2];
+      Module.pFIBDatabase1.ConnectParams.UserName := FbSqlConfigArray[5];
+      Module.pFIBDatabase1.ConnectParams.Password := FbSqlConfigArray[6];
+      Module.pFIBDatabase1.ConnectParams.CharSet := 'NONE';//'UNICODE_FSS';//'UTF8';//'ASCII';//'WIN1251';
+      Module.pFIBDatabase1.SQLDialect := strtoint(FbSqlConfigArray[4]);
+      Module.pFIBDatabase1.UseLoginPrompt := false;
+      Module.pFIBDatabase1.Timeout := 0;
+      Module.pFIBDatabase1.Connected := true;
+      Module.pFIBTransaction1.Active := false;
+      Module.pFIBTransaction1.Timeout := 0;
+      Module.pFIBQuery1.Database := Module.pFIBDatabase1;
+      Module.pFIBQuery1.Transaction := Module.pFIBTransaction1;
+      pFIBQueryCalculation :=  TpFIBQuery.Create(nil);
+  except
+    on E : Exception do
+      SaveLog('error'+#9#9+E.ClassName+', с сообщением: '+E.Message);
+  end;
+end;
+
+
+procedure TModule.DataModuleCreate(Sender: TObject);
+begin
+  FbInit;
+  if RollingMillConfigArray[1] <> '3' then
+    OraDbInit;
+end;
+
+
+function OraDbInit: bool;
+begin
+  Module.OraSession1.Username := OraSqlConfigArray[4];
+  Module.OraSession1.Password := OraSqlConfigArray[5];
+  Module.OraSession1.Server := OraSqlConfigArray[1]+':'+OraSqlConfigArray[2]+
+                                    ':'+OraSqlConfigArray[3];//'krr-sql13:1521:ovp68';
+  Module.OraSession1.Options.Direct := true;
+  Module.OraSession1.Options.DateFormat := 'DD.MM.RR';//формат даты дд.мм.гг
+  Module.OraSession1.Options.Charset := 'CL8MSWIN1251';// 'AL32UTF8';//CL8MSWIN1251
+//  Module.OraSession1.Options.UseUnicode := true;
+end;
+
+
+
+
+end.

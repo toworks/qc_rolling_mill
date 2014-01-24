@@ -1,0 +1,23 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<BorlandProject>
+	<Transactions>
+    <Transaction>1899.12.30 00:00:00.000.649,C:\tmp\qc_rolling_mill.git\tools\ReadExternalSql_service\thread_c.pas=C:\tmp\qc_rolling_mill.git\tools\ReadExternalSql_service\thread_calculated_data.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.275,C:\Users\saarhipov.EUROPE\Documents\RAD Studio\Projects\main.dfm=C:\tmp\qc_rolling_mill.git\tools\ReadOpcToSql\main.dfm</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.252,C:\tmp\qc_rolling_mill.git\tools\ReadOpcToSql\Unit1.pas=C:\tmp\qc_rolling_mill.git\tools\ReadOpcToSql\sql.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.431,C:\tmp\qc_rolling_mill.git\tools\ReadExternalSql_service\thread_opc.pas=C:\tmp\qc_rolling_mill.git\tools\ReadExternalSql_service\thread_main.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.275,C:\Users\saarhipov.EUROPE\Documents\RAD Studio\Projects\main.pas=C:\tmp\qc_rolling_mill.git\tools\ReadOpcToSql\main.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.407,=C:\Users\saarhipov.EUROPE\Documents\RAD Studio\Projects\Unit8.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.801,C:\Users\saarhipov.EUROPE\Documents\RAD Studio\Projects\Unit8.pas=C:\Users\saarhipov.EUROPE\Documents\RAD Studio\Projects\main.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.752,=C:\tmp\qc_rolling_mill.git\tools\ReadOpcToSql\thread_opc.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.585,C:\Users\saarhipov.EUROPE\Documents\RAD Studio\Projects\ReadOpcToSql.dproj=C:\tmp\qc_rolling_mill.git\tools\ReadOpcToSql\ReadOpcToSql.dproj</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.913,C:\tmp\qc_rolling_mill.git\tools\ReadExternalSql_service\Unit1.pas=C:\tmp\qc_rolling_mill.git\tools\ReadExternalSql_service\thread_c.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.990,=C:\tmp\qc_rolling_mill.git\tools\ReadOpcToSql\logging.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.697,C:\Users\saarhipov.EUROPE\Documents\RAD Studio\Projects\Project7.dproj=C:\Users\saarhipov.EUROPE\Documents\RAD Studio\Projects\ReadOpcToSql.dproj</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.967,=C:\tmp\qc_rolling_mill.git\tools\ReadExternalSql_service\Unit1.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.995,=C:\tmp\qc_rolling_mill.git\tools\ReadOpcToSql\settings.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.801,C:\Users\saarhipov.EUROPE\Documents\RAD Studio\Projects\Unit8.dfm=C:\Users\saarhipov.EUROPE\Documents\RAD Studio\Projects\main.dfm</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.771,=C:\tmp\qc_rolling_mill.git\tools\ReadOpcToSql\Unit1.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.475,C:\tmp\qc_rolling_mill.git_new\QCRollingMillService\ReadExternalSql.dproj=C:\tmp\qc_rolling_mill.git_new\QCRollingMillService\QCRollingMillService.dproj</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.826,C:\tmp\qc_rolling_mill.git\tools\ReadExternalSql_service\ReadOpcToSql.dproj=C:\tmp\qc_rolling_mill.git\tools\ReadExternalSql_service\ReadExternalSql.dproj</Transaction>
+  </Transactions>
+</BorlandProject>
