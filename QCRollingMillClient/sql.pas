@@ -102,7 +102,7 @@ begin
     PQuery.sql.Add('select t1.tid, t1.heat, t1.strength_class, t1.section,');
     PQuery.sql.Add('t1.temperature, t1.timestamp,');
     PQuery.sql.Add('t2.grade, t2.standard, t2.c, t2.mn, t2.cr, t2.si, t2.b,');
-    PQuery.sql.Add('cast(t2.c+(mn/6)+(cr/5)+((si+b)/10) as numeric(4,2)) as ce,');
+    PQuery.sql.Add('cast(t2.c+(mn/6)+(cr/5)+((si+b)/10) as numeric(4,2))||'' (''||t4.ce_category||'')'' as ce,');
     PQuery.sql.Add('t3.low as low_red, t3.high as high_red, t4.low as low_green, t4.high as high_green');
     PQuery.sql.Add('FROM temperature_current t1');
     PQuery.sql.Add('LEFT OUTER JOIN');

@@ -95,6 +95,7 @@ begin
     PQuery.SQL.Add(', t2.ce_avg');
     PQuery.SQL.Add(', t2.ce_avg_down');
     PQuery.SQL.Add(', t2.ce_avg_up');
+    PQuery.SQL.Add(', t2.ce_category');
     PQuery.SQL.Add('from temperature_current t1');
     PQuery.SQL.Add('INNER JOIN');
     PQuery.SQL.Add('calculated_data t2');

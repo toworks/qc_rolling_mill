@@ -213,7 +213,7 @@ begin
       on E: Exception do
         SaveLog('error' + #9#9 + E.ClassName + ', с сообщением: ' + E.Message);
     end;
-    FreeAndNil(HeatAllLeft);
+    HeatAllLeft := '';
   end;
 
   if right.marker and (right.ce <> '') then
@@ -239,7 +239,7 @@ begin
       on E: Exception do
         SaveLog('error' + #9#9 + E.ClassName + ', с сообщением: ' + E.Message);
     end;
-    FreeAndNil(HeatAllRight);
+    HeatAllRight := '';
   end;
 end;
 
@@ -343,7 +343,10 @@ begin
         OraQuery.SQL.Add('and mod(n.npart,2)=1')// проверка на четность | 0 четная - левая | 1 - нечетная правая
       else
         OraQuery.SQL.Add('and mod(n.npart,2)=0');// проверка на четность | 0 четная - левая | 1 - нечетная правая
-      OraQuery.SQL.Add('and nvl(n.npach,0)=nvl(v.npach,0) and NI<=3');
+      if (StrengthClass = 'S400') or (StrengthClass = 'S400W') then // классы при которых берется до 15 проб
+        OraQuery.SQL.Add('and nvl(n.npach,0)=nvl(v.npach,0) and NI<=15')
+      else
+        OraQuery.SQL.Add('and nvl(n.npach,0)=nvl(v.npach,0) and NI<=3');
       OraQuery.SQL.Add('and prizn=''*'' and ROWNUM <= 251');
       OraQuery.SQL.Add('and n.nplav in('+HeatAll+')');
       OraQuery.SQL.Add('order by n.data desc)');
@@ -968,6 +971,9 @@ begin
         if InSide = 0 then
         begin
           CalculatingInMechanicalCharacteristics(CeHeatStringMin, 0);
+          // -- report
+          CalculatedData(InSide, 'ce_category=''min''');
+          // -- report
 {$IFDEF DEBUG}
   SaveLog('debug' + #9#9 + 'CeMinRangeleft.Heat -> ' + CeHeatStringMin);
 {$ENDIF}
@@ -975,6 +981,9 @@ begin
         else
         begin
           CalculatingInMechanicalCharacteristics(CeHeatStringMin, 1);
+          // -- report
+          CalculatedData(InSide, 'ce_category=''min''');
+          // -- report
 {$IFDEF DEBUG}
   SaveLog('debug' + #9#9 + 'CeMinRangeright.Heat -> ' + CeHeatStringMin);
 {$ENDIF}
@@ -985,6 +994,9 @@ begin
         if InSide = 0 then
         begin
           CalculatingInMechanicalCharacteristics(CeHeatStringMax, 0);
+          // -- report
+          CalculatedData(InSide, 'ce_category=''max''');
+          // -- report
 {$IFDEF DEBUG}
   SaveLog('debug' + #9#9 + 'CeMaxRangeleft.Heat -> ' + CeHeatStringMax);
 {$ENDIF}
@@ -992,6 +1004,9 @@ begin
         else
         begin
           CalculatingInMechanicalCharacteristics(CeHeatStringMax, 1);
+          // -- report
+          CalculatedData(InSide, 'ce_category=''max''');
+          // -- report
 {$IFDEF DEBUG}
   SaveLog('debug' + #9#9 + 'CeMaxRangeright.Heat -> ' + CeHeatStringMax);
 {$ENDIF}
@@ -1002,6 +1017,9 @@ begin
         if InSide = 0 then
         begin
           CalculatingInMechanicalCharacteristics(CeHeatStringAvg, 0);
+          // -- report
+          CalculatedData(InSide, 'ce_category=''avg''');
+          // -- report
 {$IFDEF DEBUG}
   SaveLog('debug' + #9#9 + 'CeAvgRangeleft.Heat -> ' + CeHeatStringAvg);
 {$ENDIF}
@@ -1009,6 +1027,9 @@ begin
         else
         begin
           CalculatingInMechanicalCharacteristics(CeHeatStringAvg, 1);
+          // -- report
+          CalculatedData(InSide, 'ce_category=''avg''');
+          // -- report
 {$IFDEF DEBUG}
   SaveLog('debug' + #9#9 + 'CeAvgRangeright.Heat -> ' + CeHeatStringAvg);
 {$ENDIF}

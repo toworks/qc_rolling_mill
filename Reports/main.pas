@@ -306,6 +306,7 @@ begin
   form1.DBGrid1.Columns.Add.FieldName := 'ce_avg';
   form1.DBGrid1.Columns.Add.FieldName := 'ce_avg_down';
   form1.DBGrid1.Columns.Add.FieldName := 'ce_avg_up';
+  form1.DBGrid1.Columns.Add.FieldName := 'ce_category';
 
   form1.DBGrid1.Columns.Items[0].Title.Caption := 'Время';
   form1.DBGrid1.Columns.Items[1].Title.Caption := 'Плавка';
@@ -342,6 +343,7 @@ begin
   form1.DBGrid1.Columns.Items[32].Title.Caption := 'Ce cp.';
   form1.DBGrid1.Columns.Items[33].Title.Caption := 'Ce cp. нижний';
   form1.DBGrid1.Columns.Items[34].Title.Caption := 'Ce cp. верхний';
+  form1.DBGrid1.Columns.Items[35].Title.Caption := 'Ce категория';
   DataSource.Enabled := true;
   form1.DBGrid1.DataSource := DataSource;
 end;
