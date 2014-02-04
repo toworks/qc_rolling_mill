@@ -163,6 +163,7 @@ begin
     PQueryCalculation.sql.Add('and t3.strength_class like '''+StrengthClass+'''');
     PQueryCalculation.sql.Add('and t1.side = '+inttostr(InSide)+'');
     PQueryCalculation.sql.Add('and t3.type like '''+_type+'''');
+    PQueryCalculation.sql.Add('and t1.bad_to_calculate = 0');
     PQueryCalculation.sql.Add('order by t1.timestamp desc');
     PQueryCalculation.sql.Add('LIMIT 125');
     PQueryCalculation.Open;

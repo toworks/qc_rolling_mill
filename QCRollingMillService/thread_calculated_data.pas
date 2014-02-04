@@ -22,28 +22,30 @@ type
   end;
 
   TIdHeat = Record
-    tid           : integer;
-    Heat          : string[26]; // плавка
-    Grade         : string[50]; // марка стали
-    Section       : string[50]; // профиль
-    Standard      : string[50]; // стандарт
-    StrengthClass : string[50]; // клас прочности
-    c             : string[50];
-    mn            : string[50];
-    cr            : string[50];
-    si            : string[50];
-    b             : string[50];
-    ce            : string[50];
-    old_tid       : integer; // стара плавка
-    marker        : bool;
-    LowRed        : integer;
-    HighRed       : integer;
-    LowGreen      : integer;
-    HighGreen     : integer;
-    step          : integer;
+    tid              : integer;
+    Heat             : string[26]; // плавка
+    Grade            : string[50]; // марка стали
+    Section          : string[50]; // профиль
+    Standard         : string[50]; // стандарт
+    StrengthClass    : string[50]; // клас прочности
+    c                : string[50];
+    mn               : string[50];
+    cr               : string[50];
+    si               : string[50];
+    b                : string[50];
+    ce               : string[50];
+    OldStrengthClass : string[50]; // старый клас прочности
+    old_tid          : integer; // стара плавка
+    marker           : bool;
+    LowRed           : integer;
+    HighRed          : integer;
+    LowGreen         : integer;
+    HighGreen        : integer;
+    step             : integer;
     constructor Create(_tid: integer; _Heat, _Grade, _Section, _Standard, _StrengthClass,
-                      _c, _mn, _cr, _si, _b, _ce: string; _old_tid: integer; _marker: bool;
-                      _LowRed, _HighRed, _LowGreen, _HighGreen, _step: integer);
+                      _c, _mn, _cr, _si, _b, _ce, _OldStrengthClass: string;
+                      _old_tid: integer; _marker: bool; _LowRed, _HighRed,
+                      _LowGreen, _HighGreen, _step: integer);
   end;
 
 var
@@ -136,9 +138,10 @@ begin
       left.ce := PQuery.FieldByName('ce').AsString;
 
       // новая плавка устанавливаем маркер
-      if left.old_tid <> left.tid then
+      if (left.old_tid <> left.tid) or (left.OldStrengthClass <> left.StrengthClass) then
       begin
         left.old_tid := left.tid;
+        left.OldStrengthClass := left.StrengthClass;
         left.marker := true;
         left.LowRed := 0;
         left.HighRed := 0;
@@ -164,9 +167,10 @@ begin
       right.ce := PQuery.FieldByName('ce').AsString;
 
       // новая плавка устанавливаем маркер
-      if right.old_tid <> right.tid then
+      if (right.old_tid <> right.tid) or (right.OldStrengthClass <> right.StrengthClass) then
       begin
         right.old_tid := right.tid;
+        right.OldStrengthClass := right.StrengthClass;
         right.marker := true;
         right.LowRed := 0;
         right.HighRed := 0;
@@ -183,11 +187,13 @@ begin
     SaveLog('info'+#9#9+inttostr(left.tid)+#9+left.Heat+#9+left.Grade+#9+
             left.Section+#9+left.Standard+#9+left.StrengthClass+#9+
             left.c+#9+left.mn+#9+left.cr+#9+left.si+#9+left.b+#9+left.ce+#9+
-            inttostr(left.old_tid)+#9+booltostr(left.marker));
+            inttostr(left.old_tid)+#9+booltostr(left.marker)+#9+
+            left.OldStrengthClass);
     SaveLog('info'+#9#9+inttostr(right.tid)+#9+right.Heat+#9+right.Grade+#9+
             right.Section+#9+right.Standard+#9+right.StrengthClass+#9+
             right.c+#9+right.mn+#9+right.cr+#9+right.si+#9+right.b+#9+right.ce+#9+
-            inttostr(right.old_tid)+#9+booltostr(right.marker));
+            inttostr(right.old_tid)+#9+booltostr(right.marker)+#9+
+            right.OldStrengthClass);
   end;
 
   if left.marker and (left.ce <> '') then
@@ -927,40 +933,94 @@ begin
   begin
 {$IFDEF DEBUG}
     SaveLog('debug' + #9#9 + 'CurrentCeMinRange -> ' + CeArray[0, 0]);
-    SaveLog('debug' + #9#9 + 'CurrentCeMinRangeValue -> ' +
-      floattostr(CeArray[0, 1]));
+    SaveLog('debug' + #9#9 + 'CurrentCeMinRangeValue -> '+floattostr(CeArray[0, 1]));
 {$ENDIF}
+//-- расчет осуществляется на ближаешем значение от min
+{    // -- report
+    CalculatedData(InSide, 'ce_category=''min''');
+    // -- report
+    if InSide = 0 then
+    begin
+//{$IFDEF DEBUG}
+//  SaveLog('debug' + #9#9 + 'CeMinRangeleft.Heat -> ' + CeHeatStringMin);
+//{$ENDIF}
+{        CalculatingInMechanicalCharacteristics(CeHeatStringMin, 0);
+    end
+    else
+    begin
+//{$IFDEF DEBUG}
+//  SaveLog('debug' + #9#9 + 'CeMinRangeright.Heat -> ' + CeHeatStringMin);
+//{$ENDIF}
+{        CalculatingInMechanicalCharacteristics(CeHeatStringMin, 1);
+    end;}
+//-- расчет осуществляется на ближаешем значение от min
   end;
 
   if InRange(CeArray[0, 1], CeMaxM, CeMax) and (CeHeatStringMax <> '') then
   begin
 {$IFDEF DEBUG}
     SaveLog('debug' + #9#9 + 'CurrentCeMaxRange -> ' + CeArray[0, 0]);
-    SaveLog('debug' + #9#9 + 'CurrentCeMaxRangeValue -> ' +
-      floattostr(CeArray[0, 1]));
+    SaveLog('debug' + #9#9 + 'CurrentCeMaxRangeValue -> '+floattostr(CeArray[0, 1]));
 {$ENDIF}
+//-- расчет осуществляется на ближаешем значение от max
+{    // -- report
+    CalculatedData(InSide, 'ce_category=''max''');
+    // -- report
+    if InSide = 0 then
+    begin
+//{$IFDEF DEBUG}
+//  SaveLog('debug' + #9#9 + 'CeMaxRangeleft.Heat -> ' + CeHeatStringMax);
+//{$ENDIF}
+{        CalculatingInMechanicalCharacteristics(CeHeatStringMax, 0);
+    end
+    else
+    begin
+//{$IFDEF DEBUG}
+//  SaveLog('debug' + #9#9 + 'CeMaxRangeright.Heat -> ' + CeHeatStringMax);
+//{$ENDIF}
+{        CalculatingInMechanicalCharacteristics(CeHeatStringMax, 1);
+    end;}
+//-- расчет осуществляется на ближаешем значение от max
   end;
 
   if InRange(CeArray[0, 1], CeAvgM, CeAvgP) and (CeHeatStringAvg <> '') then
   begin
 {$IFDEF DEBUG}
     SaveLog('debug' + #9#9 + 'CurrentCeAvgRange -> ' + CeArray[0, 0]);
-    SaveLog('debug' + #9#9 + 'CurrentCeAvgRangeValue -> ' +
-      floattostr(CeArray[0, 1]));
+    SaveLog('debug' + #9#9 + 'CurrentCeAvgRangeValue -> '+floattostr(CeArray[0, 1]));
 {$ENDIF}
+//-- расчет осуществляется на ближаешем значение от avg
+{    // -- report
+    CalculatedData(InSide, 'ce_category=''avg''');
+    // -- report
+    if InSide = 0 then
+    begin
+//{$IFDEF DEBUG}
+//  SaveLog('debug' + #9#9 + 'CeAvgRangeleft.Heat -> ' + CeHeatStringAvg);
+//{$ENDIF}
+{        CalculatingInMechanicalCharacteristics(CeHeatStringAvg, 0);
+    end
+    else
+    begin
+//{$IFDEF DEBUG}
+//  SaveLog('debug' + #9#9 + 'CeAvgRangeright.Heat -> ' + CeHeatStringAvg);
+//{$ENDIF}
+{        CalculatingInMechanicalCharacteristics(CeHeatStringAvg, 1);
+    end;}
+//-- расчет осуществляется на ближаешем значение от avg
   end;
 
-  SetLength(range, 4);
-  range[0] := ABS(CeMinP - CeArray[0, 1]);
-  range[1] := ABS(CeMaxM - CeArray[0, 1]);
-  range[2] := ABS(CeAvgP - CeArray[0, 1]);
-  range[3] := ABS(CeAvgM - CeArray[0, 1]);
+  SetLength(range, 3);
+  //получаем минимальную разницу
+  range[0] := ABS(CeMin - CeArray[0, 1]);
+  range[1] := ABS(CeMax - CeArray[0, 1]);
+  range[2] := ABS(CeAvg - CeArray[0, 1]);
 
   rangeMin := range[0];
 
   for i := low(range) To high(range) Do
     if range[i] < rangeMin then
-      rangeMin := range[i];
+      rangeMin := range[i];  // к какому из пределов ближе
 
   for i := low(range) To high(range) Do
   begin
@@ -970,69 +1030,69 @@ begin
       begin
         if InSide = 0 then
         begin
-          CalculatingInMechanicalCharacteristics(CeHeatStringMin, 0);
-          // -- report
-          CalculatedData(InSide, 'ce_category=''min''');
-          // -- report
 {$IFDEF DEBUG}
   SaveLog('debug' + #9#9 + 'CeMinRangeleft.Heat -> ' + CeHeatStringMin);
 {$ENDIF}
+          // -- report
+          CalculatedData(InSide, 'ce_category=''мин''');
+          // -- report
+          CalculatingInMechanicalCharacteristics(CeHeatStringMin, 0);
         end
         else
         begin
-          CalculatingInMechanicalCharacteristics(CeHeatStringMin, 1);
-          // -- report
-          CalculatedData(InSide, 'ce_category=''min''');
-          // -- report
 {$IFDEF DEBUG}
   SaveLog('debug' + #9#9 + 'CeMinRangeright.Heat -> ' + CeHeatStringMin);
 {$ENDIF}
+          // -- report
+          CalculatedData(InSide, 'ce_category=''мин''');
+          // -- report
+          CalculatingInMechanicalCharacteristics(CeHeatStringMin, 1);
         end;
       end;
-      if (i = 3) and (CeHeatStringMax <> '') then
+      if (i = 1) and (CeHeatStringMax <> '') then
       begin
         if InSide = 0 then
         begin
-          CalculatingInMechanicalCharacteristics(CeHeatStringMax, 0);
-          // -- report
-          CalculatedData(InSide, 'ce_category=''max''');
-          // -- report
 {$IFDEF DEBUG}
   SaveLog('debug' + #9#9 + 'CeMaxRangeleft.Heat -> ' + CeHeatStringMax);
 {$ENDIF}
+          // -- report
+          CalculatedData(InSide, 'ce_category=''макс''');
+          // -- report
+          CalculatingInMechanicalCharacteristics(CeHeatStringMax, 0);
         end
         else
         begin
-          CalculatingInMechanicalCharacteristics(CeHeatStringMax, 1);
-          // -- report
-          CalculatedData(InSide, 'ce_category=''max''');
-          // -- report
 {$IFDEF DEBUG}
   SaveLog('debug' + #9#9 + 'CeMaxRangeright.Heat -> ' + CeHeatStringMax);
 {$ENDIF}
+          // -- report
+          CalculatedData(InSide, 'ce_category=''макс''');
+          // -- report
+          CalculatingInMechanicalCharacteristics(CeHeatStringMax, 1);
         end;
       end;
-      if ((i = 1) or (i = 2)) and (CeHeatStringAvg <> '') then
+      if (i = 2) and (CeHeatStringAvg <> '') then
       begin
         if InSide = 0 then
         begin
-          CalculatingInMechanicalCharacteristics(CeHeatStringAvg, 0);
-          // -- report
-          CalculatedData(InSide, 'ce_category=''avg''');
-          // -- report
 {$IFDEF DEBUG}
   SaveLog('debug' + #9#9 + 'CeAvgRangeleft.Heat -> ' + CeHeatStringAvg);
 {$ENDIF}
+          // -- report
+          CalculatedData(InSide, 'ce_category=''сред''');
+          // -- report
+          CalculatingInMechanicalCharacteristics(CeHeatStringAvg, 0);
         end
         else
         begin
-          CalculatingInMechanicalCharacteristics(CeHeatStringAvg, 1);
-          // -- report
-          CalculatedData(InSide, 'ce_category=''avg''');
-          // -- report
 {$IFDEF DEBUG}
   SaveLog('debug' + #9#9 + 'CeAvgRangeright.Heat -> ' + CeHeatStringAvg);
 {$ENDIF}
+          // -- report
+          CalculatedData(InSide, 'ce_category=''сред''');
+          // -- report
+          CalculatingInMechanicalCharacteristics(CeHeatStringAvg, 1);
         end;
       end;
     end;
@@ -1040,6 +1100,9 @@ begin
 
 {$IFDEF DEBUG}
   SaveLog('debug' + #9#9 + 'CeRangeMinValue -> ' + floattostr(rangeMin));
+  SaveLog('debug' + #9#9 + 'min range[0] -> ' + floattostr(range[0]));
+  SaveLog('debug' + #9#9 + 'max range[1] -> ' + floattostr(range[1]));
+  SaveLog('debug' + #9#9 + 'avg range[2] -> ' + floattostr(range[2]));
   SaveLog('debug' + #9#9 + 'rangeM -> ' + floattostr(rangeM));
 {$ENDIF}
 end;
@@ -1112,35 +1175,37 @@ end;
 
 
 constructor TIdHeat.Create(_tid: integer; _Heat, _Grade, _Section, _Standard, _StrengthClass,
-                      _c, _mn, _cr, _si, _b, _ce: string; _old_tid: integer; _marker: bool;
-                      _LowRed, _HighRed, _LowGreen, _HighGreen, _step: integer);
+                      _c, _mn, _cr, _si, _b, _ce, _OldStrengthClass: string;
+                      _old_tid: integer; _marker: bool; _LowRed, _HighRed,
+                      _LowGreen, _HighGreen, _step: integer);
 begin
-    tid           := _tid;
-    Heat          := _Heat; // плавка
-    Grade         := _Grade; // марка стали
-    Section       := _Section; // профиль
-    Standard      := _Standard; // стандарт
-    StrengthClass := _StrengthClass; // клас прочности
-    c             := _c;
-    mn            := _mn;
-    cr            := _cr;
-    si            := _si;
-    b             := _b;
-    ce            := _ce;
-    old_tid       := _old_tid; // стара плавка
-    marker        := _marker;
-    LowRed        := _LowRed;
-    HighRed       := _HighRed;
-    LowGreen      := _LowGreen;
-    HighGreen     := _HighGreen;
-    step          := _step;
+    tid              := _tid;
+    Heat             := _Heat; // плавка
+    Grade            := _Grade; // марка стали
+    Section          := _Section; // профиль
+    Standard         := _Standard; // стандарт
+    StrengthClass    := _StrengthClass; // клас прочности
+    c                := _c;
+    mn               := _mn;
+    cr               := _cr;
+    si               := _si;
+    b                := _b;
+    ce               := _ce;
+    OldStrengthClass := _OldStrengthClass; // старый клас прочности
+    old_tid          := _old_tid; // стара плавка
+    marker           := _marker;
+    LowRed           := _LowRed;
+    HighRed          := _HighRed;
+    LowGreen         := _LowGreen;
+    HighGreen        := _HighGreen;
+    step             := _step;
 end;
 
 
 // При загрузке программы класс будет создаваться
 initialization
-left := TIdHeat.Create(0,'','','','','','','','','','','',0,false,0,0,0,0,0);
-right := TIdHeat.Create(0,'','','','','','','','','','','',0,false,0,0,0,0,0);
+left := TIdHeat.Create(0,'','','','','','','','','','','','',0,false,0,0,0,0,0);
+right := TIdHeat.Create(0,'','','','','','','','','','','','',0,false,0,0,0,0,0);
 
 // При закрытии программы уничтожаться
 finalization
