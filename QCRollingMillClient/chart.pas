@@ -100,12 +100,12 @@ begin
     Form1.chart_left_side.Series[1].AddXY(NOW, left.HighGreen,
       timetostr(DateTimeLeft), clGreen); // max
 
-  if (left.LowGreen <> 0) and (left.LowRed > left.LowGreen) and
+  if (left.LowGreen <> 0) and (left.LowRed >= left.LowGreen) and
      (left.HighGreen > left.LowRed) then
     Form1.chart_left_side.Series[3].AddXY(NOW, left.LowRed+3,
       timetostr(DateTimeLeft), clGreen); // min +3 градуса от low красных
 
-  if (left.HighGreen <> 0) and (left.HighGreen > left.HighRed) and
+  if (left.HighGreen <> 0) and (left.HighGreen >= left.HighRed) and
      (left.LowGreen < left.HighRed) then
     Form1.chart_left_side.Series[1].AddXY(NOW, left.HighRed-3,
       timetostr(DateTimeLeft), clGreen); // max -3 градуса от high красных
@@ -179,12 +179,12 @@ begin
     Form1.chart_right_side.Series[1].AddXY(NOW, right.HighGreen,
       timetostr(DateTimeRight), clGreen); // max
 
-  if (right.LowGreen <> 0) and (right.LowRed > right.LowGreen) and
+  if (right.LowGreen <> 0) and (right.LowRed >= right.LowGreen) and
      (right.HighGreen > right.LowRed) then
     Form1.chart_right_side.Series[3].AddXY(NOW, right.LowRed+3,
       timetostr(DateTimeRight), clGreen); // min +3 градуса от low красных
 
-  if (right.HighGreen <> 0) and (right.HighGreen > right.HighRed) and
+  if (right.HighGreen <> 0) and (right.HighGreen >= right.HighRed) and
      (right.LowGreen < right.HighRed) then
     Form1.chart_right_side.Series[1].AddXY(NOW, right.HighRed-3,
       timetostr(DateTimeRight), clGreen); // max -3 градуса от high красных

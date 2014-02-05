@@ -83,6 +83,7 @@ BEGIN
         RETURN NEW;        
     ELSIF TG_OP = 'DELETE' THEN
         DELETE FROM temperature_historical where temperature_historical.tid=OLD.tid;
+		DELETE FROM calculated_data where calculated_data.cid=OLD.tid;
         RETURN OLD;        
     END IF;
 END;
@@ -417,7 +418,7 @@ ALTER TABLE temperature_historical CLUSTER ON ik_desc_temperature_historical;
 -- Name: tr_bad_to_calculate; Type: TRIGGER; Schema: public; Owner: QCRollingMill
 --
 
-CREATE TRIGGER tr_bad_to_calculate AFTER INSERT OR DELETE OR UPDATE ON temperature_current FOR EACH ROW EXECUTE PROCEDURE fn_bad_to_calculate();
+CREATE TRIGGER tr_bad_to_calculate AFTER UPDATE ON temperature_current FOR EACH ROW EXECUTE PROCEDURE fn_bad_to_calculate();
 
 
 --
