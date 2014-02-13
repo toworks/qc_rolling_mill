@@ -1,0 +1,518 @@
+unit main;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.Grids, Vcl.DBGrids, Data.DB,
+  Vcl.StdCtrls, Vcl.DBCtrls, Vcl.Mask, DateUtils, Datasnap.DBClient, Types,
+  Generics.Collections;
+
+type
+  TForm1 = class(TForm)
+    DBGrid1: TDBGrid;
+    b_action: TButton;
+    rb_calculated_data: TRadioButton;
+    rb_temperature: TRadioButton;
+    l_n_heat: TLabel;
+    e_heat: TEdit;
+    cb_export: TCheckBox;
+    ClientDataSet1: TClientDataSet;
+
+    procedure FormCreate(Sender: TObject);
+    procedure FormDestroy(Sender: TObject);
+    procedure b_actionClick(Sender: TObject);
+    procedure DBGrid1DrawDataCell(Sender: TObject; const Rect: TRect;
+      Field: TField; State: TGridDrawState);
+    procedure DBGrid1DrawColumnCell(Sender: TObject; const Rect: TRect;
+      DataCol: Integer; Column: TColumn; State: TGridDrawState);
+    procedure e_heatChange(Sender: TObject);
+    procedure rb_calculated_dataClick(Sender: TObject);
+    function GetMedian(aArray: TDoubleDynArray): Double;
+
+
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+  Form1: TForm1;
+    CurrentDir: string;
+    HeadName: string = ' отчеты';
+    Version: string = ' v0.0a';
+    DBFile: string = 'data.sdb';
+
+    function CheckAppRun: bool;
+    function ViewClear(InData: string): bool;
+    function DbGridCalculatedDataColumnName: bool;
+    function DbGridTemperatuteColumnName: bool;
+    function EditColor(InData: integer): integer;
+    function SaveReport(InTimestamp, InType: string; InData: WideString): bool;
+    function t: bool;
+
+
+implementation
+
+uses
+  settings, sql;
+
+{$R *.dfm}
+
+
+
+procedure TForm1.FormCreate(Sender: TObject);
+begin
+ //проверка 1 экземпляра программы
+  CheckAppRun;
+
+  Form1.Caption := HeadName+Version;
+  //заголовки к showmessage
+  Application.Title := HeadName+Version;
+
+  // текущая дириктория
+  CurrentDir := GetCurrentDir;
+  // точка вместо запятой при преобразовании в строку
+  FormatSettings.DecimalSeparator := '.';
+
+  //запрет на изменение формы
+  Form1.BorderStyle := bsToolWindow;
+//  Form1.BorderIcons :=  Form1.BorderIcons - [biMaximize];
+
+  ConfigSettings(true);
+  ConfigPostgresSetting(true);
+
+  ViewClear('');
+
+end;
+
+
+procedure TForm1.FormDestroy(Sender: TObject);
+begin
+  ConfigPostgresSetting(false);
+  ConfigSettings(false);
+end;
+
+procedure TForm1.rb_calculated_dataClick(Sender: TObject);
+begin
+    form1.e_heat.Color := clWindow;
+end;
+
+
+procedure TForm1.b_actionClick(Sender: TObject);
+const
+  Delim = ';';
+var
+  s, TypeReport, timestamp: string;
+  i: integer;
+begin
+  try
+      if not PConnect.Ping then
+        PConnect.Reconnect;
+  except
+    on E: Exception do
+//      SaveLog('error' + #9#9 + E.ClassName + ', с сообщением: ' + E.Message);
+  end;
+
+  if not form1.rb_calculated_data.Checked and not form1.rb_temperature.Checked then
+  begin
+      showmessage('выберите вид отчета');
+      exit;
+  end;
+
+  if form1.rb_calculated_data.Checked then
+  begin
+      DbGridCalculatedDataColumnName;
+      SqlCalculatedData;
+      TypeReport := 'CalculatedData';
+      timestamp := inttostr(DateTimeToUnix(NOW));
+  end;
+
+  if form1.rb_temperature.Checked and (trim(form1.e_heat.Text) <> '') then
+  begin
+      DbGridTemperatuteColumnName;
+//      SqlTemperature;
+      t;
+      TypeReport := 'temperature';
+      timestamp := inttostr(DateTimeToUnix(NOW));
+  end;
+
+  if form1.rb_temperature.Checked and (trim(form1.e_heat.Text) = '') then
+    form1.e_heat.Color := clRed;
+
+  if form1.cb_export.Checked and ((form1.rb_calculated_data.Checked)
+                                  or (form1.rb_temperature.Checked and (trim(form1.e_heat.Text) <> ''))) then
+  begin
+      form1.DBGrid1.DataSource.DataSet.DisableControls;
+      form1.b_action.Enabled := false;
+      form1.DBGrid1.Enabled := false;
+
+      for i := 0 to DBGrid1.Columns.Count-1 do
+        s := s + TColumn(DBGrid1.Columns[i]).Title.Caption + Delim;
+
+      Application.ProcessMessages; // следующая операция не тормозит интерфейс
+      SaveReport(timestamp, TypeReport, s);
+
+      while not PQuery.Eof do
+      begin
+        s := '';
+        for i := 0 to DBGrid1.Columns.Count - 1 do
+            s := s + TColumn(DBGrid1.Columns[I]).Field.aswidestring + Delim;
+
+        Application.ProcessMessages; // следующая операция не тормозит интерфейс
+        SaveReport(timestamp, TypeReport, s);
+        PQuery.Next;
+      end;
+
+      form1.DBGrid1.Enabled := true;
+      form1.b_action.Enabled := true;
+      form1.DBGrid1.DataSource.DataSet.First;
+      form1.DBGrid1.DataSource.DataSet.EnableControls;
+  end;
+
+end;
+
+
+procedure TForm1.DBGrid1DrawColumnCell(Sender: TObject; const Rect: TRect;
+  DataCol: Integer; Column: TColumn; State: TGridDrawState);
+var
+  R: TRect;
+begin
+  if form1.rb_calculated_data.Checked then
+  begin
+
+      R := Rect;
+      Dec(R.Bottom, 2);
+      if Column.Field = PQuery.FieldByName('heat_to_work') then
+       begin
+    //    if not (gdSelected in State) then
+          DBGrid1.Canvas.FillRect(Rect);
+          DBGrid1.Canvas.TextRect(R, R.Left + 2, R.Top + 2,
+                                  PQuery.FieldByName('heat_to_work').AsString);
+
+{            with DBGrid1.Canvas do
+            begin
+              if Column.FieldName = 'heat_to_work' then
+              begin
+                Brush.Color := clRed;
+                Font.Color := clBlue;
+                font.Style:= [fsBold];
+                (Sender as TDBGrid).Canvas.TextRect(Rect, Rect.Left + 2,
+                                      Rect.Top + 2, Column.Field.AsWideString);
+              end
+            end}
+         end
+      else
+          Dbgrid1.DefaultDrawColumnCell(Rect, DataCol, Column, State);
+      //      end;
+
+
+      if PQuery.FieldByName('step').AsString = 'Красный' then
+       begin
+          with DBGrid1.Canvas do
+          begin
+            Font.Color := clRed;
+            if (Column.FieldName = 'low') or (Column.FieldName = 'high') then
+              font.Style:= [fsBold];
+            (Sender as TDBGrid).Canvas.TextRect(Rect, Rect.Left + 2,
+                                  Rect.Top + 2, Column.Field.AsWideString);
+          end
+       end
+      else
+       begin
+          with DBGrid1.Canvas do
+          begin
+            Font.Color := clGreen;
+            if (Column.FieldName = 'low') or (Column.FieldName = 'high') then
+              font.Style:= [fsBold];
+            (Sender as TDBGrid).Canvas.TextRect(Rect, Rect.Left + 2,
+                                 Rect.Top + 2, Column.Field.AsWideString);
+          end
+      end;
+  end
+  else
+    Dbgrid1.DefaultDrawColumnCell(Rect, DataCol, Column, State);
+end;
+
+procedure TForm1.DBGrid1DrawDataCell(Sender: TObject; const Rect: TRect;
+  Field: TField; State: TGridDrawState);
+begin
+
+  with (Sender as TDBGrid).Canvas do
+  begin
+    Brush.Color := clRed;
+    FillRect(Rect);
+    TextOut(Rect.Left, Rect.Top, Field.AsString);
+  end;
+{
+
+// 'если имя поля - "NAME"'
+  if Field.FieldName = 'heat_to_work' then
+  begin
+// 'изменяем цвет шрифта на красный '
+showmessage('dd');
+    (Sender as TDBGrid).Canvas.Font.Color := clRed;
+// 'выводим текст в табличной сетке '
+//  (Sender as TDBGrid).Canvas.TextRect(Rect, Rect.Left + 2,
+//    Rect.Top + 2, Field.AsString);
+  end
+  else
+    DBGrid1.DefaultDrawColumnCell(Rect, Field, State);
+//    DBGrid1.DefaultDrawColumnCell(Rect, DataCol, Column, State);
+              }
+end;
+
+
+procedure TForm1.e_heatChange(Sender: TObject);
+begin
+     form1.e_heat.Color := clWindow;
+end;
+
+
+function DbGridCalculatedDataColumnName: bool;
+begin
+  // 'ПРИМЕЧАНИЕ: Свойство DefaultDrawing компонента Grid должно быть  установлено в False'
+  form1.DBGrid1.DefaultDrawing := false;
+
+  form1.DBGrid1.Columns.Clear;
+  form1.DBGrid1.Columns.Add.FieldName := 'timestamp';
+  form1.DBGrid1.Columns.Add.FieldName := 'heat';
+  form1.DBGrid1.Columns.Add.FieldName := 'section';
+  form1.DBGrid1.Columns.Add.FieldName := 'side';
+  form1.DBGrid1.Columns.Add.FieldName := 'step';
+  form1.DBGrid1.Columns.Add.FieldName := 'coefficient_yield_point_value';
+  form1.DBGrid1.Columns.Add.FieldName := 'coefficient_rupture_strength_value';
+  form1.DBGrid1.Columns.Add.FieldName := 'heat_to_work';
+  form1.DBGrid1.Columns.Add.FieldName := 'limit_rolled_products_min';
+  form1.DBGrid1.Columns.Add.FieldName := 'limit_rolled_products_max';
+  form1.DBGrid1.Columns.Add.FieldName := 'type_rolled_products';
+  form1.DBGrid1.Columns.Add.FieldName := 'mechanics_avg';
+  form1.DBGrid1.Columns.Add.FieldName := 'mechanics_std_dev';
+  form1.DBGrid1.Columns.Add.FieldName := 'mechanics_min';
+  form1.DBGrid1.Columns.Add.FieldName := 'mechanics_max';
+  form1.DBGrid1.Columns.Add.FieldName := 'mechanics_diff';
+  form1.DBGrid1.Columns.Add.FieldName := 'coefficient_min';
+  form1.DBGrid1.Columns.Add.FieldName := 'coefficient_max';
+  form1.DBGrid1.Columns.Add.FieldName := 'temp_avg';
+  form1.DBGrid1.Columns.Add.FieldName := 'temp_std_dev';
+  form1.DBGrid1.Columns.Add.FieldName := 'temp_min';
+  form1.DBGrid1.Columns.Add.FieldName := 'temp_max';
+  form1.DBGrid1.Columns.Add.FieldName := 'temp_diff';
+  form1.DBGrid1.Columns.Add.FieldName := 'r';
+  form1.DBGrid1.Columns.Add.FieldName := 'adjustment_min';
+  form1.DBGrid1.Columns.Add.FieldName := 'adjustment_max';
+  form1.DBGrid1.Columns.Add.FieldName := 'low';
+  form1.DBGrid1.Columns.Add.FieldName := 'high';
+  form1.DBGrid1.Columns.Add.FieldName := 'ce_min_down';
+  form1.DBGrid1.Columns.Add.FieldName := 'ce_min_up';
+  form1.DBGrid1.Columns.Add.FieldName := 'ce_max_down';
+  form1.DBGrid1.Columns.Add.FieldName := 'ce_max_up';
+  form1.DBGrid1.Columns.Add.FieldName := 'ce_avg';
+  form1.DBGrid1.Columns.Add.FieldName := 'ce_avg_down';
+  form1.DBGrid1.Columns.Add.FieldName := 'ce_avg_up';
+  form1.DBGrid1.Columns.Add.FieldName := 'ce_category';
+
+  form1.DBGrid1.Columns.Items[0].Title.Caption := 'Время';
+  form1.DBGrid1.Columns.Items[1].Title.Caption := 'Плавка';
+  form1.DBGrid1.Columns.Items[2].Title.Caption := 'Профиль';
+  form1.DBGrid1.Columns.Items[3].Title.Caption := 'Сторона';
+  form1.DBGrid1.Columns.Items[4].Title.Caption := 'Этап';
+  form1.DBGrid1.Columns.Items[5].Title.Caption := 'Коэф. предел тек.';
+  form1.DBGrid1.Columns.Items[6].Title.Caption := 'Коэф. временное сопр.';
+  form1.DBGrid1.Columns.Items[7].Title.Caption := 'Расчетные плавки';
+  form1.DBGrid1.Columns.Items[8].Title.Caption := 'Табл. предел min';
+  form1.DBGrid1.Columns.Items[9].Title.Caption := 'Табл. предел max';
+  form1.DBGrid1.Columns.Items[10].Title.Caption := 'Тип расчета';
+  form1.DBGrid1.Columns.Items[11].Title.Caption := 'Мех. среднее';
+  form1.DBGrid1.Columns.Items[12].Title.Caption := 'Мех. ср.квадр.откл.';
+  form1.DBGrid1.Columns.Items[13].Title.Caption := 'Мех. min';
+  form1.DBGrid1.Columns.Items[14].Title.Caption := 'Мех. max';
+  form1.DBGrid1.Columns.Items[15].Title.Caption := 'Мех. разница';
+  form1.DBGrid1.Columns.Items[16].Title.Caption := 'Коэф. min';
+  form1.DBGrid1.Columns.Items[17].Title.Caption := 'Коэф. max';
+  form1.DBGrid1.Columns.Items[18].Title.Caption := 'Темп. среднея';
+  form1.DBGrid1.Columns.Items[19].Title.Caption := 'Темп. ср.квадр.откл.';
+  form1.DBGrid1.Columns.Items[20].Title.Caption := 'Темп. min';
+  form1.DBGrid1.Columns.Items[21].Title.Caption := 'Темп. max';
+  form1.DBGrid1.Columns.Items[22].Title.Caption := 'Темп. разница';
+  form1.DBGrid1.Columns.Items[23].Title.Caption := 'R';
+  form1.DBGrid1.Columns.Items[24].Title.Caption := 'Коррект. min';
+  form1.DBGrid1.Columns.Items[25].Title.Caption := 'Коррект. max';
+  form1.DBGrid1.Columns.Items[26].Title.Caption := 'Нижний предел';
+  form1.DBGrid1.Columns.Items[27].Title.Caption := 'Верхний предел';
+  form1.DBGrid1.Columns.Items[28].Title.Caption := 'Ce min нижний';
+  form1.DBGrid1.Columns.Items[29].Title.Caption := 'Ce min верхний';
+  form1.DBGrid1.Columns.Items[30].Title.Caption := 'Ce max нижний';
+  form1.DBGrid1.Columns.Items[31].Title.Caption := 'Ce max верхний';
+  form1.DBGrid1.Columns.Items[32].Title.Caption := 'Ce cp.';
+  form1.DBGrid1.Columns.Items[33].Title.Caption := 'Ce cp. нижний';
+  form1.DBGrid1.Columns.Items[34].Title.Caption := 'Ce cp. верхний';
+  form1.DBGrid1.Columns.Items[35].Title.Caption := 'Ce категория';
+  DataSource.Enabled := true;
+  form1.DBGrid1.DataSource := DataSource;
+end;
+
+
+function DbGridTemperatuteColumnName: bool;
+begin
+  // 'ПРИМЕЧАНИЕ: Свойство DefaultDrawing компонента Grid должно быть  установлено в False'
+  form1.DBGrid1.DefaultDrawing := false;
+
+  form1.DBGrid1.Columns.Clear;
+  form1.DBGrid1.Columns.Add.FieldName := 'timestamp';
+  form1.DBGrid1.Columns.Add.FieldName := 'heat';
+  form1.DBGrid1.Columns.Add.FieldName := 'section';
+  form1.DBGrid1.Columns.Add.FieldName := 'side';
+  form1.DBGrid1.Columns.Add.FieldName := 'temperature';
+
+  form1.DBGrid1.Columns.Items[0].Title.Caption := 'Время';
+  form1.DBGrid1.Columns.Items[1].Title.Caption := 'Плавка';
+  form1.DBGrid1.Columns.Items[2].Title.Caption := 'Профиль';
+  form1.DBGrid1.Columns.Items[3].Title.Caption := 'Сторона';
+  form1.DBGrid1.Columns.Items[4].Title.Caption := 'Температура';
+
+  DataSource.Enabled := true;
+  form1.DBGrid1.DataSource := DataSource;
+end;
+
+
+function ViewClear(InData: string): bool;
+var
+  i: integer;
+begin
+
+  if InData <> 'e' then
+  begin
+      for i:=0 to form1.ComponentCount - 1 do
+      begin
+        if (form1.Components[i] is Tlabel) then
+          if copy(form1.Components[i].Name,1,4) <> 'l_n_' then
+            Tlabel(Form1.FindComponent(form1.Components[i].Name)).Caption := '';
+      end;
+  end;
+
+  if InData = 'e' then
+  begin
+    for i:=0 to form1.ComponentCount - 1 do
+    begin
+     if (form1.Components[i] is TEdit) then
+       if copy(form1.Components[i].Name,1,2) = 'e_' then
+         Tlabel(Form1.FindComponent(form1.Components[i].Name)).Caption := '';
+    end;
+  end;
+
+end;
+
+
+function EditColor(InData: integer): integer;
+var
+  i, e: integer;
+begin
+  for i:=0 to form1.ComponentCount - 1 do
+   begin
+    if (form1.Components[i] is TEdit) then
+      begin
+          if InData = 1 then
+          begin
+            if trim(TEdit(Form1.FindComponent(form1.Components[i].Name)).Text) = '' then
+            begin
+              TEdit(Form1.FindComponent(form1.Components[i].Name)).Color := clRed;
+              inc(e);
+            end;
+          end;
+          if InData = 2 then
+          begin
+              TEdit(Form1.FindComponent(form1.Components[i].Name)).Color := clWindow;
+          end;
+      end;
+  end;
+  Result := e;
+end;
+
+
+function SaveReport(InTimestamp, InType: string; InData: WideString): bool;
+var
+  f: TextFile;
+begin
+  AssignFile(f, CurrentDir+'\'+InTimestamp+'_report_'+InType+'.csv');
+  if not FileExists(CurrentDir+'\'+InTimestamp+'_report_'+InType+'.csv') then
+  begin
+      Rewrite(f);
+      CloseFile(f);
+  end;
+  Append(f);
+  Writeln(f, InData);
+  Flush(f);
+  CloseFile(f);
+end;
+
+
+function t: bool;
+begin
+  DataSource.DataSet := form1.ClientDataSet1;
+ // Добавили поля
+    form1.ClientDataSet1.FieldDefs.Add('timestamp', ftString, 20, False);
+    form1.ClientDataSet1.FieldDefs.Add('heat', ftString, 20, False);
+    form1.ClientDataSet1.FieldDefs.Add('section', ftInteger, 0, False);
+    form1.ClientDataSet1.FieldDefs.Add('side', ftString, 20, False);
+    form1.ClientDataSet1.FieldDefs.Add('temperature', ftInteger, 0, False);
+
+    // Создали набор данных
+    form1.ClientDataSet1.CreateDataSet();
+
+      SqlTemperature;
+
+  while not PQuery.Eof do
+  begin
+
+  end;
+
+    // Заполнили
+  form1.ClientDataSet1.Append; // Добавить новую запись
+  form1.ClientDataSet1.FieldByName('timestamp').AsString := 'Какая-то строка';
+  form1.ClientDataSet1.FieldByName('heat').AsString := 'Какая-то строка';
+  form1.ClientDataSet1.FieldByName('section').AsInteger := 123456789;
+  form1.ClientDataSet1.FieldByName('side').AsString := 'Какая-то строка';
+  form1.ClientDataSet1.FieldByName('temperature').AsInteger := 123456789;
+  form1.ClientDataSet1.Post;
+  form1.ClientDataSet1.Active := true;
+end;
+
+
+function GetMedian(aArray: TDoubleDynArray): Double;
+var
+  lMiddleIndex: Integer;
+begin
+  TArray.Sort<Double>(aArray);
+
+  lMiddleIndex := Length(aArray) div 2;
+  if Odd(Length(aArray)) then
+    Result := aArray[lMiddleIndex]
+  else
+    Result := (aArray[lMiddleIndex - 1] + aArray[lMiddleIndex]) / 2;
+end;
+
+
+function CheckAppRun: bool;
+var
+  hMutex : THandle;
+begin
+    // закрытие 2 экземляра программы
+    hMutex := CreateMutex(0, true , 'Reports');
+    if GetLastError = ERROR_ALREADY_EXISTS then
+     begin
+        Application.Title := HeadName+Version;
+        //прячим форму и выводим сообщение
+        Application.ShowMainForm:=false;
+        showmessage('Экземпляр программы уже запущен');
+
+        CloseHandle(hMutex);
+        TerminateProcess(GetCurrentProcess, 0);
+     end;
+end;
+
+
+
+
+end.

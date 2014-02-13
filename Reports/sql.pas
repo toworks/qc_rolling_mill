@@ -40,7 +40,6 @@ begin
         PConnect.Connect;
         PQuery.Connection := PConnect;
         DataSource := TDataSource.Create(nil);
-        DataSource.DataSet := PQuery;
     except
       on E: Exception do
         Showmessage('error' + #9#9 + E.ClassName + ', с сообщением: ' + E.Message);

@@ -5,7 +5,8 @@ interface
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.Grids, Vcl.DBGrids, Data.DB,
-  Vcl.StdCtrls, Vcl.DBCtrls, Vcl.Mask, DateUtils;
+  Vcl.StdCtrls, Vcl.DBCtrls, Vcl.Mask, DateUtils, Datasnap.DBClient, Types,
+  Generics.Collections;
 
 type
   TForm1 = class(TForm)
@@ -40,6 +41,9 @@ var
     HeadName: string = ' отчеты';
     Version: string = ' v0.0a';
     DBFile: string = 'data.sdb';
+    ClientDataSet: TClientDataSet;
+
+//   {$DEFINE DEBUG}
 
     function CheckAppRun: bool;
     function ViewClear(InData: string): bool;
@@ -47,6 +51,8 @@ var
     function DbGridTemperatuteColumnName: bool;
     function EditColor(InData: integer): integer;
     function SaveReport(InTimestamp, InType: string; InData: WideString): bool;
+    function GetTemperature: bool;
+    function GetMedian(aArray: TDoubleDynArray): Double;
 
 
 implementation
@@ -120,6 +126,7 @@ begin
   if form1.rb_calculated_data.Checked then
   begin
       DbGridCalculatedDataColumnName;
+      DataSource.DataSet := PQuery;
       SqlCalculatedData;
       TypeReport := 'CalculatedData';
       timestamp := inttostr(DateTimeToUnix(NOW));
@@ -128,7 +135,9 @@ begin
   if form1.rb_temperature.Checked and (trim(form1.e_heat.Text) <> '') then
   begin
       DbGridTemperatuteColumnName;
-      SqlTemperature;
+//--test      DataSource.DataSet := PQuery;
+//--tes      SqlTemperature;
+      GetTemperature;
       TypeReport := 'temperature';
       timestamp := inttostr(DateTimeToUnix(NOW));
   end;
@@ -149,7 +158,9 @@ begin
       Application.ProcessMessages; // следующая операция не тормозит интерфейс
       SaveReport(timestamp, TypeReport, s);
 
-      while not PQuery.Eof do
+      DBGrid1.DataSource.DataSet.First;//надо выставить на начало данных при температуре
+
+      while not DBGrid1.DataSource.DataSet.Eof do
       begin
         s := '';
         for i := 0 to DBGrid1.Columns.Count - 1 do
@@ -157,13 +168,13 @@ begin
 
         Application.ProcessMessages; // следующая операция не тормозит интерфейс
         SaveReport(timestamp, TypeReport, s);
-        PQuery.Next;
+        DBGrid1.DataSource.DataSet.Next;
       end;
 
-      form1.DBGrid1.Enabled := true;
-      form1.b_action.Enabled := true;
-      form1.DBGrid1.DataSource.DataSet.First;
-      form1.DBGrid1.DataSource.DataSet.EnableControls;
+      DBGrid1.Enabled := true;
+      b_action.Enabled := true;
+//      DBGrid1.DataSource.DataSet.First;
+      DBGrid1.DataSource.DataSet.EnableControls;
   end;
 
 end;
@@ -440,6 +451,83 @@ begin
   Writeln(f, InData);
   Flush(f);
   CloseFile(f);
+end;
+
+
+function GetTemperature: bool;
+var
+  TempArray: Array of Double;
+  RawTempArray: TDoubleDynArray;
+  a, b, i: integer;
+begin
+  ClientDataSet := TClientDataSet.Create(nil);
+  DataSource.DataSet := ClientDataSet;
+
+  // Добавили поля
+  ClientDataSet.FieldDefs.Clear;
+  ClientDataSet.FieldDefs.Add('timestamp', ftString, 20, False);
+  ClientDataSet.FieldDefs.Add('heat', ftString, 20, False);
+  ClientDataSet.FieldDefs.Add('section', ftInteger, 0, False);
+  ClientDataSet.FieldDefs.Add('side', ftString, 20, False);
+  ClientDataSet.FieldDefs.Add('temperature', ftInteger, 0, False);
+
+  // Создали набор данных
+  ClientDataSet.CreateDataSet();
+
+  SqlTemperature;
+
+  a := 0;
+  b := a;
+  i := a;
+  while not PQuery.Eof do
+  begin
+    if a = length(RawTempArray) then SetLength(RawTempArray, a + 1);
+//    SetLength(RawTempArray, 5);
+    RawTempArray[a] := PQuery.FieldByName('temperature').AsInteger;
+    inc(a);
+
+{$IFDEF DEBUG}
+  inc(i);
+{$ENDIF}
+
+    if a = 4 then
+    begin
+      if b = length(TempArray) then SetLength(TempArray, b + 1);
+//      TempArray[b] := GetMedian(RawTempArray);
+      // Заполнили
+      ClientDataSet.Append; // Добавить новую запись
+      ClientDataSet.FieldByName('timestamp').AsString := PQuery.FieldByName('timestamp').AsString;
+      ClientDataSet.FieldByName('heat').AsString := PQuery.FieldByName('heat').AsString;
+      ClientDataSet.FieldByName('section').AsInteger := PQuery.FieldByName('section').AsInteger;
+      ClientDataSet.FieldByName('side').AsString := PQuery.FieldByName('side').AsString;
+      ClientDataSet.FieldByName('temperature').AsFloat := GetMedian(RawTempArray);
+      ClientDataSet.Post;
+
+      inc(b);
+      a := 0;
+    end;
+    PQuery.Next;
+  end;
+
+  ClientDataSet.Active := true;
+//  ClientDataSet.Destroy;
+{$IFDEF DEBUG}
+  showmessage('debug' + #9#9+'all -> '+inttostr(i)+#9+'median -> '+inttostr(b));
+{$ENDIF}
+end;
+
+
+function GetMedian(aArray: TDoubleDynArray): Double;
+var
+  lMiddleIndex: Integer;
+begin
+  TArray.Sort<Double>(aArray);
+
+  lMiddleIndex := Length(aArray) div 2;
+  if Odd(Length(aArray)) then
+    Result := aArray[lMiddleIndex]
+  else
+    Result := (aArray[lMiddleIndex - 1] + aArray[lMiddleIndex]) / 2;
 end;
 
 
