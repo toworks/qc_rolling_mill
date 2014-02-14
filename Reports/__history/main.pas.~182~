@@ -7,7 +7,7 @@ uses
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.Grids, Vcl.DBGrids, Data.DB,
   Vcl.StdCtrls, Vcl.DBCtrls, Vcl.Mask, DateUtils, Datasnap.DBClient, Types,
   Generics.Collections, MidasLib, CRTL;
-  //MidasLib, CRTL - устранение error midas.dll
+  //MidasLib, CRTL - устранение error MIDAS.dll
 
 type
   TForm1 = class(TForm)

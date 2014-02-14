@@ -6,8 +6,7 @@ uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.Grids, Vcl.DBGrids, Data.DB,
   Vcl.StdCtrls, Vcl.DBCtrls, Vcl.Mask, DateUtils, Datasnap.DBClient, Types,
-  Generics.Collections, MidasLib, CRTL;
-  //MidasLib, CRTL - устранение error midas.dll
+  Generics.Collections;
 
 type
   TForm1 = class(TForm)
