@@ -200,6 +200,7 @@ begin
       FQueryOPC.SQL.Add('NOPLAV as heat, MARKA as grade, KLASS as strength_class, RAZM1 as section, STANDART as standard, SIDE');
       FQueryOPC.SQL.Add('FROM melts');
       FQueryOPC.SQL.Add('where side='+inttostr(InSide)+'');
+      FQueryOPC.SQL.Add('and state=1');
       FQueryOPC.SQL.Add('order by begindt desc');
 {$IFDEF DEBUG}
   SaveLog('debug' + #9#9 + 'FQueryOPC side '+inttostr(InSide)+' -> ' + FQueryOPC.SQL.Text);
