@@ -164,7 +164,7 @@ begin
     PQueryCalculation.sql.Add('and (t3.strength_class like translate('''+StrengthClass+''',');
     PQueryCalculation.sql.Add('''ETOPAHKXCBMetopahkxcbm'',''ЕТОРАНКХСВМеторанкхсвм'')');
     PQueryCalculation.sql.Add('or t3.strength_class like translate('''+StrengthClass+''',');
-    PQueryCalculation.sql.Add('''ЕТОРАНКХСВМеторанкхсвм'',''ETOPAHKXCBMetopahkxcbm''))');
+    PQueryCalculation.sql.Add('''ETOPAHKXCBMetopahkxcbm'',''ЕТОРАНКХСВМеторанкхсвм''))');
     PQueryCalculation.sql.Add('and t1.side = '+inttostr(InSide)+'');
     PQueryCalculation.sql.Add('and t3.type like '''+_type+'''');
     PQueryCalculation.sql.Add('and t1.bad_to_calculate = 0');

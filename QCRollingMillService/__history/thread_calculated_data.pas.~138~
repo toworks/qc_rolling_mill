@@ -502,7 +502,7 @@ begin
       PQueryData.sql.Add('where (strength_class like translate('''+StrengthClass+''',');
       PQueryData.sql.Add('''ETOPAHKXCBMetopahkxcbm'',''ЕТОРАНКХСВМеторанкхсвм'')');
       PQueryData.sql.Add('or strength_class like translate('''+StrengthClass+''',');
-      PQueryData.sql.Add('''ЕТОРАНКХСВМеторанкхсвм'',''ETOPAHKXCBMetopahkxcbm''))');
+      PQueryData.sql.Add('''ETOPAHKXCBMetopahkxcbm'',''ЕТОРАНКХСВМеторанкхсвм''))');
       PQueryData.sql.Add('and diameter_min <= '+Section+' and diameter_max >= '+Section+'');
       PQueryData.sql.Add('and c_min <= '+c+' and c_max >= '+c+'');
       PQueryData.sql.Add('and mn_min <= '+mn+' and mn_max >= '+mn+'');
@@ -630,7 +630,7 @@ begin
       PQueryCalculation.sql.Add('and (t3.strength_class like translate('''+StrengthClass+''',');
       PQueryCalculation.sql.Add('''ETOPAHKXCBMetopahkxcbm'',''ЕТОРАНКХСВМеторанкхсвм'')');
       PQueryCalculation.sql.Add('or t3.strength_class like translate('''+StrengthClass+''',');
-      PQueryCalculation.sql.Add('''ЕТОРАНКХСВМеторанкхсвм'',''ETOPAHKXCBMetopahkxcbm''))');
+      PQueryCalculation.sql.Add('''ETOPAHKXCBMetopahkxcbm'',''ЕТОРАНКХСВМеторанкхсвм''))');
       PQueryCalculation.sql.Add('and t1.side='+inttostr(InSide)+'');
       if (strtofloat(Section) = 14) or (strtofloat(Section) = 16) or (strtofloat(Section) = 18) then
           PQueryCalculation.sql.Add('and t4.rolling_scheme = '''+RollingScheme+'''');

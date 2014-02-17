@@ -630,7 +630,7 @@ begin
       PQueryCalculation.sql.Add('and (t3.strength_class like translate('''+StrengthClass+''',');
       PQueryCalculation.sql.Add('''ETOPAHKXCBMetopahkxcbm'',''ЕТОРАНКХСВМеторанкхсвм'')');
       PQueryCalculation.sql.Add('or t3.strength_class like translate('''+StrengthClass+''',');
-      PQueryCalculation.sql.Add('''ЕТОРАНКХСВМеторанкхсвм'',''ETOPAHKXCBMetopahkxcbm''))');
+      PQueryCalculation.sql.Add('''ETOPAHKXCBMetopahkxcbm'',''ЕТОРАНКХСВМеторанкхсвм''))');
       PQueryCalculation.sql.Add('and t1.side='+inttostr(InSide)+'');
       if (strtofloat(Section) = 14) or (strtofloat(Section) = 16) or (strtofloat(Section) = 18) then
           PQueryCalculation.sql.Add('and t4.rolling_scheme = '''+RollingScheme+'''');
