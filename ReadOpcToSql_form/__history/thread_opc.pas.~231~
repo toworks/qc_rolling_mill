@@ -214,9 +214,7 @@ begin
       OPCTagArray[5].Write(left.TagValue);
       OPCTagArray[6].Write(right.TagValue);
       if left.TagValue or right.TagValue then
-        OPCTagArray[7].Write(true)
-      else
-        OPCTagArray[7].Write(false);
+        OPCTagArray[7].Write(True);
   except
     on E: Exception do
     begin
@@ -429,22 +427,12 @@ begin
 
   if PQueryAlert.FieldByName('alarm').AsInteger = 1 then
   begin
-    try
-      FreeAndNil(PQueryAlert);
-    except
-      on E: Exception do
-        SaveLog('error' + #9#9 + E.ClassName + ', с сообщением: ' + E.Message);
-    end;
+    FreeAndNil(PQueryAlert);
     Result := true;
   end
   else
   begin
-    try
-      FreeAndNil(PQueryAlert);
-    except
-      on E: Exception do
-        SaveLog('error' + #9#9 + E.ClassName + ', с сообщением: ' + E.Message);
-    end;
+    FreeAndNil(PQueryAlert);
     Result := false;
   end;
 

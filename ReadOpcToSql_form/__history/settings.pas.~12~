@@ -52,7 +52,7 @@ var
   FbSqlConfigArray: Array [1 .. 6] of String;
   PgSqlConfigArray: Array [1 .. 6] of String;
   OraSqlConfigArray: Array [1 .. 5] of String;
-  OpcConfigArray: Array [1 .. 8] of String;
+  OpcConfigArray: Array [1 .. 5] of String;
   RollingMillConfigArray: Array [1 .. 3] of String;
   TcpConfigArray: Array [1 .. 2] of String;
 
@@ -186,12 +186,6 @@ begin
       OpcConfigArray[4] := SQuery.FieldByName('value').AsString;
     if SQuery.FieldByName('name').AsString = '::OPC::tag_cogging_right' then
       OpcConfigArray[5] := SQuery.FieldByName('value').AsString;
-    if SQuery.FieldByName('name').AsString = '::OPC::tag_light_alert_left' then
-      OpcConfigArray[6] := SQuery.FieldByName('value').AsString;
-    if SQuery.FieldByName('name').AsString = '::OPC::tag_light_alert_right' then
-      OpcConfigArray[7] := SQuery.FieldByName('value').AsString;
-    if SQuery.FieldByName('name').AsString = '::OPC::tag_aural_alert' then
-      OpcConfigArray[8] := SQuery.FieldByName('value').AsString;
 
     // rolling mill
     if SQuery.FieldByName('name').AsString = '::RollingMill::number' then

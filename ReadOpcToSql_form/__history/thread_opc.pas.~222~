@@ -181,64 +181,56 @@ end;
 
 function OPCWriteTags: bool;
 type
-  alert = record
+  alert = Record
     tid           : integer;
     TagValue      : OleVariant;
 end;
 var
   left, right: alert;
 begin
+   try
+       SQuery.Close;
+       SQuery.SQL.Clear;
+       SQuery.SQL.Add('SELECT * FROM settings');
+       SQuery.Open;
+   except
+     on E: Exception do
+       SaveLog('error' + #9#9 + E.ClassName + ', с сообщением: ' + E.Message);
+   end;
+
+   while not SQuery.Eof do
+   begin
+     if SQuery.FieldByName('name').AsString = '::tid::side0' then
+       left.tid := SQuery.FieldByName('value').AsInteger;
+     if SQuery.FieldByName('name').AsString = '::tid::side1' then
+       right.tid := SQuery.FieldByName('value').AsInteger;
+     SQuery.Next;
+   end;
+
+//  left.TagValue := SqlReadAlert(left.tid, 0);
+//  right.TagValue := SqlReadAlert(right.tid, 1);
+
   try
-      SQuery.Close;
-      SQuery.SQL.Clear;
-      SQuery.SQL.Add('SELECT * FROM settings');
-      SQuery.Open;
-  except
-    on E: Exception do
-      SaveLog('error' + #9#9 + E.ClassName + ', с сообщением: ' + E.Message);
-  end;
-
-  while not SQuery.Eof do
-  begin
-    if SQuery.FieldByName('name').AsString = '::tid::side0' then
-      left.tid := SQuery.FieldByName('value').AsInteger;
-    if SQuery.FieldByName('name').AsString = '::tid::side1' then
-      right.tid := SQuery.FieldByName('value').AsInteger;
-    SQuery.Next;
-  end;
-
-  left.TagValue := SqlReadAlert(left.tid, 0);
-  right.TagValue := SqlReadAlert(right.tid, 1);
-
-  try
-      OPCTagArray[5].Write(left.TagValue);
-      OPCTagArray[6].Write(right.TagValue);
+      OPCTagArray[5].Write(False);
+      OPCTagArray[6].Write(True);
       if left.TagValue or right.TagValue then
-        OPCTagArray[7].Write(true)
-      else
-        OPCTagArray[7].Write(false);
+        OPCTagArray[7].Write(True);
   except
     on E: Exception do
     begin
       SaveLog('error' + #9#9 + E.ClassName + ', с сообщением: ' + E.Message);
       ConfigOPCServer(false);
       ConfigOPCServer(true);
-      //free memory
-      Finalize(left);
-      FillChar(left,sizeof(left),0);
-      Finalize(right);
-      FillChar(right,sizeof(right),0);
+      FreeAndNil(left);
+      FreeAndNil(right);
     end;
   end;
-{$IFDEF DEBUG}
+//{$IFDEF DEBUG}
   SaveLog('debug' + #9#9 + 'LightAlertLeft -> ' + inttostr(left.TagValue));
   SaveLog('debug' + #9#9 + 'LightAlertRight -> ' + inttostr(right.TagValue));
-{$ENDIF}
-  //free memory
-  Finalize(left);
-  FillChar(left,sizeof(left),0);
-  Finalize(right);
-  FillChar(right,sizeof(right),0);
+//{$ENDIF}
+  FreeAndNil(left);
+  FreeAndNil(right);
 end;
 
 
@@ -416,35 +408,25 @@ begin
   try
     PQueryAlert.Close;
     PQueryAlert.SQL.Clear;
-    PQueryAlert.SQL.Add('SELECT alarm FROM alarm');
-    PQueryAlert.SQL.Add('WHERE aid='+inttostr(InTid)+' and side='+inttostr(InSide)+'');
-{$IFDEF DEBUG}
+    PQueryAlert.SQL.Add('SELECT alarm as alert FROM alarm');
+    PQueryAlert.SQL.Add('WHERE aid='+inttostr(InTid)+'');
+//{$IFDEF DEBUG}
   SaveLog('debug' + #9#9 + 'PQueryAlert side '+inttostr(InSide)+' -> ' + PQueryAlert.SQL.Text);
-{$ENDIF}
-    PQueryAlert.Open;
+//{$ENDIF}
+    PQueryAlert.ExecSQL;
   except
     on E: Exception do
       SaveLog('error' + #9#9 + E.ClassName + ', с сообщением: ' + E.Message);
   end;
 
-  if PQueryAlert.FieldByName('alarm').AsInteger = 1 then
+  if PQueryAlert.FieldByName('alert').AsInteger = 1 then
   begin
-    try
-      FreeAndNil(PQueryAlert);
-    except
-      on E: Exception do
-        SaveLog('error' + #9#9 + E.ClassName + ', с сообщением: ' + E.Message);
-    end;
+    FreeAndNil(PQueryAlert);
     Result := true;
   end
   else
   begin
-    try
-      FreeAndNil(PQueryAlert);
-    except
-      on E: Exception do
-        SaveLog('error' + #9#9 + E.ClassName + ', с сообщением: ' + E.Message);
-    end;
+    FreeAndNil(PQueryAlert);
     Result := false;
   end;
 

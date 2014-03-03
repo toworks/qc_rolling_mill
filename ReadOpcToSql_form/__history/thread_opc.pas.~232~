@@ -214,9 +214,7 @@ begin
       OPCTagArray[5].Write(left.TagValue);
       OPCTagArray[6].Write(right.TagValue);
       if left.TagValue or right.TagValue then
-        OPCTagArray[7].Write(true)
-      else
-        OPCTagArray[7].Write(false);
+        OPCTagArray[7].Write(True);
   except
     on E: Exception do
     begin
