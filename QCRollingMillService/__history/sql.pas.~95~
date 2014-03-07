@@ -4,7 +4,7 @@ interface
 
 uses
   SysUtils, Classes, Windows, ActiveX, DBAccess, Ora, ZAbstractDataset, ZDataset,
-  ZAbstractConnection, ZConnection, ZAbstractRODataset, MemData;
+  ZAbstractConnection, ZConnection, ZAbstractRODataset;
 
 type
   TSql = class
@@ -25,15 +25,13 @@ var
   PConnect: TZConnection;
   PQuery: TZQuery;
 
-//  {$DEFINE DEBUG}
+  {$DEFINE DEBUG}
 
   function ConfigOracleSetting(InData: bool): bool;
   function ConfigPostgresSetting(InData: bool): bool;
   function RolledMelting(InSide: integer): string;
   function SqlCarbonEquivalent(InHeat: string): TArrayArrayVariant;
   function CalculatedData(InSide: integer; InData: string): bool;
-  procedure OraSession1ConnectionLost(Sender: TObject; Component: TComponent;
-      ConnLostCause: TConnLostCause; var RetryMode: TRetryMode);
 
 implementation
 
@@ -100,14 +98,6 @@ begin
         FreeAndNil(OraSession);
         FreeAndNil(OraQuery);
   end;
-end;
-
-
-procedure OraSession1ConnectionLost(Sender: TObject;
-  Component: TComponent; ConnLostCause: TConnLostCause;
-  var RetryMode: TRetryMode);
-begin
-    RetryMode := rmReconnect; // rmReconnectExecute
 end;
 
 
