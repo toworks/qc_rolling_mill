@@ -339,10 +339,10 @@ begin
 //--      OraQuery.SQL.Add('and n.GOST like translate('''+CutChar(Standard)+''','); //переводим Eng буквы похожие на кирилицу
 //--      OraQuery.SQL.Add('''ETOPAHKXCBMetopahkxcbm'',''ЕТОРАНКХСВМеторанкхсвм'')');
       OraQuery.SQL.Add('and n.razm1 = '+Section+'');
-      OraQuery.SQL.Add('and translate(n.klass,');
-      OraQuery.SQL.Add('''ЕТОРАНКХСВМеторанкхсвм'',''ETOPAHKXCBMetopahkxcbm'')');
-      OraQuery.SQL.Add('like translate('''+CutChar(StrengthClass)+''',');
-      OraQuery.SQL.Add('''ЕТОРАНКХСВМеторанкхсвм'',''ETOPAHKXCBMetopahkxcbm'')');
+      OraQuery.SQL.Add('and (n.klass like translate('''+CutChar(StrengthClass)+''','); //переводим Eng буквы похожие на кирилицу
+      OraQuery.SQL.Add('''ETOPAHKXCBMetopahkxcbm'',''ЕТОРАНКХСВМеторанкхсвм'')');
+      OraQuery.SQL.Add('or n.klass like translate('''+CutChar(StrengthClass)+''','); //переводим Eng буквы похожие на кирилицу
+      OraQuery.SQL.Add('''ЕТОРАНКХСВМеторанкхсвм'',''ETOPAHKXCBMetopahkxcbm''))');
       OraQuery.SQL.Add('and n.data=v.data and v.npart=n.npart');
       OraQuery.SQL.Add('and n.npart like '''+RollingMillConfigArray[1]+'%'''); // номер стана
       if InSide = 0  then
@@ -498,10 +498,11 @@ begin
       PQueryData.Close;
       PQueryData.sql.Clear;
       PQueryData.sql.Add('SELECT limit_min, limit_max, type FROM technological_sample');
-      PQueryData.sql.Add('where translate(strength_class,');
-      PQueryData.sql.Add('''ЕТОРАНКХСВМеторанкхсвм'',''ETOPAHKXCBMetopahkxcbm'')');
-      PQueryData.sql.Add('like translate('''+StrengthClass+''',');
-      PQueryData.sql.Add('''ЕТОРАНКХСВМеторанкхсвм'',''ETOPAHKXCBMetopahkxcbm'')');
+//      PQueryData.sql.Add('where strength_class like '''+StrengthClass+'''');
+      PQueryData.sql.Add('where (strength_class like translate('''+StrengthClass+''',');
+      PQueryData.sql.Add('''ETOPAHKXCBMetopahkxcbm'',''ЕТОРАНКХСВМеторанкхсвм'')');
+      PQueryData.sql.Add('or strength_class like translate('''+StrengthClass+''',');
+      PQueryData.sql.Add('''ЕТОРАНКХСВМеторанкхсвм'',''ETOPAHKXCBMetopahkxcbm''))');
       PQueryData.sql.Add('and diameter_min <= '+Section+' and diameter_max >= '+Section+'');
       PQueryData.sql.Add('and c_min <= '+c+' and c_max >= '+c+'');
       PQueryData.sql.Add('and mn_min <= '+mn+' and mn_max >= '+mn+'');
@@ -626,9 +627,9 @@ begin
       PQueryCalculation.sql.Add('and t1.timestamp>=EXTRACT(EPOCH FROM now())-(2629743*10)');
       PQueryCalculation.sql.Add('and t2.heat in ('+HeatAll+')');
       PQueryCalculation.sql.Add('and translate(t3.strength_class,');
-      PQueryCalculation.sql.Add('''ЕТОРАНКХСВМеторанкхсвм'',''ETOPAHKXCBMetopahkxcbm'')');
+      PQueryCalculation.sql.Add('''ЕТОРАНКХСВМеторанкхсвм'',''ETOPAHKXCBMetopahkxcbm''))');
       PQueryCalculation.sql.Add('like translate('''+StrengthClass+''',');
-      PQueryCalculation.sql.Add('''ЕТОРАНКХСВМеторанкхсвм'',''ETOPAHKXCBMetopahkxcbm'')');
+      PQueryCalculation.sql.Add('''ЕТОРАНКХСВМеторанкхсвм'',''ETOPAHKXCBMetopahkxcbm''))');
       PQueryCalculation.sql.Add('and t1.side='+inttostr(InSide)+'');
       if (strtofloat(Section) = 14) or (strtofloat(Section) = 16) or (strtofloat(Section) = 18) then
           PQueryCalculation.sql.Add('and t4.rolling_scheme = '''+RollingScheme+'''');

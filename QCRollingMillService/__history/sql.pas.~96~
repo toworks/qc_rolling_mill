@@ -163,20 +163,18 @@ begin
     PQueryCalculation.sql.Add('on t1.heat = t2.heat');
     PQueryCalculation.sql.Add('inner join');
     PQueryCalculation.sql.Add('technological_sample t3');
-    PQueryCalculation.sql.Add('on translate(t3.strength_class, ');
-    PQueryCalculation.sql.Add('''ЕТОРАНКХСВМеторанкхсвм'',''ETOPAHKXCBMetopahkxcbm'')');
-    PQueryCalculation.sql.Add('= translate(t1.strength_class, ');
-    PQueryCalculation.sql.Add('''ЕТОРАНКХСВМеторанкхсвм'',''ETOPAHKXCBMetopahkxcbm'')');
+    PQueryCalculation.sql.Add('on t3.strength_class=t1.strength_class');
     PQueryCalculation.sql.Add('and t3.diameter_min <= '+Section+' and t3.diameter_max >= '+Section+'');
     PQueryCalculation.sql.Add('and t3.c_min <= '+c+' and t3.c_max >= '+c+'');
     PQueryCalculation.sql.Add('and t3.mn_min <= '+mn+' and t3.mn_max >= '+mn+'');
     PQueryCalculation.sql.Add('and t3.si_min <= '+si+' and t3.si_max >= '+si+'');
     PQueryCalculation.sql.Add('where t1.timestamp<=EXTRACT(EPOCH FROM now())');
     PQueryCalculation.sql.Add('and t1.timestamp>=EXTRACT(EPOCH FROM now())-(2629743*10)');// timestamp 2629743 month * 10
-    PQueryCalculation.sql.Add('and translate(t3.strength_class,');
-    PQueryCalculation.sql.Add('''ЕТОРАНКХСВМеторанкхсвм'',''ETOPAHKXCBMetopahkxcbm'')');
-    PQueryCalculation.sql.Add('like translate('''+StrengthClass+''',');
-    PQueryCalculation.sql.Add('''ЕТОРАНКХСВМеторанкхсвм'',''ETOPAHKXCBMetopahkxcbm'')');
+//    PQueryCalculation.sql.Add('and t3.strength_class like '''+StrengthClass+'''');
+    PQueryCalculation.sql.Add('and (t3.strength_class like translate('''+StrengthClass+''',');
+    PQueryCalculation.sql.Add('''ETOPAHKXCBMetopahkxcbm'',''ЕТОРАНКХСВМеторанкхсвм'')');
+    PQueryCalculation.sql.Add('or t3.strength_class like translate('''+StrengthClass+''',');
+    PQueryCalculation.sql.Add('''ЕТОРАНКХСВМеторанкхсвм'',''ETOPAHKXCBMetopahkxcbm''))');
     PQueryCalculation.sql.Add('and t1.side = '+inttostr(InSide)+'');
     PQueryCalculation.sql.Add('and t3.type like '''+_type+'''');
     PQueryCalculation.sql.Add('and t1.bad_to_calculate = 0');
