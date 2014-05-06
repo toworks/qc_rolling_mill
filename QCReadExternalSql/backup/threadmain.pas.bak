@@ -1,0 +1,46 @@
+unit ThreadMain;
+
+{$mode objfpc}{$H+}
+
+interface
+
+uses
+  Classes, SysUtils;
+
+type
+  TTheThread = class(TThread)
+    procedure Execute; override;
+  end;
+
+var
+   FThread: TTheThread;
+
+implementation
+
+uses
+    daemonmapper, daemon, settings;
+
+
+
+procedure TTheThread.Execute;
+var i: integer;
+begin
+  i := 0;
+  SaveLog('Thread.Execute');
+  try
+    repeat
+      Sleep(1000); //milliseconds
+      inc(i);
+      SaveLog('Thread.Loop ' + Format('Tick :%d', [i]));
+    until Terminated;
+    SaveLog('Tread.LoopStopped');
+  except
+    on E: Exception do
+      SaveLog('Thread.Execute: ' + E.Message);
+  end;
+end;
+
+
+
+end.
+

@@ -1,0 +1,16 @@
+Program ReadExternalSql;
+
+Uses
+{$IFDEF UNIX}{$IFDEF UseCThreads}
+  CThreads,
+{$ENDIF}{$ENDIF}
+  DaemonApp, lazdaemonapp, daemonmapper, daemon, settings,
+  versioninfo, thread_main, zcore;
+
+{$R *.res}
+
+begin
+  Application.Title:='daemon application';
+  Application.Initialize;
+  Application.Run;
+end.
