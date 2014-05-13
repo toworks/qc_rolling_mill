@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, ZConnection, ZDataset, ZDbcIntfs, IBConnection, sqldb,
-  DateUtils, FileUtil;
+  mssqlconn, sqldblib, DateUtils, FileUtil;
 
 type
 TMeltingCharacteristics = Record
@@ -419,8 +419,10 @@ end;
 
 function MSSqlWrite(InData: TMeltingCharacteristics): boolean;
 var
-   MSConnect: TZConnection;
-   MSQuery: TZQuery;
+   MSDBLibraryLoader: TSQLDBLibraryLoader;
+   MSConnection: TMSSQLConnection;
+   MSQuery: TSQLQuery;
+   MSTransaction: TSQLTransaction;
 begin
 
   {$IFDEF DEBUG}
@@ -436,11 +438,29 @@ begin
     SaveLog.Log(etDebug, 'ms rolling_mill -> '+InData.rolling_mill_);
   {$ENDIF}
 
-    MSConnect := TZConnection.Create(nil);
-    MSQuery := TZQuery.Create(nil);
+{    MSConnect := TZConnection.Create(nil);
+    MSQuery := TZQuery.Create(nil);}
+
+    MSDBLibraryLoader := TSQLDBLibraryLoader.Create(nil);
+    MSConnection := TMSSQLConnection.Create(nil);
+    MSQuery := TSQLQuery.Create(nil);
+    MSTransaction := TSQLTransaction.Create(nil);
 
     try
-       MSConnect.LibraryLocation := '.\'+MsSqlSettings.lib;
+       MSDBLibraryLoader.ConnectionType := 'MSSQLServer';
+       MSDBLibraryLoader.LibraryName := '.\'+MsSqlSettings.lib;
+
+       MSConnection.DatabaseName := MsSqlSettings.db_name;
+       MSConnection.HostName := MsSqlSettings.ip;
+       MSConnection.Transaction := MSTransaction;
+
+       MSTransaction.DataBase := MSConnection;
+       MSTransaction.Action := caCommit;
+
+       MSQuery.DataBase := MSConnection;
+       MSQuery.Transaction := MSTransaction;
+
+{       MSConnect.LibraryLocation := '.\'+MsSqlSettings.lib;
        MSConnect.Protocol := 'FreeTDS_MsSQL>=2005';
        //BD надо перевести в кодировку Cyrillic_General_CI_AS для отображения кирилицы
 {       ALTER DATABASE [KRR-PA-MGT-QCRollingMill] SET SINGLE_USER WITH ROLLBACK IMMEDIATE
@@ -456,13 +476,15 @@ begin
        MSConnect.Database := MsSqlSettings.db_name;
 
        MSConnect.Connect;
-       MSQuery.Connection := MSConnect;
+       MSQuery.Connection := MSConnect;}
     except
       on E : Exception do
         SaveLog.Log(etError, E.ClassName+', с сообщением: '+E.Message);
     end;
 
     try
+       MSDBLibraryLoader.Enabled := true;
+       MSConnection.Connected := true;
        MSQuery.Close;
        MSQuery.SQL.Clear;
        MSQuery.SQL.Add('UPDATE temperature_current SET temperature='+InData.temperature_+'');
@@ -472,9 +494,9 @@ begin
        MSQuery.SQL.Add('rolling_mill, heat, grade, strength_class, section, ');
        MSQuery.SQL.Add('standard, side, temperature) values ( ');
        MSQuery.SQL.Add(''+InData.tid_+', datediff(ss, ''1970/01/01'', GETDATE()),');
-       MSQuery.SQL.Add(''+InData.rolling_mill_+', '''+InData.heat_+''', ');
-       MSQuery.SQL.Add(''''+InData.grade_+''', '''+InData.StrengthClass_+''', ');
-       MSQuery.SQL.Add(''+InData.section_+', '''+InData.standard_+''', ');
+       MSQuery.SQL.Add(''+InData.rolling_mill_+', '''+UTF8Encode(InData.heat_)+''', ');
+       MSQuery.SQL.Add(''''+UTF8Encode(InData.grade_)+''', '''+UTF8Encode(InData.StrengthClass_)+''', ');
+       MSQuery.SQL.Add(''+InData.section_+', '''+UTF8Encode(InData.standard_)+''', ');
        MSQuery.SQL.Add(''+InData.side_+', '+InData.temperature_+' ) ');
 {{$IFDEF DEBUG}
   SaveLog.Log(etDebug, 'MSQuery.SQL.Text -> '+MSQuery.SQL.Text);
@@ -485,8 +507,10 @@ begin
         SaveLog.Log(etError, E.ClassName+', с сообщением: '+E.Message);
     end;
 
-    MSQuery.Destroy;
-    MSConnect.Destroy;
+    FreeAndNil(MSDBLibraryLoader);
+    FreeAndNil(MSConnection);
+    FreeAndNil(MSQuery);
+    FreeAndNil(MSTransaction);
     //free memory
     Finalize(InData);
     FillChar(InData,sizeof(InData),0);

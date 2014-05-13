@@ -45,10 +45,12 @@
         <IsPartOfProject Value="True"/>
         <UnitName Value="thread_main"/>
         <IsVisibleTab Value="True"/>
+        <EditorIndex Value="1"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="110"/>
-        <CursorPos X="15" Y="120"/>
+        <TopLine Value="88"/>
+        <CursorPos X="14" Y="112"/>
         <UsageCount Value="206"/>
+        <Loaded Value="True"/>
       </Unit4>
       <Unit5>
         <Filename Value="versioninfo.pas"/>
@@ -63,12 +65,39 @@
         <Filename Value="sql.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="sql"/>
-        <TopLine Value="333"/>
-        <CursorPos X="30" Y="339"/>
+        <EditorIndex Value="0"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="137"/>
+        <CursorPos X="26" Y="215"/>
         <UsageCount Value="206"/>
+        <Loaded Value="True"/>
       </Unit6>
     </Units>
-    <JumpHistory Count="0" HistoryIndex="-1"/>
+    <General>
+      <ActiveWindowIndexAtStart Value="0"/>
+    </General>
+    <JumpHistory Count="5" HistoryIndex="4">
+      <Position1>
+        <Filename Value="sql.pas"/>
+        <Caret Line="510" Column="5" TopLine="489"/>
+      </Position1>
+      <Position2>
+        <Filename Value="sql.pas"/>
+        <Caret Line="478" Column="41" TopLine="431"/>
+      </Position2>
+      <Position3>
+        <Filename Value="sql.pas"/>
+        <Caret Line="442" Column="37" TopLine="427"/>
+      </Position3>
+      <Position4>
+        <Filename Value="sql.pas"/>
+        <Caret Line="450" Column="55" TopLine="436"/>
+      </Position4>
+      <Position5>
+        <Filename Value="sql.pas"/>
+        <Caret Line="458" Column="34" TopLine="445"/>
+      </Position5>
+    </JumpHistory>
   </ProjectSession>
   <EditorMacros Count="0"/>
 </CONFIG>
