@@ -54,9 +54,10 @@ begin
          OraConnect.Protocol := 'oracle';
          OraConnect.User := OraSqlSettings.user;
          OraConnect.Password := OraSqlSettings.password;
+//         OraConnect.Properties.Add('codepage="utf8"'); // проблемы с кодировкой
+OraConnect.Properties.Add('codepage="cp1221"'); // проблемы с кодировкой
          OraConnect.Connect;
          OraQuery.Connection := OraConnect;
-//        OraSession.Options.Charset := 'CL8MSWIN1251';// 'AL32UTF8';//CL8MSWIN1251
          OraSqlSettings.configured := true;
       except
         on E: Exception do
@@ -156,37 +157,38 @@ begin
     // -- получение прокатаных плавок не больше 125 или согласно плавки
     MSQueryCalculation.Close;
     MSQueryCalculation.sql.Clear;
-    MSQueryCalculation.sql.Add('select distinct t1.heat, t1.timestamp from temperature_current t1');
-    MSQueryCalculation.sql.Add('inner join');
+    MSQueryCalculation.sql.Add('select distinct top 125 t1.heat, t1.timestamp from temperature_current t1');
+{    MSQueryCalculation.sql.Add('inner join');
     MSQueryCalculation.sql.Add('chemical_analysis t2');
-    MSQueryCalculation.sql.Add('on t1.heat = t2.heat');
+    MSQueryCalculation.sql.Add('on t1.heat = t2.heat');}
     MSQueryCalculation.sql.Add('inner join');
     MSQueryCalculation.sql.Add('technological_sample t3');
-    MSQueryCalculation.sql.Add('on translate(t3.strength_class, ');
+    MSQueryCalculation.sql.Add('on dbo.translate(t3.strength_class, ');
     MSQueryCalculation.sql.Add('''ЕТОРАНКХСВМеторанкхсвм'',''ETOPAHKXCBMetopahkxcbm'')');
-    MSQueryCalculation.sql.Add('= translate(t1.strength_class, ');
+    MSQueryCalculation.sql.Add('= dbo.translate(t1.strength_class, ');
     MSQueryCalculation.sql.Add('''ЕТОРАНКХСВМеторанкхсвм'',''ETOPAHKXCBMetopahkxcbm'')');
-    MSQueryCalculation.sql.Add('and t3.diameter_min <= '+Section+' and t3.diameter_max >= '+Section+'');
+    { test }
+{    MSQueryCalculation.sql.Add('and t3.diameter_min <= '+Section+' and t3.diameter_max >= '+Section+'');
     MSQueryCalculation.sql.Add('and t3.c_min <= '+c+' and t3.c_max >= '+c+'');
-    MSQueryCalculation.sql.Add('and t3.mn_min <= '+mn+' and t3.mn_max >= '+mn+'');
+    MSQueryCalculation.sql.Add('and t3.mn_min <= '+mn+' and t3.mn_max >= '+mn+'');}
     MSQueryCalculation.sql.Add('and t3.si_min <= '+si+' and t3.si_max >= '+si+'');
-    MSQueryCalculation.sql.Add('where t1.timestamp<=EXTRACT(EPOCH FROM now())');
-    MSQueryCalculation.sql.Add('and t1.timestamp>=EXTRACT(EPOCH FROM now())-(2629743*10)');// timestamp 2629743 month * 10
-    MSQueryCalculation.sql.Add('and translate(t3.strength_class,');
+    MSQueryCalculation.sql.Add('where t1.timestamp<=datediff(s, ''01/01/1970'', getdate())');
+    MSQueryCalculation.sql.Add('and t1.timestamp>=datediff(s, ''01/01/1970'', getdate())-(2629743*10)');// timestamp 2629743 month * 10
+    MSQueryCalculation.sql.Add('and dbo.translate(t3.strength_class,');
     MSQueryCalculation.sql.Add('''ЕТОРАНКХСВМеторанкхсвм'',''ETOPAHKXCBMetopahkxcbm'')');
-    MSQueryCalculation.sql.Add('like translate('''+StrengthClass+''',');
+    MSQueryCalculation.sql.Add('like dbo.translate('''+StrengthClass+''',');
     MSQueryCalculation.sql.Add('''ЕТОРАНКХСВМеторанкхсвм'',''ETOPAHKXCBMetopahkxcbm'')');
     MSQueryCalculation.sql.Add('and t1.side = '+inttostr(InSide)+'');
     MSQueryCalculation.sql.Add('and t3.type like '''+_type+'''');
     MSQueryCalculation.sql.Add('and t1.bad_to_calculate = 0');
     MSQueryCalculation.sql.Add('order by t1.timestamp desc');
-    MSQueryCalculation.sql.Add('LIMIT 125');
+{$IFDEF DEBUG}
+  SaveLog.Log(etDebug, 'MSQueryCalculation.SQL.Text -> '+UTF8Decode(MSQueryCalculation.sql.Text));
+{$ENDIF}
     MSQueryCalculation.Open;
 //    MSQueryCalculation.FetchAll;
 
-{$IFDEF DEBUG}
-  SaveLog.Log(etDebug, 'MSQueryCalculation.SQL.Text -> '+MSQueryCalculation.sql.Text);
-{$ENDIF}
+
     if MSQueryCalculation.RecordCount  > 5 then
     begin
       break;
@@ -326,7 +328,7 @@ begin
   tid := MSQueryCalculatedData.FieldByName('tid').AsString;
 
   // delete report recalculated
-  if InData{.IsEmpty} = '' then
+  if InData = '' then
   begin
     MSDBLibraryLoader.Enabled := true;
     MSConnection.Connected := true;
