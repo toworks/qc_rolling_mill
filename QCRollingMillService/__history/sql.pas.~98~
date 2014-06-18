@@ -180,7 +180,6 @@ begin
     PQueryCalculation.sql.Add('and t3.c_min <= t2.c and t3.c_max >= t2.c');// отсекаем с несовпадающей химией
     PQueryCalculation.sql.Add('and t3.mn_min <= t2.mn and t3.mn_max >= t2.mn');
     PQueryCalculation.sql.Add('and t3.si_min <= t2.si and t3.si_max >= t2.si');
-    PQueryCalculation.sql.Add('and t1.section = '+Section+'');// отсекаем по диаметру
     PQueryCalculation.sql.Add('and t1.side = '+inttostr(InSide)+'');
     PQueryCalculation.sql.Add('and t3.type like '''+_type+'''');
     PQueryCalculation.sql.Add('and t1.bad_to_calculate = 0');
