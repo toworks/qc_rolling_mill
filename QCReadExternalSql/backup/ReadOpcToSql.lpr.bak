@@ -1,0 +1,15 @@
+Program ReadOpcToSql;
+
+Uses
+{$IFDEF UNIX}{$IFDEF UseCThreads}
+  CThreads,
+{$ENDIF}{$ENDIF}
+  DaemonApp, lazdaemonapp, daemonmapper, daemon, ThreadMain, logging, settings;
+
+{$R *.res}
+
+begin
+  Application.Title:='daemon application';
+  Application.Initialize;
+  Application.Run;
+end.

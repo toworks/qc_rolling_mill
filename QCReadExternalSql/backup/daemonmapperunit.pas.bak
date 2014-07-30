@@ -1,0 +1,106 @@
+unit daemonmapperunit;
+
+{$mode objfpc}{$H+}
+
+interface
+
+uses
+  Classes, SysUtils, FileUtil, DaemonApp;
+
+type
+  TDaemonMapper1 = class(TDaemonMapper)
+  private
+    { private declarations }
+  public
+    { public declarations }
+    constructor Create(AOwner: TComponent); override;
+    procedure ToDoOnInstall(Sender: TObject);
+    procedure ToDoOnRun(Sender: TObject);
+    procedure ToDoOnUninstall(Sender: TObject);
+    procedure ToDoOnDestroy(Sender: TObject);
+  end;
+
+var
+  DaemonMapper1: TDaemonMapper1;
+  CurrentDir: string;
+  HeadName: string = 'управление качеством MC 250-5';
+  ServiceName: string = 'ReadOpcToSql';
+//  Version: string = ' v0.0';
+//  DBFile: string = 'data.sdb';
+  LogFile: string = 'service.log';
+
+
+implementation
+
+uses
+  logging;
+
+
+procedure RegisterMapper;
+begin
+  RegisterDaemonMapper(TDaemonMapper1)
+end;
+
+{$R *.lfm}
+
+
+constructor TDaemonMapper1.Create(AOwner: TComponent);
+begin
+  // текущая дириктория
+  CurrentDir := ExtractFileDir(ParamStr(0));
+
+  SaveLog('DaemonMapper.Create');
+  inherited Create(AOwner);
+  with DaemonDefs.Add as TDaemonDef do
+  begin
+    DaemonClassName := 'TDaemon1';
+    Name := UTF8Encode(ServiceName);
+    Description := 'The Daemon Exsample';
+    DisplayName := 'The Daemon';
+    RunArguments := '--run';
+    Options := [doAllowStop,doAllowPause];
+    Enabled := true;
+    with WinBindings do
+    begin
+      StartType := stBoot;
+      WaitHint := 0;
+      IDTag := 0;
+      ServiceType := stWin32;
+      ErrorSeverity := esNormal;//esIgnore;
+    end;
+//    OnCreateInstance := ?;
+    LogStatusReport := false;
+  end;
+  OnInstall := @Self.ToDoOnInstall;
+  OnRun := @Self.ToDoOnRun;
+  OnUnInstall := @Self.ToDoOnUninstall;
+  OnDestroy := @Self.ToDoOnDestroy;
+  SaveLog('DaemonMapper.Createted');
+end;
+
+procedure TDaemonMapper1.ToDoOnInstall(Sender: TObject);
+begin
+  SaveLog('DaemonMapper.Install');
+end;
+
+procedure TDaemonMapper1.ToDoOnRun(Sender: TObject);
+begin
+  SaveLog('DaemonMapper.Run');
+end;
+
+procedure TDaemonMapper1.ToDoOnUnInstall(Sender: TObject);
+begin
+  SaveLog('DaemonMapper.Uninstall');
+end;
+
+procedure TDaemonMapper1.ToDoOnDestroy(Sender: TObject);
+begin
+  //doesn't comes here
+  SaveLog('DaemonMapper.Destroy');
+end;
+
+
+initialization
+  RegisterMapper;
+end.
+

@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CONFIG>
+  <ProjectSession>
+    <PathDelim Value="\"/>
+    <Version Value="9"/>
+    <BuildModes Active="Release"/>
+    <Units Count="7">
+      <Unit0>
+        <Filename Value="QCReadExternalSql.lpr"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="QCReadExternalSql"/>
+        <UsageCount Value="206"/>
+      </Unit0>
+      <Unit1>
+        <Filename Value="daemon.pas"/>
+        <IsPartOfProject Value="True"/>
+        <HasResources Value="True"/>
+        <UnitName Value="daemon"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="48"/>
+        <CursorPos X="21" Y="42"/>
+        <UsageCount Value="206"/>
+      </Unit1>
+      <Unit2>
+        <Filename Value="daemonmapper.pas"/>
+        <IsPartOfProject Value="True"/>
+        <HasResources Value="True"/>
+        <UnitName Value="daemonmapper"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="64"/>
+        <CursorPos X="37" Y="89"/>
+        <UsageCount Value="206"/>
+      </Unit2>
+      <Unit3>
+        <Filename Value="settings.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="settings"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="80"/>
+        <CursorPos X="1" Y="186"/>
+        <UsageCount Value="206"/>
+      </Unit3>
+      <Unit4>
+        <Filename Value="thread_main.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="thread_main"/>
+        <EditorIndex Value="1"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="106"/>
+        <CursorPos X="35" Y="130"/>
+        <UsageCount Value="206"/>
+        <Loaded Value="True"/>
+      </Unit4>
+      <Unit5>
+        <Filename Value="versioninfo.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="versioninfo"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="87"/>
+        <CursorPos X="1" Y="1"/>
+        <UsageCount Value="206"/>
+      </Unit5>
+      <Unit6>
+        <Filename Value="sql.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="sql"/>
+        <IsVisibleTab Value="True"/>
+        <EditorIndex Value="0"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="106"/>
+        <CursorPos X="53" Y="200"/>
+        <UsageCount Value="206"/>
+        <Loaded Value="True"/>
+      </Unit6>
+    </Units>
+    <General>
+      <ActiveWindowIndexAtStart Value="0"/>
+    </General>
+    <JumpHistory Count="10" HistoryIndex="9">
+      <Position1>
+        <Filename Value="sql.pas"/>
+        <Caret Line="510" Column="5" TopLine="489"/>
+      </Position1>
+      <Position2>
+        <Filename Value="sql.pas"/>
+        <Caret Line="478" Column="41" TopLine="431"/>
+      </Position2>
+      <Position3>
+        <Filename Value="sql.pas"/>
+        <Caret Line="442" Column="37" TopLine="427"/>
+      </Position3>
+      <Position4>
+        <Filename Value="sql.pas"/>
+        <Caret Line="450" Column="55" TopLine="436"/>
+      </Position4>
+      <Position5>
+        <Filename Value="sql.pas"/>
+        <Caret Line="458" Column="34" TopLine="445"/>
+      </Position5>
+      <Position6>
+        <Filename Value="sql.pas"/>
+        <Caret Line="103" Column="17" TopLine="78"/>
+      </Position6>
+      <Position7>
+        <Filename Value="sql.pas"/>
+        <Caret Line="133" Column="43" TopLine="101"/>
+      </Position7>
+      <Position8>
+        <Filename Value="sql.pas"/>
+        <Caret Line="121" Column="17" TopLine="110"/>
+      </Position8>
+      <Position9>
+        <Filename Value="sql.pas"/>
+        <Caret Line="165" Column="20" TopLine="149"/>
+      </Position9>
+      <Position10>
+        <Filename Value="sql.pas"/>
+        <Caret Line="179" Column="13" TopLine="160"/>
+      </Position10>
+    </JumpHistory>
+  </ProjectSession>
+  <EditorMacros Count="0"/>
+</CONFIG>
