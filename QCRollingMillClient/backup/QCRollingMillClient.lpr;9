@@ -1,0 +1,20 @@
+program QCRollingMillClient;
+
+{$mode objfpc}{$H+}
+
+uses
+  {$IFDEF UNIX}{$IFDEF UseCThreads}
+  cthreads,
+  {$ENDIF}{$ENDIF}
+  Interfaces, // this includes the LCL widgetset
+  Forms, uniqueinstance_package, tachartlazaruspkg, settings, versioninfo,
+  thread_heat, thread_main, gui, chart, zcore;
+
+{$R *.res}
+
+begin
+  RequireDerivedFormResource := True;
+  Application.Initialize;
+  Application.Run;
+end.
+

@@ -1,5 +1,0 @@
-object DaemonMapper1: TDaemonMapper1
-  DaemonDefs = <>
-  left = 492
-  top = 333
-end

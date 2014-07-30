@@ -1,0 +1,375 @@
+unit chart;
+
+interface
+
+uses
+  Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, ExtCtrls,
+  TAGraph, TASeries, TAChartUtils, TAChartAxis;
+
+type
+   TLimits = record
+               min,
+               max: integer
+   end;
+{
+  // private
+  { Private declarations }
+  // protected
+
+   end;}
+
+var
+  TimestampLastLeft: TDateTime = 0;
+  TimestampLastRight: TDateTime = 0;
+  CountSameTemperature: integer = 9;// счетчик одинаковой температуры
+  CountLineSeries: integer = 50; //удаляются LineSeries > 200
+  ColorCurrentLine: TColor = $0000A800;
+  ColorWarningLine: TColor = clYellow;
+  ColorAlarmLine: TColor = clRed;
+
+  {$DEFINE DEBUG}
+
+  function ViewsChartsLeft: boolean;
+  function ViewsGreenLimintsLeft: boolean;
+  function ViewsRedLimintsLeft: boolean;
+  function ViewsChartsRight: boolean;
+  function ViewsGreenLimintsRight: boolean;
+  function ViewsRedLimintsRight: boolean;
+  function LimitMinMax(InTemperature, InSide: integer): TLimits;
+
+
+implementation
+
+uses
+  gui, settings, thread_heat, thread_main;
+
+{ left }
+function ViewsChartsLeft: boolean;
+var
+  LimitLeft: TLimits;
+  temperature: integer;
+begin
+  { счетчик не изменяющейся температуры }
+  if (left.temperature = left.OldTemperature) then
+    inc(left.count)
+  else
+    left.count := 0;
+
+  left.OldTemperature := left.temperature;
+  temperature := left.temperature;
+
+  if left.count > CountSameTemperature then temperature := 0;
+
+  if now > form1.ChartLeft.BottomAxis.Range.Max then
+  begin
+    form1.ChartLeft.BottomAxis.Range.Max := now;
+    form1.ChartLeft.BottomAxis.Range.Min := now - (1/24/(60/2));{ day/hour/min scale 1 sec | 60/2 10 sec}
+  end;
+
+  if form1.ChartLeft.BottomAxis.Marks.AtDataOnly then
+     form1.ChartLeft.BottomAxis.Marks.AtDataOnly := false;//включаем шкалу
+
+  // устанавливаем приделы шкалы
+  LimitLeft := LimitMinMax(temperature, 0);
+  form1.ChartLeft.Extent.YMin := LimitLeft.min;
+  form1.ChartLeft.Extent.YMax := LimitLeft.max;
+  form1.ChartLeft.Extent.UseYMin := true;
+  form1.ChartLeft.Extent.UseYMax := true;
+
+  ViewsRedLimintsLeft;
+  ViewsGreenLimintsLeft;
+
+{{ test }
+  form1.label1.Caption:='left count '+inttostr(left.count)+
+                        ' series count '+
+                        inttostr(form1.ChartLeftLineSeriesCurrent.ListSource.Count);}
+
+  with form1.ChartLeftLineSeriesCurrent do begin
+     if temperature = 0 then
+     AddXY(now, temperature, '', ColorCurrentLine)
+     else
+       AddX(0, '', clNone);
+     if Count > CountLineSeries then
+       ListSource.Delete(0);
+  end;
+end;
+
+
+function ViewsRedLimintsLeft: boolean;
+begin
+  with form1.ChartLeftLineSeriesRedHight do begin
+     if left.HighRed > 0 then
+       AddXY(now, left.HighRed, '', ColorAlarmLine)
+     else
+       AddX(0, '', clNone);
+     if Count > CountLineSeries then
+       ListSource.Delete(0);
+  end;
+
+  with form1.ChartLeftLineSeriesRedLow do begin
+     if left.LowRed > 0 then
+       AddXY(now, left.LowRed, '', ColorAlarmLine)
+     else
+       AddX(0, '', clNone);
+     if Count > CountLineSeries then
+       ListSource.Delete(0);
+  end;
+end;
+
+
+function ViewsGreenLimintsLeft: boolean;
+begin
+  // max
+  if (left.LowGreen > left.LowRed) and (left.LowGreen < left.HighRed) and
+     (left.HighGreen > left.LowRed) then begin
+     with form1.ChartLeftLineSeriesGreenHight do begin
+        if left.HighGreen > 0 then
+          AddXY(now, left.HighGreen, '', ColorWarningLine)
+        else
+          AddX(0, '', clNone);
+        if Count > CountLineSeries then
+          ListSource.Delete(0);
+     end;
+  end;
+
+  // min
+  if (left.LowGreen > left.LowRed) and (left.LowGreen < left.HighRed) and
+     (left.HighGreen > left.LowRed) then begin
+     with form1.ChartLeftLineSeriesGreenLow do begin
+        if left.LowGreen > 0 then
+          AddXY(now, left.LowGreen, '', ColorWarningLine)
+        else
+          AddX(0, '', clNone);
+        if Count > CountLineSeries then
+          ListSource.Delete(0);
+     end;
+  end;
+
+  // min +3 градуса от low красных
+  if (left.LowGreen <> 0) and (left.LowRed >= left.LowGreen) and
+     (left.HighGreen > left.LowRed) then begin
+       with form1.ChartLeftLineSeriesGreenLow do begin
+          if left.LowRed > 0 then
+            AddXY(now, left.LowRed+3, '', ColorWarningLine)
+          else
+            AddX(0, '', clNone);
+          if Count > CountLineSeries then
+            ListSource.Delete(0);
+       end;
+  end;
+
+  // max -3 градуса от high красных
+  if (left.HighGreen <> 0) and (left.HighGreen >= left.HighRed) and
+     (left.LowGreen < left.HighRed) then begin
+       with form1.ChartLeftLineSeriesGreenHight do begin
+           if left.HighRed > 0 then
+             AddXY(now, left.HighRed-3, '', ColorWarningLine)
+           else
+             AddX(0, '', clNone);
+           if Count > CountLineSeries then
+             ListSource.Delete(0);
+       end;
+  end;
+
+  if (left.LowGreen > left.HighRed) or (left.HighGreen < left.LowRed) then
+  begin
+    with form1.ChartLeftLineSeriesGreenLow do begin
+          SeriesColor := clNone;
+          AddXY(now, 0, '', clNone);
+        if Count > CountLineSeries then
+           ListSource.Delete(0);// min в 0
+    end;
+    with form1.ChartLeftLineSeriesGreenHight do begin
+        SeriesColor := clNone;
+        AddXY(now, 0, '', clNone);
+        if Count > CountLineSeries then
+           ListSource.Delete(0);// max в 0
+    end;
+  end;
+end;
+
+
+{ right }
+function ViewsChartsRight: boolean;
+var
+  LimitRight: TLimits;
+  temperature: integer;
+begin
+  { счетчик не изменяющейся температуры }
+  if (right.temperature = right.OldTemperature) then
+    inc(right.count)
+  else
+    right.count := 0;
+
+  right.OldTemperature := right.temperature;
+  temperature := right.temperature;
+
+  if right.count > CountSameTemperature then temperature := 0;
+
+  if now > form1.ChartRight.BottomAxis.Range.Max then
+  begin
+    form1.ChartRight.BottomAxis.Range.Max := now;
+    form1.ChartRight.BottomAxis.Range.Min := now - (1/24/(60/2));{ day/hour/min scale 1 sec | 60/2 10 sec}
+  end;
+
+  if form1.ChartRight.BottomAxis.Marks.AtDataOnly then
+     form1.ChartRight.BottomAxis.Marks.AtDataOnly := false;//включаем шкалу
+
+  // устанавливаем приделы шкалы
+  LimitRight := LimitMinMax(temperature, 1);
+  form1.ChartRight.Extent.YMin := LimitRight.min;
+  form1.ChartRight.Extent.YMax := LimitRight.max;
+  form1.ChartRight.Extent.UseYMin := true;
+  form1.ChartRight.Extent.UseYMax := true;
+
+  ViewsRedLimintsRight;
+  ViewsGreenLimintsRight;
+
+  with form1.ChartRightLineSeriesCurrent do begin
+      if temperature > 0 then
+        AddXY(now, temperature, '', ColorCurrentLine)
+      else
+         AddX(0, '', clNone);
+      if Count > CountLineSeries then
+        ListSource.Delete(0);
+  end;
+end;
+
+
+function ViewsRedLimintsRight: boolean;
+begin
+  with form1.ChartRightLineSeriesRedHight do begin
+      if right.HighRed > 0 then
+         AddXY(now, right.HighRed, '', ColorAlarmLine)
+      else
+         AddX(0, '', clNone);
+      if Count > CountLineSeries then
+        ListSource.Delete(0);
+  end;
+
+  with form1.ChartRightLineSeriesRedLow do begin
+      if right.LowRed > 0 then
+        AddXY(now, right.LowRed, '', ColorAlarmLine)
+      else
+         AddX(0, '', clNone);
+      if Count > CountLineSeries then
+        ListSource.Delete(0);
+  end;
+end;
+
+
+function ViewsGreenLimintsRight: boolean;
+begin
+  // max
+  if (right.LowGreen > right.LowRed) and (right.LowGreen < right.HighRed) and
+     (right.HighGreen > right.LowRed) then begin
+     with form1.ChartRightLineSeriesGreenHight do begin
+         AddXY(now, right.HighGreen, '', ColorWarningLine);
+         if Count > CountLineSeries then
+            ListSource.Delete(0);
+     end;
+  end;
+
+  // min
+  if (right.LowGreen > right.LowRed) and (right.LowGreen < right.HighRed) and
+     (right.HighGreen > right.LowRed) then begin
+     with form1.ChartRightLineSeriesGreenLow do begin
+         AddXY(now, right.LowGreen, '', ColorWarningLine);
+         if Count > CountLineSeries then
+            ListSource.Delete(0);
+     end;
+  end;
+
+  // min +3 градуса от low красных
+  if (right.LowGreen <> 0) and (right.LowRed >= right.LowGreen) and
+     (right.HighGreen > right.LowRed) then begin
+       with form1.ChartRightLineSeriesGreenLow do begin
+           if right.LowRed > 0 then
+              AddXY(now, right.LowRed+3, '', ColorWarningLine)
+           else
+              AddX(0, '', clNone);
+           if Count > CountLineSeries then
+              ListSource.Delete(0);
+       end;
+  end;
+
+  // max -3 градуса от high красных
+  if (right.HighGreen <> 0) and (right.HighGreen >= right.HighRed) and
+     (right.LowGreen < right.HighRed) then begin
+       with form1.ChartRightLineSeriesGreenHight do begin
+           AddXY(now, right.HighRed-3, '', ColorWarningLine);
+           if Count > CountLineSeries then
+              ListSource.Delete(0);
+       end;
+  end;
+
+  if (right.LowGreen > right.HighRed) or (right.HighGreen < right.LowRed) then
+  begin
+    with form1.ChartRightLineSeriesGreenLow do begin
+        SeriesColor := clNone;
+        AddXY(now, 0, '', clNone);
+        if Count > CountLineSeries then
+           ListSource.Delete(0);// min в 0
+    end;
+    with form1.ChartRightLineSeriesGreenHight do begin
+        SeriesColor := clNone;
+        AddXY(now, 0, '', clNone);
+        if Count > CountLineSeries then
+           ListSource.Delete(0);// max в 0
+    end;
+  end;
+end;
+
+
+function LimitMinMax(InTemperature, InSide: integer): TLimits;
+begin
+  // side left=0, side right=1
+  if (InTemperature <> 0) and (left.LowRed <> 0) and (left.HighRed <> 0) and
+     (InSide = 0) then
+  begin
+    Result.min := left.LowRed-30;
+    Result.max := left.HighRed+30;
+    exit;
+  end;
+
+  if (InTemperature <> 0) and (right.LowRed <> 0) and (right.HighRed <> 0) and
+     (InSide = 1) then
+  begin
+    Result.min := right.LowRed-30;
+    Result.max := right.HighRed+30;
+    exit;
+  end;
+
+  if InTemperature < 450 then
+  begin
+    Result.min := 250;
+    Result.max := 550;
+  end;
+
+  if (InTemperature < 650) and (InTemperature > 450) then
+  begin
+    Result.min := 350;
+    Result.max := 750;
+  end;
+
+  if (InTemperature < 850) and (InTemperature > 650) then
+  begin
+    Result.min := 550;
+    Result.max := 950;
+  end;
+
+  if (InTemperature < 1050) and (InTemperature > 850) then
+  begin
+    Result.min := 750;
+    Result.max := 1150;
+  end;
+
+  if (InTemperature < 1250) and (InTemperature > 1050) then
+  begin
+    Result.min := 950;
+    Result.max := 1250;
+  end;
+end;
+
+
+end.

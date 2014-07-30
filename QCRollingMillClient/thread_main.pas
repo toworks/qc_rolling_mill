@@ -3,77 +3,120 @@ unit thread_main;
 interface
 
 uses
-  SysUtils, Classes, Windows, ActiveX, Forms, SyncObjs;
+  SysUtils, Classes, SyncObjs;
 
 type
-  // Здесь необходимо описать класс TThreadMain:
   TThreadMain = class(TThread)
 
   private
-    { Private declarations }
+    procedure ChartsLeft;
+    procedure ChartsRight;
   protected
     procedure Execute; override;
+  public
+    Constructor Create; overload;
+    Destructor Destroy; override;
   end;
+
 
 var
   ThreadMain: TThreadMain;
+  CriticalSectionMain: TCriticalSection;
 
-  // {$DEFINE DEBUG}
-
-procedure WrapperMain;
-// обертка для синхронизации и выполнения с другим потоком
+//  {$DEFINE DEBUG}
 
 implementation
 
 uses
-  main, settings, logging, chart, sql;
+  settings, gui, chart, thread_heat;
+
+
+constructor TThreadMain.Create;
+begin
+  inherited;
+  CriticalSectionMain := TCriticalSection.Create;
+  // СЃРѕР·РґР°РµРј РїРѕС‚РѕРє True - СЃРѕР·РґР°РЅРёРµ РѕСЃС‚Р°РЅРѕРІРєР°, False - СЃРѕР·РґР°РЅРёРµ СЃС‚Р°СЂС‚
+  ThreadMain := TThreadMain.Create(True);
+  ThreadMain.Priority := tpNormal;
+  ThreadMain.FreeOnTerminate := True;
+  ThreadMain.Start;
+end;
+
+
+destructor TThreadMain.Destroy;
+begin
+  if ThreadMain <> nil then begin
+    ThreadMain.Terminate;
+    CriticalSectionMain.Destroy;
+  end;
+  inherited Destroy;
+end;
+
 
 procedure TThreadMain.Execute;
+var i: integer;
 begin
-  CoInitialize(nil);
-  while True do
-  begin
-    Synchronize(WrapperMain);
-    sleep(1000);
-    // при уменьшении надо увеличивать счетчик в charts для правильного затирания графиков
+  i := 0;
+  SaveLog.Log(etInfo, 'thread main execute');
+  try
+    repeat
+      Sleep(1000); //milliseconds
+ {$IFDEF DEBUG}
+   inc(i);
+   SaveLog.Log(etDebug, 'thread main loop ' + Format('tick :%d', [i]));
+ {$ENDIF}
+      CriticalSectionMain.Enter;
+      try
+         if left <> nil then begin
+            ViewCurrentDataLeft;
+            Synchronize(@ChartsLeft);
+         end;
+      except
+        on E: Exception do
+          SaveLog.Log(etError, E.ClassName + ', СЃ СЃРѕРѕР±С‰РµРЅРёРµРј: '+E.Message);
+      end;
+
+      try
+         if right <> nil then begin
+            ViewCurrentDataRight;
+            Synchronize(@ChartsRight);
+         end;
+      except
+        on E: Exception do
+          SaveLog.Log(etError, E.ClassName + ', СЃ СЃРѕРѕР±С‰РµРЅРёРµРј: '+E.Message);
+      end;
+      CriticalSectionMain.Leave;
+
+    until Terminated;
+    SaveLog.Log(etInfo, 'tread main loop stopped');
+  except
+    on E: Exception do
+      SaveLog.Log(etError, E.ClassName + ', СЃ СЃРѕРѕР±С‰РµРЅРёРµРј: '+E.Message);
   end;
-  CoUninitialize;
 end;
 
-procedure WrapperMain;
+
+procedure TThreadMain.ChartsLeft;
 begin
-   // точка вместо запятой при преобразовании в строку
-  FormatSettings.DecimalSeparator := '.';
-  try
-      if not PConnect.Ping then
-        PConnect.Reconnect;
-  except
-    on E: Exception do
-      SaveLog('error' + #9#9 + E.ClassName + ', с сообщением: ' + E.Message);
-  end;
-  try
-    SqlReadCurrentHeat;
-  except
-    on E: Exception do
-      SaveLog('error' + #9#9 + E.ClassName + ', с сообщением: ' + E.Message);
-  end;
-  try
-    ViewsCharts;
-  except
-    on E: Exception do
-      SaveLog('error' + #9#9 + E.ClassName + ', с сообщением: ' + E.Message);
-  end;
+  ViewsChartsLeft;
 end;
 
-// При загрузке программы класс будет создаваться
+
+procedure TThreadMain.ChartsRight;
+begin
+  ViewsChartsRight;
+end;
+
+
+
+// РџСЂРё Р·Р°РіСЂСѓР·РєРµ РїСЂРѕРіСЂР°РјРјС‹ РєР»Р°СЃСЃ Р±СѓРґРµС‚ СЃРѕР·РґР°РІР°С‚СЊСЃСЏ
 initialization
-// создаем поток
-ThreadMain := TThreadMain.Create(True);
-ThreadMain.Priority := tpNormal;
-ThreadMain.FreeOnTerminate := True;
+ThreadMain := TThreadMain.Create;
 
-// При закрытии программы уничтожаться
+
+// РџСЂРё Р·Р°РєСЂС‹С‚РёРё РїСЂРѕРіСЂР°РјРјС‹ СѓРЅРёС‡С‚РѕР¶Р°С‚СЊСЃСЏ
 finalization
-ThreadMain.Terminate;
+ThreadMain.Destroy;
+
 
 end.

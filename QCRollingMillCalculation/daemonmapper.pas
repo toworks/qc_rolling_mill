@@ -42,7 +42,7 @@ begin
   begin
     DaemonClassName := 'TDaemon1';
     Name := DaemonName;
-    Description := DaemonDescription;
+    Description := UTF8Decode(DaemonDescription);
     DisplayName := Name;
     RunArguments := '--run';
     Options := [doAllowStop,doAllowPause];

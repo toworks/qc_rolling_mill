@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CONFIG>
+  <ProjectSession>
+    <PathDelim Value="\"/>
+    <Version Value="9"/>
+    <BuildModes Active="Release"/>
+    <Units Count="10">
+      <Unit0>
+        <Filename Value="QCRollingMillClient.lpr"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="QCRollingMillClient"/>
+        <EditorIndex Value="1"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="1"/>
+        <CursorPos X="82" Y="11"/>
+        <UsageCount Value="222"/>
+        <Loaded Value="True"/>
+      </Unit0>
+      <Unit1>
+        <Filename Value="settings.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="settings"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="186"/>
+        <CursorPos X="1" Y="213"/>
+        <UsageCount Value="222"/>
+      </Unit1>
+      <Unit2>
+        <Filename Value="versioninfo.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="versioninfo"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="84"/>
+        <CursorPos X="1" Y="94"/>
+        <UsageCount Value="222"/>
+      </Unit2>
+      <Unit3>
+        <Filename Value="thread_heat_test.pas"/>
+        <UnitName Value="thread_heat_test"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="68"/>
+        <CursorPos X="5" Y="92"/>
+        <UsageCount Value="27"/>
+      </Unit3>
+      <Unit4>
+        <Filename Value="gui.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="Form1"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
+        <UnitName Value="gui"/>
+        <EditorIndex Value="0"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="84"/>
+        <CursorPos X="27" Y="117"/>
+        <UsageCount Value="222"/>
+        <Loaded Value="True"/>
+        <LoadedDesigner Value="True"/>
+      </Unit4>
+      <Unit5>
+        <Filename Value="sql.pas"/>
+        <UnitName Value="sql"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="355"/>
+        <CursorPos X="1" Y="278"/>
+        <UsageCount Value="222"/>
+      </Unit5>
+      <Unit6>
+        <Filename Value="chart.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="chart"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="349"/>
+        <CursorPos X="61" Y="33"/>
+        <UsageCount Value="204"/>
+      </Unit6>
+      <Unit7>
+        <Filename Value="thread_main.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="thread_main"/>
+        <IsVisibleTab Value="True"/>
+        <EditorIndex Value="2"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="1"/>
+        <CursorPos X="1" Y="117"/>
+        <UsageCount Value="204"/>
+        <Loaded Value="True"/>
+      </Unit7>
+      <Unit8>
+        <Filename Value="thread_heat_n.pas"/>
+        <UnitName Value="thread_heat_n"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="55"/>
+        <CursorPos X="47" Y="57"/>
+        <UsageCount Value="199"/>
+      </Unit8>
+      <Unit9>
+        <Filename Value="thread_heat.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="thread_heat"/>
+        <EditorIndex Value="3"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="215"/>
+        <CursorPos X="1" Y="250"/>
+        <UsageCount Value="25"/>
+        <Loaded Value="True"/>
+      </Unit9>
+    </Units>
+    <General>
+      <ActiveWindowIndexAtStart Value="0"/>
+    </General>
+    <JumpHistory Count="5" HistoryIndex="4">
+      <Position1>
+        <Filename Value="thread_heat.pas"/>
+        <Caret Line="251" Column="34" TopLine="225"/>
+      </Position1>
+      <Position2>
+        <Filename Value="gui.pas"/>
+        <Caret Line="118" Column="36" TopLine="101"/>
+      </Position2>
+      <Position3>
+        <Filename Value="thread_heat.pas"/>
+        <Caret Line="130" Column="1" TopLine="104"/>
+      </Position3>
+      <Position4>
+        <Filename Value="thread_heat.pas"/>
+        <Caret Line="115" Column="6" TopLine="104"/>
+      </Position4>
+      <Position5>
+        <Filename Value="thread_heat.pas"/>
+        <Caret Line="130" Column="25" TopLine="106"/>
+      </Position5>
+    </JumpHistory>
+  </ProjectSession>
+  <EditorMacros Count="0"/>
+</CONFIG>

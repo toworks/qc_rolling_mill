@@ -1,6 +1,6 @@
 {
-  в таблице calculated_data (Reports) переписываются данными 2го расчета
-  кроме красных пределов
+  РІ С‚Р°Р±Р»РёС†Рµ calculated_data (Reports) РїРµСЂРµРїРёСЃС‹РІР°СЋС‚СЃСЏ РґР°РЅРЅС‹РјРё 2РіРѕ СЂР°СЃС‡РµС‚Р°
+  РєСЂРѕРјРµ РєСЂР°СЃРЅС‹С… РїСЂРµРґРµР»РѕРІ
 }
 
 unit thread_calculated_data;
@@ -20,28 +20,31 @@ type
     procedure Execute; override;
   end;
 
+  TDoubleArray = array of double;
+
   TIdHeat = Class
-    tid              : integer;
-    Heat             : string[26]; // плавка
-    Grade            : string[50]; // марка стали
-    Section          : string[50]; // профиль
-    Standard         : string[50]; // стандарт
-    StrengthClass    : string[50]; // клас прочности
-    c                : string[50];
-    mn               : string[50];
-    cr               : string[50];
-    si               : string[50];
-    b                : string[50];
-    ce               : string[50];
-    OldStrengthClass : string[50]; // старый клас прочности
-    old_tid          : integer; // стара плавка
-    RollingMill      : string[1];
-    marker           : boolean;
-    LowRed           : integer;
-    HighRed          : integer;
-    LowGreen         : integer;
-    HighGreen        : integer;
-    step             : integer;
+    tid                   : integer;
+    Heat                  : string[26]; // РїР»Р°РІРєР°
+    Grade                 : string[50]; // РјР°СЂРєР° СЃС‚Р°Р»Рё
+    Section               : string[50]; // РїСЂРѕС„РёР»СЊ
+    Standard              : string[50]; // СЃС‚Р°РЅРґР°СЂС‚
+    StrengthClass         : string[50]; // РєР»Р°СЃ РїСЂРѕС‡РЅРѕСЃС‚Рё
+    c                     : string[50];
+    mn                    : string[50];
+    cr                    : string[50];
+    si                    : string[50];
+    b                     : string[50];
+    ce                    : string[50];
+    OldStrengthClass      : string[50]; // СЃС‚Р°СЂС‹Р№ РєР»Р°СЃ РїСЂРѕС‡РЅРѕСЃС‚Рё
+    old_tid               : integer; // СЃС‚Р°СЂР° РїР»Р°РІРєР°
+    RollingMill           : string[1];
+    marker                : integer;
+    LowRed                : integer;
+    HighRed               : integer;
+    LowGreen              : integer;
+    HighGreen             : integer;
+    step                  : integer;
+    technological_sample  : integer;
     constructor Create;
   end;
 
@@ -55,11 +58,12 @@ var
   function ReadSaveOldData(InData, InRollingMill, InSide: string): boolean;
   function ReadChemicalAnalysis(InHeat: string; InSide: integer): boolean;
   function CalculatingInMechanicalCharacteristics(InHeat: string; InSide: integer): string;
-{  function CarbonEquivalent(InHeat: string; InSide: integer): boolean;}
-  function HeatToIn(InHeat: string): string;
+  function CarbonEquivalent(InHeat: string; InSide: integer): boolean;
   function CutChar(InData: string): string;
-{  function GetDigits(InData: string): string;
-  function GetMedian(aArray: TDoubleDynArray): Double;}
+  function GetDigits(InData: string): string;
+{delphi  function GetMedian(aArray: TDoubleDynArray): Double;}
+  procedure bubbleSort(var list: TDoubleArray);
+  function Median(aArray: TDoubleArray): double;
 
 implementation
 
@@ -85,18 +89,26 @@ begin
          if not OraSqlSettings.configured then
             ConfigOracleSetting(true);
 
+{$IFDEF DEBUG}
+  SaveLog.Log(etDebug, 'MSConnection.Connected -> '+booltostr(MSConnection.Connected));
+{$ENDIF}
+         if not MSConnection.Connected then begin
+            ConfigMsSetting(false);
+            ConfigMsSetting(true);
+         end;
+
          ReadCurrentHeat('1');
-         ReadCurrentHeat('3');
+//         ReadCurrentHeat('3');
      except
        on E: Exception do
-         SaveLog.Log(etError, UTF8Encode(E.ClassName+', с сообщением: '+E.Message));
+         SaveLog.Log(etError, E.ClassName+', СЃ СЃРѕРѕР±С‰РµРЅРёРµРј: '+E.Message);
      end;
 
     until Terminated;
     SaveLog.Log(etInfo, 'tread loop stopped');
   except
     on E: Exception do
-      SaveLog.Log(etError, UTF8Encode(E.ClassName + ', с сообщением: '+E.Message));
+      SaveLog.Log(etError, E.ClassName + ', СЃ СЃРѕРѕР±С‰РµРЅРёРµРј: '+E.Message);
   end;
 end;
 
@@ -107,6 +119,7 @@ var
   HeatAllLeft, HeatAllRight: string;
 begin
   // side left=0, side right=1
+  i := 0;
   for i := 0 to 1 do
   begin
 
@@ -127,34 +140,37 @@ begin
       left.Heat := UTF8Decode(MSQuery.FieldByName('heat').AsString);
       left.Grade := UTF8Decode(MSQuery.FieldByName('grade').AsString);
       left.StrengthClass := UTF8Decode(MSQuery.FieldByName('strength_class').AsString);
-      left.Section := UTF8Decode(MSQuery.FieldByName('section').AsString);
+      left.Section := MSQuery.FieldByName('section').AsString;
       left.Standard := UTF8Decode(MSQuery.FieldByName('standard').AsString);
-      left.RollingMill := UTF8Decode(MSQuery.FieldByName('rolling_mill').AsString);
+      left.RollingMill := MSQuery.FieldByName('rolling_mill').AsString;
 
-      // читаем идентификатор старой плавки |номер стана|сторона|
+      // С‡РёС‚Р°РµРј РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ СЃС‚Р°СЂРѕР№ РїР»Р°РІРєРё |РЅРѕРјРµСЂ СЃС‚Р°РЅР°|СЃС‚РѕСЂРѕРЅР°|
       ReadSaveOldData('read', InRollingMill, inttostr(i));
 
-      // новая плавка устанавливаем маркер
+      // РЅРѕРІР°СЏ РїР»Р°РІРєР° СѓСЃС‚Р°РЅР°РІР»РёРІР°РµРј РјР°СЂРєРµСЂ
       if (left.old_tid <> left.tid) or (left.OldStrengthClass <> left.StrengthClass) then
       begin
         left.old_tid := left.tid;
         left.OldStrengthClass := left.StrengthClass;
-        left.marker := true;
+        left.marker := 1;
         left.LowRed := 0;
         left.HighRed := 0;
         left.LowGreen := 0;
         left.HighGreen := 0;
-        // химия
+        // С…РёРјРёСЏ
         ReadChemicalAnalysis(left.Heat, i);
-        // записываем идентификатор старой плавки |номер стана|сторона|
+        // Р·Р°РїРёСЃС‹РІР°РµРј РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ СЃС‚Р°СЂРѕР№ РїР»Р°РІРєРё |РЅРѕРјРµСЂ СЃС‚Р°РЅР°|СЃС‚РѕСЂРѕРЅР°|
         ReadSaveOldData('save', InRollingMill, inttostr(i));
 {$IFDEF DEBUG}
-  SaveLog.Log(etDebug, UTF8Encode('enable left.marker -> '+booltostr(left.marker)));
+  SaveLog.Log(etDebug, 'enable left.marker -> '+inttostr(left.marker));
 {$ENDIF}
+      end else begin
+        left.marker := 0;
+        ReadSaveOldData('save', InRollingMill, inttostr(i));
       end;
 
       if left.c = '' then
-        // химия при перезапуске сервиса
+        // С…РёРјРёСЏ РїСЂРё РїРµСЂРµР·Р°РїСѓСЃРєРµ СЃРµСЂРІРёСЃР°
         ReadChemicalAnalysis(left.Heat, i);
 
     end
@@ -164,107 +180,108 @@ begin
       right.Heat := UTF8Decode(MSQuery.FieldByName('heat').AsString);
       right.Grade := UTF8Decode(MSQuery.FieldByName('grade').AsString);
       right.StrengthClass := UTF8Decode(MSQuery.FieldByName('strength_class').AsString);
-      right.Section := UTF8Decode(MSQuery.FieldByName('section').AsString);
+      right.Section := MSQuery.FieldByName('section').AsString;
       right.Standard := UTF8Decode(MSQuery.FieldByName('standard').AsString);
-      right.RollingMill := UTF8Decode(MSQuery.FieldByName('rolling_mill').AsString);
+      right.RollingMill := MSQuery.FieldByName('rolling_mill').AsString;
 
-      // читаем идентификатор старой плавки |номер стана|сторона|
+      // С‡РёС‚Р°РµРј РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ СЃС‚Р°СЂРѕР№ РїР»Р°РІРєРё |РЅРѕРјРµСЂ СЃС‚Р°РЅР°|СЃС‚РѕСЂРѕРЅР°|
       ReadSaveOldData('read', InRollingMill, inttostr(i));
 
-      // новая плавка устанавливаем маркер
+      // РЅРѕРІР°СЏ РїР»Р°РІРєР° СѓСЃС‚Р°РЅР°РІР»РёРІР°РµРј РјР°СЂРєРµСЂ
       if (right.old_tid <> right.tid) or (right.OldStrengthClass <> right.StrengthClass) then
       begin
         right.old_tid := right.tid;
         right.OldStrengthClass := right.StrengthClass;
-        right.marker := true;
+        right.marker := 1;
         right.LowRed := 0;
         right.HighRed := 0;
         right.LowGreen := 0;
         right.HighGreen := 0;
-        // химия
+        // С…РёРјРёСЏ
         ReadChemicalAnalysis(right.Heat, i);
-        // записываем идентификатор старой плавки |номер стана|сторона|
+        // Р·Р°РїРёСЃС‹РІР°РµРј РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ СЃС‚Р°СЂРѕР№ РїР»Р°РІРєРё |РЅРѕРјРµСЂ СЃС‚Р°РЅР°|СЃС‚РѕСЂРѕРЅР°|
+        ReadSaveOldData('save', InRollingMill, inttostr(i));
+{$IFDEF DEBUG}
+  SaveLog.Log(etDebug, 'enable right.marker -> '+inttostr(right.marker));
+{$ENDIF}
+      end else begin
+        right.marker := 0;
         ReadSaveOldData('save', InRollingMill, inttostr(i));
       end;
 
+
       if right.c = '' then
-        // химия при перезапуске сервиса
-        ReadChemicalAnalysis(left.Heat, i);
+        // С…РёРјРёСЏ РїСЂРё РїРµСЂРµР·Р°РїСѓСЃРєРµ СЃРµСЂРІРёСЃР°
+        ReadChemicalAnalysis(right.Heat, i);
 
     end;
 
   end;
 
-  if left.marker then begin
+  if left.marker = 1 then begin
     SaveLog.Log(etInfo, left.RollingMill+#9+inttostr(left.tid)+#9+left.Heat+#9+left.Grade+#9+
             left.Section+#9+left.Standard+#9+left.StrengthClass+#9+
             left.c+#9+left.mn+#9+left.cr+#9+left.si+#9+left.b+#9+left.ce+#9+
-            inttostr(left.old_tid)+#9+booltostr(left.marker)+#9+
+            inttostr(left.old_tid)+#9+inttostr(left.marker)+#9+
             left.OldStrengthClass);
   end;
-  if right.marker then begin
+  if right.marker = 1 then begin
     SaveLog.Log(etInfo, right.RollingMill+#9+inttostr(right.tid)+#9+right.Heat+#9+right.Grade+#9+
             right.Section+#9+right.Standard+#9+right.StrengthClass+#9+
             right.c+#9+right.mn+#9+right.cr+#9+right.si+#9+right.b+#9+right.ce+#9+
-            inttostr(right.old_tid)+#9+booltostr(right.marker)+#9+
+            inttostr(right.old_tid)+#9+inttostr(right.marker)+#9+
             right.OldStrengthClass);
   end;
 
-  if left.marker {and (left.ce <> '')} then
+  if left.marker = 1 {and (left.ce <> '')} then
   begin
     try
-      left.marker := false;
-{      // записываем идентификатор старой плавки |номер стана|сторона|
-      ReadSaveOldData('save', left.RollingMill, '0');}
-      // сброс этапа расчета
+      // СЃР±СЂРѕСЃ СЌС‚Р°РїР° СЂР°СЃС‡РµС‚Р°
       left.step := 0;
-      // удаляем при перерасчете
+      // СѓРґР°Р»СЏРµРј РїСЂРё РїРµСЂРµСЂР°СЃС‡РµС‚Рµ
       CalculatedData(0, '');
       SaveLog.Log(etInfo, 'start calculation left side, heat -> '+left.Heat);
       // start left step 0
       CalculatedData(0, 'timestamp=DATEDIFF(s, ''1970/01/01'', GETDATE())');
       HeatAllLeft := CalculatingInMechanicalCharacteristics(RolledMelting(0), 0);
-{{      // start left step 1
-      if not HeatAllLeft.IsEmpty then
+      // start left step 1
+      if not (HeatAllLeft = '') then
       begin
         CalculatedData(0, 'timestamp=DATEDIFF(s, ''1970/01/01'', GETDATE())');
         CarbonEquivalent(HeatAllLeft, 0);
-      end;}}
+      end;
 {$IFDEF DEBUG}
-  SaveLog.Log(etDebug, 'disable left.marker -> '+booltostr(left.marker));
+  SaveLog.Log(etDebug, 'disable left.marker -> '+inttostr(left.marker));
 {$ENDIF}
       SaveLog.Log(etInfo, 'end calculation left side, heat -> '+left.Heat);
     except
       on E: Exception do
-        SaveLog.Log(etError, E.ClassName + ', с сообщением: ' + E.Message);
+        SaveLog.Log(etError, E.ClassName + ', СЃ СЃРѕРѕР±С‰РµРЅРёРµРј: ' + E.Message);
     end;
     HeatAllLeft := '';
   end;
 
-  if right.marker {and (right.ce <> '')} then
+  if right.marker = 1 {and (right.ce <> '')} then
   begin
     try
-      right.marker := false;
-{      // записываем идентификатор старой плавки |номер стана|сторона|
-      ReadSaveOldData('save', right.RollingMill, '0');}
-      // сброс этапа расчета
+      // СЃР±СЂРѕСЃ СЌС‚Р°РїР° СЂР°СЃС‡РµС‚Р°
       right.step := 0;
-      // удаляем при перерасчете
+      // СѓРґР°Р»СЏРµРј РїСЂРё РїРµСЂРµСЂР°СЃС‡РµС‚Рµ
       CalculatedData(1, '');
-      SaveLog.Log(etInfo, UTF8Encode('start calculation right side, heat -> '+right.Heat));
+      SaveLog.Log(etInfo, 'start calculation right side, heat -> '+right.Heat);
       // start right step 0
       CalculatedData(1, 'timestamp=DATEDIFF(s, ''1970/01/01'', GETDATE())');
-{{      HeatAllRight := CalculatingInMechanicalCharacteristics(RolledMelting(1), 1);
+      HeatAllRight := CalculatingInMechanicalCharacteristics(RolledMelting(1), 1);
       // start right step 1
-      if not HeatAllRight.IsEmpty then
+      if not (HeatAllRight = '') then
       begin
         CalculatedData(1, 'timestamp=DATEDIFF(s, ''1970/01/01'', GETDATE())');
         CarbonEquivalent(HeatAllRight, 1);
-      end;}}
-      SaveLog.Log(etInfo, UTF8Encode('end calculation right side, heat -> '+right.Heat));
+      end;
+      SaveLog.Log(etInfo, 'end calculation right side, heat -> '+right.Heat);
     except
       on E: Exception do
-        SaveLog.Log(etError, UTF8Encode(E.ClassName + ', с сообщением: ' + E.Message));
+        SaveLog.Log(etError, E.ClassName + ', СЃ СЃРѕРѕР±С‰РµРЅРёРµРј: ' + E.Message);
     end;
     HeatAllRight := '';
   end;
@@ -286,14 +303,14 @@ begin
        SQueryRSOH.Open;
     except
       on E: Exception do
-        SaveLog.Log(etError, UTF8Encode(E.ClassName + ', с сообщением: '+E.Message));
+        SaveLog.Log(etError, UTF8Encode(E.ClassName + ', СЃ СЃРѕРѕР±С‰РµРЅРёРµРј: '+E.Message));
     end;
 
     while not SQueryRSOH.Eof do
     begin
        if SQueryRSOH.FieldByName('name').AsString =
           '::heat::rm'+InRollingMill+'::side'+InSide then begin
-            if InSide = '0' then
+            if strtoint(InSide) = 0 then
                left.old_tid := SQueryRSOH.FieldByName('value').AsInteger
             else
                right.old_tid := SQueryRSOH.FieldByName('value').AsInteger;
@@ -301,7 +318,7 @@ begin
 
        if SQueryRSOH.FieldByName('name').AsString =
           '::StrengthClass::rm'+InRollingMill+'::side'+InSide then begin
-            if InSide = '0' then
+            if strtoint(InSide) = 0 then
                left.OldStrengthClass := SQueryRSOH.FieldByName('value').AsString
             else
                right.OldStrengthClass := SQueryRSOH.FieldByName('value').AsString;
@@ -310,21 +327,23 @@ begin
        if SQueryRSOH.FieldByName('name').AsString =
           '::marker::rm'+InRollingMill+'::side'+InSide then begin
 {{$IFDEF DEBUG}
-  SaveLog.Log(etDebug, UTF8Encode('yes ::marker::'));
-  SaveLog.Log(etDebug, UTF8Encode('marker -> '+SQueryRSOH.FieldByName('value').AsString));
+  SaveLog.Log(etDebug, 'yes ::marker::');
+  SaveLog.Log(etDebug, 'marker -> '+SQueryRSOH.FieldByName('value').AsString);
 {$ENDIF}}
-            if InSide = '0' then
-               left.marker := strtobool(SQueryRSOH.FieldByName('value').AsString);
-            if InSide = '1' then
-               right.marker := strtobool(SQueryRSOH.FieldByName('value').AsString);
+            if strtoint(InSide) = 0 then
+               left.marker := strtoint(SQueryRSOH.FieldByName('value').AsString)
+            else
+               right.marker := strtoint(SQueryRSOH.FieldByName('value').AsString);
        end;
 {{$IFDEF DEBUG}
-  SaveLog.Log(etDebug, UTF8Encode('RollingMill '+InRollingMill+' Side '+InSide+' left.marker -> '+booltostr(left.marker)));
-  SaveLog.Log(etDebug, UTF8Encode('RollingMill '+InRollingMill+' Side '+InSide+' right.marker -> '+booltostr(right.marker)));
+  if strtoint(InSide) = 0 then
+  SaveLog.Log(etDebug, 'RollingMill '+InRollingMill+' Side '+InSide+' left.marker -> '+inttostr(left.marker))
+  else
+  SaveLog.Log(etDebug, 'RollingMill '+InRollingMill+' Side '+InSide+' right.marker -> '+inttostr(right.marker));
 {$ENDIF}}
        SQueryRSOH.Next;
 {{$IFDEF DEBUG}
-  SaveLog.Log(etDebug, UTF8Encode('read -> '));
+  SaveLog.Log(etDebug, 'read -> ');
 {$ENDIF}}
     end;
   end else begin
@@ -333,49 +352,49 @@ begin
         SQueryRSOH.SQL.Clear;
         SQueryRSOH.SQL.Add('INSERT OR REPLACE INTO settings (name, value)');
         SQueryRSOH.SQL.Add('VALUES (''::heat::rm'+InRollingMill+'::side'+InSide+''',');
-        if InSide = '0' then
+        if strtoint(InSide) = 0 then
            SQueryRSOH.SQL.Add(''''+inttostr(left.old_tid)+''')')
         else
            SQueryRSOH.SQL.Add(''''+inttostr(right.old_tid)+''')');
         SQueryRSOH.ExecSQL;
     except
       on E: Exception do
-        SaveLog.Log(etError, UTF8Encode(E.ClassName + ', с сообщением: '+E.Message));
+        SaveLog.Log(etError, UTF8Encode(E.ClassName + ', СЃ СЃРѕРѕР±С‰РµРЅРёРµРј: '+E.Message));
     end;
     try
         SQueryRSOH.Close;
         SQueryRSOH.SQL.Clear;
         SQueryRSOH.SQL.Add('INSERT OR REPLACE INTO settings (name, value)');
         SQueryRSOH.SQL.Add('VALUES (''::StrengthClass::rm'+InRollingMill+'::side'+InSide+''',');
-        if InSide = '0' then
+        if strtoint(InSide) = 0 then
            SQueryRSOH.SQL.Add(''''+left.OldStrengthClass+''')')
         else
            SQueryRSOH.SQL.Add(''''+right.OldStrengthClass+''')');
         SQueryRSOH.ExecSQL;
     except
       on E: Exception do
-        SaveLog.Log(etError, UTF8Encode(E.ClassName + ', с сообщением: '+E.Message));
+        SaveLog.Log(etError, UTF8Encode(E.ClassName + ', СЃ СЃРѕРѕР±С‰РµРЅРёРµРј: '+E.Message));
     end;
     try
         SQueryRSOH.Close;
         SQueryRSOH.SQL.Clear;
         SQueryRSOH.SQL.Add('INSERT OR REPLACE INTO settings (name, value)');
         SQueryRSOH.SQL.Add('VALUES (''::marker::rm'+InRollingMill+'::side'+InSide+''',');
-        if InSide = '0' then
-           SQueryRSOH.SQL.Add(''''+booltostr(left.marker)+''')')
+        if strtoint(InSide) = 0 then
+           SQueryRSOH.SQL.Add(''''+inttostr(left.marker)+''')')
         else
-           SQueryRSOH.SQL.Add(''''+booltostr(right.marker)+''')');
-{$IFDEF DEBUG}
-  SaveLog.Log(etDebug, UTF8Encode('SQueryRSOH.SQL.Text -> '+SQueryRSOH.SQL.Text));
-{$ENDIF}
+           SQueryRSOH.SQL.Add(''''+inttostr(right.marker)+''')');
+{{$IFDEF DEBUG}
+  SaveLog.Log(etDebug, 'SQueryRSOH.SQL.Text -> '+SQueryRSOH.SQL.Text);
+{$ENDIF}}
         SQueryRSOH.ExecSQL;
     except
       on E: Exception do
-        SaveLog.Log(etError, UTF8Encode(E.ClassName + ', с сообщением: '+E.Message));
+        SaveLog.Log(etError, UTF8Encode(E.ClassName + ', СЃ СЃРѕРѕР±С‰РµРЅРёРµРј: '+E.Message));
     end;
-{$IFDEF DEBUG}
-  SaveLog.Log(etDebug, UTF8Encode('write -> '));
-{$ENDIF}
+{{$IFDEF DEBUG}
+  SaveLog.Log(etDebug, 'write -> ');
+{$ENDIF}}
   end;
 
   FreeAndNil(SQueryRSOH);
@@ -385,6 +404,11 @@ end;
 
 function ReadChemicalAnalysis(InHeat: string; InSide: integer): boolean;
 begin
+  if not OraConnect.Connected then begin
+     ConfigOracleSetting(false);
+     ConfigOracleSetting(true);
+  end;
+
   try
       OraQuery.Close;
       OraQuery.SQL.Clear;
@@ -400,12 +424,12 @@ begin
   except
     on E : Exception do
       begin
-        SaveLog.Log(etError, UTF8Encode(E.ClassName+', с сообщением: '+E.Message));
+        SaveLog.Log(etError, E.ClassName+', СЃ СЃРѕРѕР±С‰РµРЅРёРµРј: '+E.Message);
         exit;
       end;
   end;
 
-  //если находим
+  //РµСЃР»Рё РЅР°С…РѕРґРёРј
   if not OraQuery.FieldByName('NPL').IsNull then
   begin
     if InSide = 0 then begin
@@ -435,13 +459,13 @@ end;
 
 function CalculatingInMechanicalCharacteristics(InHeat: string; InSide: integer): string;
 var
-  { yield point - предел текучести
-    rupture strength - временное сопротивление }
+  { yield point - РїСЂРµРґРµР» С‚РµРєСѓС‡РµСЃС‚Рё
+    rupture strength - РІСЂРµРјРµРЅРЅРѕРµ СЃРѕРїСЂРѕС‚РёРІР»РµРЅРёРµ }
 
-  Grade: string; // марка стали
-  Section: string; // профиль
-  Standard: string; // стандарт
-  StrengthClass: string; // клас прочности
+  Grade: string; // РјР°СЂРєР° СЃС‚Р°Р»Рё
+  Section: string; // РїСЂРѕС„РёР»СЊ
+  Standard: string; // СЃС‚Р°РЅРґР°СЂС‚
+  StrengthClass: string; // РєР»Р°СЃ РїСЂРѕС‡РЅРѕСЃС‚Рё
   ReturnValue: string;
   side: string;
   RollingScheme: string;
@@ -458,12 +482,10 @@ var
   TypeRolledProducts, HeatAll, HeatWorks, HeatTableAll: WideString;
   HeatArray, HeatTableArray: Array of string;
   MechanicsArray, TempArray: Array of Double;
-  RawTempArray: TDoubleDynArray;
+  RawTempArray: TDoubleArray {TDoubleDynArray};
   st, HeatTmp: TStringList;
-  c, mn, si, HeatMechanics, RollingMill: string;
-  zx: ansistring;
+  c, mn, si, HeatMechanics, RollingMill, technological_sample: string;
 begin
-
   if InSide = 0 then
   begin
     Grade := left.Grade;
@@ -473,9 +495,10 @@ begin
     c := left.c;
     mn := left.mn;
     si := left.si;
-    side := 'Левая';
-    RollingScheme := right.Section; // схема прокатки 14x16, 16x16, 18x16
+    side := 'Р›РµРІР°СЏ';
+    RollingScheme := right.Section; // СЃС…РµРјР° РїСЂРѕРєР°С‚РєРё 14x16, 16x16, 18x16
     RollingMill := left.RollingMill;
+    technological_sample := inttostr(left.technological_sample);
   end
   else
   begin
@@ -486,55 +509,43 @@ begin
     c := right.c;
     mn := right.mn;
     si := right.si;
-    side := 'Правая';
-    RollingScheme := left.Section; // схема прокатки 14x16, 16x16, 18x16
+    side := 'РџСЂР°РІР°СЏ';
+    RollingScheme := left.Section; // СЃС…РµРјР° РїСЂРѕРєР°С‚РєРё 14x16, 16x16, 18x16
     RollingMill := right.RollingMill;
+    technological_sample := inttostr(right.technological_sample);
   end;
 
   if InHeat = '' then
   begin
-    SaveLog.Log(etWarning, UTF8Encode('сторона -> '+side));
-    SaveLog.Log(etWarning, UTF8Encode('недостаточно данных по прокатанным плавкам для расчета по плавке -> '+InHeat));
+    SaveLog.Log(etWarning, 'СЃС‚РѕСЂРѕРЅР° -> '+side);
+    SaveLog.Log(etWarning, 'РЅРµРґРѕСЃС‚Р°С‚РѕС‡РЅРѕ РґР°РЅРЅС‹С… РїРѕ РїСЂРѕРєР°С‚Р°РЅРЅС‹Рј РїР»Р°РІРєР°Рј РґР»СЏ СЂР°СЃС‡РµС‚Р° РїРѕ РїР»Р°РІРєРµ -> '+InHeat);
     exit;
   end;
 
   MSQueryCalculation := TSQLQuery.Create(nil);
   MSQueryCalculation.DataBase := MSConnection;
   MSQueryCalculation.Transaction := MSTransaction;
+  MSQueryCalculation.PacketRecords := -1;  //FetchAll
   MSQueryData := TSQLQuery.Create(nil);
   MSQueryData.DataBase := MSConnection;
   MSQueryData.Transaction := MSTransaction;
+  MSQueryData.PacketRecords := -1;  //FetchAll
 
   a := 0;
   b := a;
 
-  HeatAll := HeatToIn(InHeat);
+  { РѕСЃС‚Р°РІРёС‚СЊ С‚РѕР»СЊРєРѕ  InHeat}
+  HeatAll := InHeat;
+
+  if not OraConnect.Connected then begin
+     ConfigOracleSetting(false);
+     ConfigOracleSetting(true);
+  end;
 
   try
-      OraQuery.FetchAll;
       OraQuery.Close;
       OraQuery.SQL.Clear;
-      zx:='select * from'+
-'(select n.nplav heat, n.mst grade, n.GOST standard'+
-',n.razm1 section, n.klass strength_class'+
-',v.limtek yield_point, v.limproch rupture_strength'+
-',ROW_NUMBER() OVER (PARTITION BY n.nplav ORDER BY n.data desc) AS number_row'+
-' from czl_v v, czl_n n'+
-' where n.data<=sysdate and n.data>=sysdate-305'+
-' and n.razm1 = 8'+{
-' and translate(n.klass,'+
-' ''ЕТОРАНКХСВМеторанкхсвм'',''ETOPAHKXCBMetopahkxcbm'')'+
-' like translate(''A500C'','+
-' ''ЕТОРАНКХСВМеторанкхсвм'',''ETOPAHKXCBMetopahkxcbm'')'+}
-' and n.data=v.data and v.npart=n.npart'+
-' and n.npart like ''1%'''+
-' and mod(n.npart,2)=1'+
-' and nvl(n.npach,0)=nvl(v.npach,0) and NI<=3'+
-' and prizn=''*'' and ROWNUM <= 251'+
-' and n.nplav in(''262457'',''222410'',''232158'',''222395'',''262440'',''262440'',''262441'',''252683'',''252684'',''231676'',''212130'',''212148'',''262427'',''222388'',''222394'',''262432'',''262437'',''222394'',''212149'',''262432'',''222388'',''232129'',''212148'',''212150'',''212149'',''212150'',''212147'',''222389'',''222384'',''212147'',''211803'',''232131'',''262422'',''212133'',''262425'',''262422'',''262425'',''212121'',''262320'',''212060'',''242593'',''231851'',''211932'',''212049'',''222245'',''231975'',''222237'',''222248'',''222125'',''262020'',''242210'',''211740'',''242209'',''211896'',''211876'',''211835'',''222006'',''222022'',''222122'',''242423'',''242424'',''222025'',''222036'',''222042'',''231803'',''222021'',''231803'',''262164'',''222010'',''222107'',''222107'',''222004'',''211884'',''211816'',''262164'',''262050'',''222100'',''252296'',''262139'',''211894'',''222097'',''231795'',''231795'',''222093'',''231799'',''262138'',''211894'',''231799'',''222011'',''262138'',''211890'',''211822'',''211890'',''231789'',''262139'',''231787'',''231780'',''222088'',''231742'',''211824'',''231775'',''222088'',''231772'',''222007'',''222081'',''231769'',''222009'',''231764'',''242293'',''231764'',''242355'',''231748'',''262049'',''242355'',''252327'',''242352'',''242353'',''242352'',''262017'',''252326'',''222063'',''252321'',''252320'',''222057'',''222059'')'+
-' order by n.data desc)'+
-' where number_row <= 3';
-{      OraQuery.SQL.Add('select * from');
+      OraQuery.SQL.Add('select * from');
       OraQuery.SQL.Add('(select n.nplav heat, n.mst grade, n.GOST standard');
       OraQuery.SQL.Add(',n.razm1 section, n.klass strength_class');
       OraQuery.SQL.Add(',v.limtek yield_point, v.limproch rupture_strength');
@@ -542,71 +553,71 @@ begin
       OraQuery.SQL.Add('from czl_v v, czl_n n');
       //-- 305 = 10 month
       OraQuery.SQL.Add('where n.data<=sysdate and n.data>=sysdate-305');
-//--      OraQuery.SQL.Add('and n.mst like translate('''+CutChar(Grade)+''','); //переводим Eng буквы похожие на кирилицу
-//--      OraQuery.SQL.Add('''ETOPAHKXCBMetopahkxcbm'',''ЕТОРАНКХСВМеторанкхсвм'')');
-//--      OraQuery.SQL.Add('and n.GOST like translate('''+CutChar(Standard)+''','); //переводим Eng буквы похожие на кирилицу
-//--      OraQuery.SQL.Add('''ETOPAHKXCBMetopahkxcbm'',''ЕТОРАНКХСВМеторанкхсвм'')');
+//--      OraQuery.SQL.Add('and n.mst like translate('''+CutChar(Grade)+''','); //РїРµСЂРµРІРѕРґРёРј Eng Р±СѓРєРІС‹ РїРѕС…РѕР¶РёРµ РЅР° РєРёСЂРёР»РёС†Сѓ
+//--      OraQuery.SQL.Add('''ETOPAHKXCBMetopahkxcbm'',''Р•РўРћР РђРќРљРҐРЎР’РњРµС‚РѕСЂР°РЅРєС…СЃРІРј'')');
+//--      OraQuery.SQL.Add('and n.GOST like translate('''+CutChar(Standard)+''','); //РїРµСЂРµРІРѕРґРёРј Eng Р±СѓРєРІС‹ РїРѕС…РѕР¶РёРµ РЅР° РєРёСЂРёР»РёС†Сѓ
+//--      OraQuery.SQL.Add('''ETOPAHKXCBMetopahkxcbm'',''Р•РўРћР РђРќРљРҐРЎР’РњРµС‚РѕСЂР°РЅРєС…СЃРІРј'')');
       OraQuery.SQL.Add('and n.razm1 = '+Section+'');
       OraQuery.SQL.Add('and translate(n.klass,');
-      OraQuery.SQL.Add('''ЕТОРАНКХСВМеторанкхсвм'',''ETOPAHKXCBMetopahkxcbm'')');
+      OraQuery.SQL.Add('''Р•РўРћР РђРќРљРҐРЎР’РњРµС‚РѕСЂР°РЅРєС…СЃРІРј'',''ETOPAHKXCBMetopahkxcbm'')');
       OraQuery.SQL.Add('like translate('''+CutChar(StrengthClass)+''',');
-      OraQuery.SQL.Add('''ЕТОРАНКХСВМеторанкхсвм'',''ETOPAHKXCBMetopahkxcbm'')');
+      OraQuery.SQL.Add('''Р•РўРћР РђРќРљРҐРЎР’РњРµС‚РѕСЂР°РЅРєС…СЃРІРј'',''ETOPAHKXCBMetopahkxcbm'')');
       OraQuery.SQL.Add('and n.data=v.data and v.npart=n.npart');
-      OraQuery.SQL.Add('and n.npart like '''+RollingMill+'%'''); // номер стана
+      OraQuery.SQL.Add('and n.npart like '''+RollingMill+'%'''); // РЅРѕРјРµСЂ СЃС‚Р°РЅР°
       if InSide = 0  then
-        OraQuery.SQL.Add('and mod(n.npart,2)=1')// проверка на четность | 0 четная - левая | 1 - нечетная правая
+        OraQuery.SQL.Add('and mod(n.npart,2)=1')// РїСЂРѕРІРµСЂРєР° РЅР° С‡РµС‚РЅРѕСЃС‚СЊ | 0 С‡РµС‚РЅР°СЏ - Р»РµРІР°СЏ | 1 - РЅРµС‡РµС‚РЅР°СЏ РїСЂР°РІР°СЏ
       else
-        OraQuery.SQL.Add('and mod(n.npart,2)=0');// проверка на четность | 0 четная - левая | 1 - нечетная правая
-      if (StrengthClass = 'S400') or (StrengthClass = 'S400W') then // классы при которых берется до 15 проб
+        OraQuery.SQL.Add('and mod(n.npart,2)=0');// РїСЂРѕРІРµСЂРєР° РЅР° С‡РµС‚РЅРѕСЃС‚СЊ | 0 С‡РµС‚РЅР°СЏ - Р»РµРІР°СЏ | 1 - РЅРµС‡РµС‚РЅР°СЏ РїСЂР°РІР°СЏ
+      if (StrengthClass = 'S400') or (StrengthClass = 'S400W') then // РєР»Р°СЃСЃС‹ РїСЂРё РєРѕС‚РѕСЂС‹С… Р±РµСЂРµС‚СЃСЏ РґРѕ 15 РїСЂРѕР±
         OraQuery.SQL.Add('and nvl(n.npach,0)=nvl(v.npach,0) and NI<=15')
       else
         OraQuery.SQL.Add('and nvl(n.npach,0)=nvl(v.npach,0) and NI<=3');
       OraQuery.SQL.Add('and prizn=''*'' and ROWNUM <= 251');
       OraQuery.SQL.Add('and n.nplav in('+HeatAll+')');
       OraQuery.SQL.Add('order by n.data desc)');
-      OraQuery.SQL.Add('where number_row <= 3');}
-      OraQuery.SQL.Text := zx;
+      OraQuery.SQL.Add('where number_row <= 3');
       OraQuery.Open;
+      OraQuery.FetchAll;
   except
     on E: Exception do
-      SaveLog.Log(etError, E.ClassName + ', с сообщением: '+E.Message);
+      SaveLog.Log(etError, E.ClassName + ', СЃ СЃРѕРѕР±С‰РµРЅРёРµРј: '+E.Message);
   end;
 
 {$IFDEF DEBUG }
-  SaveLog.Log(etDebug, 'OraQuery.SQL.Text -> '+OraQuery.SQL.Text);
+  SaveLog.Log(etDebug, 'OraQuery.SQL.Text -> '+UTF8Decode(OraQuery.SQL.Text));
   SaveLog.Log(etDebug, 'OraQuery.RecordCount -> '+inttostr(OraQuery.RecordCount));
 {$ENDIF}
 
-while not OraQuery.Eof do
-begin
-       SaveLog.Log(etDebug, 'STANDARD  '+OraQuery.FieldByName('STANDARD').AsString);
-  OraQuery.Next;
-end;
-exit;
-{
   if OraQuery.RecordCount < 5 then
   begin
-    SaveLog.Log(etWarning, UTF8Encode('сторона -> '+side));
-    SaveLog.Log(etWarning, UTF8Encode('недостаточно данных для расчета по плавкам -> '+HeatAll));
+    SaveLog.Log(etWarning, 'СЃС‚РѕСЂРѕРЅР° -> '+side);
+    SaveLog.Log(etWarning, 'РЅРµРґРѕСЃС‚Р°С‚РѕС‡РЅРѕ РґР°РЅРЅС‹С… РґР»СЏ СЂР°СЃС‡РµС‚Р° РїРѕ РїР»Р°РІРєР°Рј -> '+HeatAll);
     exit;
   end;
 
   try
-      PQueryData.sql.Clear;
-      PQueryData.sql.Add('SELECT n, k_yield_point, k_rupture_strength FROM coefficient');
-      PQueryData.sql.Add('where n<='+inttostr(OraQuery.RecordCount)+'');
-      PQueryData.sql.Add('order by n desc limit 1');
-      PQueryData.Open;
+      MSDBLibraryLoader.Enabled := true;
+      MSConnection.Connected := true;
+      MSQueryData.Close;
+      MSQueryData.sql.Clear;
+      MSQueryData.sql.Add('SELECT top 1 n, k_yield_point, k_rupture_strength');
+      MSQueryData.sql.Add('FROM coefficient');
+      MSQueryData.sql.Add('where n<='+inttostr(OraQuery.RecordCount)+'');
+      MSQueryData.sql.Add('order by n desc');
+{$IFDEF DEBUG }
+  SaveLog.Log(etDebug, 'MSQueryData.SQL.Text -> '+MSQueryData.SQL.Text);
+{$ENDIF}
+      MSQueryData.Open;
   except
     on E: Exception do
-      SaveLog.Log(etError, UTF8Encode(E.ClassName + ', с сообщением: '+E.Message));
+      SaveLog.Log(etError, E.ClassName + ', СЃ СЃРѕРѕР±С‰РµРЅРёРµРј: '+E.Message);
   end;
 
-  CoefficientCount := PQueryData.FieldByName('n').AsInteger;
-  CoefficientYieldPointValue := PQueryData.FieldByName('k_yield_point').AsFloat;
-  { CoefficientRuptureStrengthValue - одинаковый с CoefficientYieldPointValue
-    k_rupture_strength используеться для другого расчета }
-  CoefficientRuptureStrengthValue := PQueryData.FieldByName('k_yield_point').AsFloat;//PQueryData.FieldByName('k_rupture_strength').AsFloat;
+  CoefficientCount := MSQueryData.FieldByName('n').AsInteger;
+  CoefficientYieldPointValue := MSQueryData.FieldByName('k_yield_point').AsFloat;
+  { CoefficientRuptureStrengthValue - РѕРґРёРЅР°РєРѕРІС‹Р№ СЃ CoefficientYieldPointValue
+    k_rupture_strength РёСЃРїРѕР»СЊР·СѓРµС‚СЊСЃСЏ РґР»СЏ РґСЂСѓРіРѕРіРѕ СЂР°СЃС‡РµС‚Р° }
+  CoefficientRuptureStrengthValue := MSQueryData.FieldByName('k_yield_point').AsFloat;//PQueryData.FieldByName('k_rupture_strength').AsFloat;
 
   // -- report
   CalculatedData(InSide, 'coefficient_count=''' + inttostr(CoefficientCount) + '''');
@@ -614,10 +625,11 @@ exit;
   CalculatedData(InSide, 'coefficient_rupture_strength_value=''' + floattostr(CoefficientRuptureStrengthValue) + '''');
   // -- report
 {$IFDEF DEBUG}
-  SaveLog.Log(etDebug, UTF8Encode('CoefficientCount -> ' + inttostr(CoefficientCount)));
-  SaveLog.Log(etDebug, UTF8Encode('CoefficientYieldPointValue -> ' + floattostr(CoefficientYieldPointValue)));
-  SaveLog.Log(etDebug, UTF8Encode('CoefficientRuptureStrengthValue -> ' + floattostr(CoefficientRuptureStrengthValue)));
+  SaveLog.Log(etDebug, 'CoefficientCount -> ' + inttostr(CoefficientCount));
+  SaveLog.Log(etDebug, 'CoefficientYieldPointValue -> ' + floattostr(CoefficientYieldPointValue));
+  SaveLog.Log(etDebug, 'CoefficientRuptureStrengthValue -> ' + floattostr(CoefficientRuptureStrengthValue));
 {$ENDIF}
+
   SQuery.Close;
   SQuery.sql.Clear;
   SQuery.sql.Add('CREATE TABLE IF NOT EXISTS mechanics');
@@ -632,11 +644,11 @@ exit;
   try
       SQuery.Close;
       SQuery.sql.Clear;
-      SQuery.sql.Add('delete from mechanics where side=' + inttostr(InSide) + '');
+      SQuery.sql.Add('delete from mechanics where side='+inttostr(InSide)+'');
       SQuery.ExecSQL;
   except
     on E: Exception do
-      SaveLog.Log(etError, UTF8Encode(E.ClassName + ', с сообщением: '+E.Message));
+      SaveLog.Log(etError, E.ClassName + ', СЃ СЃРѕРѕР±С‰РµРЅРёРµРј: '+E.Message);
   end;
 
   i := 1;
@@ -670,7 +682,7 @@ exit;
               SQuery.ExecSQL;
           except
             on E: Exception do
-              SaveLog.Log(etError, UTF8Encode(E.ClassName + ', с сообщением: '+E.Message));
+              SaveLog.Log(etError, E.ClassName + ', СЃ СЃРѕРѕР±С‰РµРЅРёРµРј: '+E.Message);
           end;
         end;
     end;
@@ -687,7 +699,7 @@ exit;
       SQuery.Open;
   except
     on E: Exception do
-      SaveLog.Log(etError, UTF8Encode(E.ClassName + ', с сообщением: '+E.Message));
+      SaveLog.Log(etError, E.ClassName + ', СЃ СЃРѕРѕР±С‰РµРЅРёРµРј: '+E.Message);
   end;
 
   i := 0;
@@ -706,39 +718,41 @@ exit;
   // -- report
 
 {$IFDEF DEBUG}
-  SaveLog.Log(etDebug, UTF8Encode('HeatAll to works -> ' + HeatAll));
+  SaveLog.Log(etDebug, 'HeatAll to works -> ' + HeatAll);
 {$ENDIF}
   // -- heat to works
-  // выбор пределов из таблицы technological_sample
+  // РІС‹Р±РѕСЂ РїСЂРµРґРµР»РѕРІ РёР· С‚Р°Р±Р»РёС†С‹ technological_sample
   try
-      PQueryData.Close;
-      PQueryData.sql.Clear;
-      PQueryData.sql.Add('SELECT limit_min, limit_max, type FROM technological_sample');
-      PQueryData.sql.Add('where translate(strength_class,');
-      PQueryData.sql.Add('''ЕТОРАНКХСВМеторанкхсвм'',''ETOPAHKXCBMetopahkxcbm'')');
-      PQueryData.sql.Add('like translate('''+StrengthClass+''',');
-      PQueryData.sql.Add('''ЕТОРАНКХСВМеторанкхсвм'',''ETOPAHKXCBMetopahkxcbm'')');
-      PQueryData.sql.Add('and diameter_min <= '+Section+' and diameter_max >= '+Section+'');
-      PQueryData.sql.Add('and c_min <= '+c+' and c_max >= '+c+'');
-      PQueryData.sql.Add('and mn_min <= '+mn+' and mn_max >= '+mn+'');
-      PQueryData.sql.Add('and si_min <= '+si+' and si_max >= '+si+'');
-      PQueryData.sql.Add('limit 1');
-      PQueryData.Open;
+      MSDBLibraryLoader.Enabled := true;
+      MSConnection.Connected := true;
+      MSQueryData.Close;
+      MSQueryData.sql.Clear;
+      MSQueryData.sql.Add('SELECT limit_min, limit_max, [type]');
+      MSQueryData.sql.Add('FROM technological_sample');
+      MSQueryData.sql.Add('where id = '+technological_sample+'');
+{$IFDEF DEBUG }
+  SaveLog.Log(etDebug, UTF8Decode('MSQueryData.SQL.Text -> '+MSQueryData.SQL.Text));
+{$ENDIF}
+      MSQueryData.Open;
   except
     on E: Exception do
-      SaveLog.Log(etError, UTF8Encode(E.ClassName + ', с сообщением: '+E.Message));
+      SaveLog.Log(etError, E.ClassName + ', СЃ СЃРѕРѕР±С‰РµРЅРёРµРј: '+E.Message);
   end;
 
-  if PQueryData.FieldByName('limit_min').IsNull then
+{$IFDEF DEBUG }
+  SaveLog.Log(etDebug, 'MSQueryData.RecordCount -> '+inttostr(MSQueryData.RecordCount));
+{$ENDIF}
+
+  if MSQueryData.FieldByName('limit_min').IsNull then
   begin
-    SaveLog.Log(etWarning, UTF8Encode('сторона -> '+side));
-    SaveLog.Log(etWarning, UTF8Encode('недостаточно данных по технологической инструкции для -> '+InHeat));
+    SaveLog.Log(etWarning, 'СЃС‚РѕСЂРѕРЅР° -> '+side);
+    SaveLog.Log(etWarning, 'РЅРµРґРѕСЃС‚Р°С‚РѕС‡РЅРѕ РґР°РЅРЅС‹С… РїРѕ С‚РµС…РЅРѕР»РѕРіРёС‡РµСЃРєРѕР№ РёРЅСЃС‚СЂСѓРєС†РёРё РґР»СЏ -> '+InHeat);
     exit;
   end;
 
-  LimitRolledProductsMin := PQueryData.FieldByName('limit_min').AsInteger;
-  LimitRolledProductsMax := PQueryData.FieldByName('limit_max').AsInteger;
-  TypeRolledProducts := PQueryData.FieldByName('type').AsString;
+  LimitRolledProductsMin := MSQueryData.FieldByName('limit_min').AsInteger;
+  LimitRolledProductsMax := MSQueryData.FieldByName('limit_max').AsInteger;
+  TypeRolledProducts := MSQueryData.FieldByName('type').AsString;
 
   // -- report
   CalculatedData(InSide, 'limit_rolled_products_min='''+inttostr(LimitRolledProductsMin)+'''');
@@ -747,10 +761,10 @@ exit;
   // -- report
 
 {$IFDEF DEBUG}
-  SaveLog.Log(etDebug, UTF8Encode('LimitRolledProductsMin -> '+inttostr(LimitRolledProductsMin)));
-  SaveLog.Log(etDebug, UTF8Encode('LimitRolledProductsMax -> '+inttostr(LimitRolledProductsMax)));
-  SaveLog.Log(etDebug, UTF8Encode('TypeRolledProducts -> ' + TypeRolledProducts));
-  SaveLog.Log(etDebug, UTF8Encode('RolledProducts RecordCount -> '+inttostr(SQuery.RecordCount)));
+  SaveLog.Log(etDebug, 'LimitRolledProductsMin -> '+inttostr(LimitRolledProductsMin));
+  SaveLog.Log(etDebug, 'LimitRolledProductsMax -> '+inttostr(LimitRolledProductsMax));
+  SaveLog.Log(etDebug, 'TypeRolledProducts -> ' + TypeRolledProducts);
+  SaveLog.Log(etDebug, 'RolledProducts RecordCount -> '+inttostr(SQuery.RecordCount));
 {$ENDIF}
 
   try
@@ -761,13 +775,13 @@ exit;
       SQuery.Open;
   except
     on E: Exception do
-      SaveLog.Log(etError, UTF8Encode(E.ClassName + ', с сообщением: '+E.Message));
+      SaveLog.Log(etError, E.ClassName + ', СЃ СЃРѕРѕР±С‰РµРЅРёРµРј: '+E.Message);
   end;
 
   if SQuery.RecordCount < 1 then
   begin
-    SaveLog.Log(etWarning, UTF8Encode('сторона -> '+side));
-    SaveLog.Log(etWarning, UTF8Encode('недостаточно данных по мех. испытаниям для расчета по плавкам -> '+HeatAll));
+    SaveLog.Log(etWarning, 'СЃС‚РѕСЂРѕРЅР° -> '+side);
+    SaveLog.Log(etWarning, 'РЅРµРґРѕСЃС‚Р°С‚РѕС‡РЅРѕ РґР°РЅРЅС‹С… РїРѕ РјРµС…. РёСЃРїС‹С‚Р°РЅРёСЏРј РґР»СЏ СЂР°СЃС‡РµС‚Р° РїРѕ РїР»Р°РІРєР°Рј -> '+HeatAll);
     exit;
   end;
 
@@ -811,92 +825,73 @@ exit;
   // -- report
 
 {$IFDEF DEBUG}
-  SaveLog.Log(etDebug, UTF8Encode('MechanicsAvg -> ' + floattostr(MechanicsAvg)));
-  SaveLog.Log(etDebug, UTF8Encode('MechanicsStdDev -> ' + floattostr(MechanicsStdDev)));
-  SaveLog.Log(etDebug, UTF8Encode('MechanicsMin -> ' + floattostr(MechanicsMin)));
-  SaveLog.Log(etDebug, UTF8Encode('MechanicsMax -> ' + floattostr(MechanicsMax)));
-  SaveLog.Log(etDebug, UTF8Encode('MechanicsDiff -> ' + floattostr(MechanicsDiff)));
-  SaveLog.Log(etDebug, UTF8Encode('CoefficientMin -> ' + floattostr(CoefficientMin)));
-  SaveLog.Log(etDebug, UTF8Encode('CoefficientMax -> ' + floattostr(CoefficientMax)));
-  SaveLog.Log(etDebug, UTF8Encode('Section -> ' + Section));
-  SaveLog.Log(etDebug, UTF8Encode('RollingScheme -> ' + RollingScheme));
+  SaveLog.Log(etDebug, 'MechanicsAvg -> ' + floattostr(MechanicsAvg));
+  SaveLog.Log(etDebug, 'MechanicsStdDev -> ' + floattostr(MechanicsStdDev));
+  SaveLog.Log(etDebug, 'MechanicsMin -> ' + floattostr(MechanicsMin));
+  SaveLog.Log(etDebug, 'MechanicsMax -> ' + floattostr(MechanicsMax));
+  SaveLog.Log(etDebug, 'MechanicsDiff -> ' + floattostr(MechanicsDiff));
+  SaveLog.Log(etDebug, 'CoefficientMin -> ' + floattostr(CoefficientMin));
+  SaveLog.Log(etDebug, 'CoefficientMax -> ' + floattostr(CoefficientMax));
+  SaveLog.Log(etDebug, 'Section -> ' + Section);
+  SaveLog.Log(etDebug, 'RollingScheme -> ' + RollingScheme);
 {$ENDIF}
 
   try
-      PQueryCalculation.Close;
-      PQueryCalculation.sql.Clear;
-      PQueryCalculation.sql.Add('select t1.tid, t1.heat, t4.temperature from temperature_current t1');
-      PQueryCalculation.sql.Add('inner join');
-      PQueryCalculation.sql.Add('chemical_analysis t2');
-      PQueryCalculation.sql.Add('on t1.heat = t2.heat');
-      PQueryCalculation.sql.Add('inner join');
-      PQueryCalculation.sql.Add('technological_sample t3');
-      PQueryCalculation.sql.Add('on t3.diameter_min <= '+Section+' and t3.diameter_max >= '+Section+'');
-      PQueryCalculation.sql.Add('and t3.c_min <= '+c+' and t3.c_max >= '+c+'');
-      PQueryCalculation.sql.Add('and t3.mn_min <= '+mn+' and t3.mn_max >= '+mn+'');
-      PQueryCalculation.sql.Add('and t3.si_min <= '+si+' and t3.si_max >= '+si+'');
-      PQueryCalculation.sql.Add('inner JOIN');
-      PQueryCalculation.sql.Add('temperature_historical t4');
-      PQueryCalculation.sql.Add('on t1.tid=t4.tid');
-      PQueryCalculation.sql.Add('where t1.timestamp<=EXTRACT(EPOCH FROM now())');
-      PQueryCalculation.sql.Add('and t1.timestamp>=EXTRACT(EPOCH FROM now())-(2629743*10)');
-      PQueryCalculation.sql.Add('and t2.heat in ('+HeatAll+')');
-      PQueryCalculation.sql.Add('and translate(t3.strength_class,');
-      PQueryCalculation.sql.Add('''ЕТОРАНКХСВМеторанкхсвм'',''ETOPAHKXCBMetopahkxcbm'')');
-      PQueryCalculation.sql.Add('like translate('''+StrengthClass+''',');
-      PQueryCalculation.sql.Add('''ЕТОРАНКХСВМеторанкхсвм'',''ETOPAHKXCBMetopahkxcbm'')');
-      PQueryCalculation.sql.Add('and t1.side='+inttostr(InSide)+'');
-      if (strtofloat(Section) = 14) or (strtofloat(Section) = 16) or (strtofloat(Section) = 18) then
-          PQueryCalculation.sql.Add('and t4.rolling_scheme = '''+RollingScheme+'''');
-
-//      PQueryCalculation.sql.Add('and t3.type like ''yield_point'');
-
-{      PQueryCalculation.sql.Add('select t1.tid, t1.heat, t2.temperature from temperature_current t1');
-      PQueryCalculation.sql.Add('LEFT OUTER JOIN');
-      PQueryCalculation.sql.Add('temperature_historical t2');
-      PQueryCalculation.sql.Add('on t1.tid=t2.tid');
-      PQueryCalculation.sql.Add('where t1.heat in ('+HeatAll+')');
-      PQueryCalculation.sql.Add('and t1.strength_class like '''+CutChar(StrengthClass)+'''');
-      PQueryCalculation.SQL.Add('and t1.grade like '''+CutChar(Grade)+'''');
-      PQueryCalculation.sql.Add('and t1.section = '+CutChar(Section)+'');
-      PQueryCalculation.sql.Add('and t1.standard like '''+GetDigits(Standard)+'%''');
-      PQueryCalculation.sql.Add('and t1.side='+inttostr(InSide)+'');}
-      PQueryCalculation.Open;
-      PQueryCalculation.FetchAll;
+      MSDBLibraryLoader.Enabled := true;
+      MSConnection.Connected := true;
+      MSQueryCalculation.Close;
+      MSQueryCalculation.sql.Clear;
+      MSQueryCalculation.sql.Add('select t1.tid, t1.heat, t2.temperature from temperature_current t1');
+      MSQueryCalculation.sql.Add('inner join');
+      MSQueryCalculation.sql.Add('temperature_historical t2');
+      MSQueryCalculation.sql.Add('on t1.tid=t2.tid');
+      MSQueryCalculation.sql.Add('where t1.timestamp<=datediff(s, ''01/01/1970'', getdate())');
+      MSQueryCalculation.sql.Add('and t1.timestamp>=datediff(s, ''01/01/1970'', getdate())-(2629743*10)');// timestamp 2629743 month * 10
+      MSQueryCalculation.sql.Add('and t1.heat in ('+HeatAll+')');
+      MSQueryCalculation.sql.Add('and t1.section <= '+Section+'');
+      MSQueryCalculation.sql.Add('and dbo.translate(t1.strength_class,');
+      MSQueryCalculation.sql.Add('''Р•РўРћР РђРќРљРҐРЎР’РњРµС‚РѕСЂР°РЅРєС…СЃРІРј'',''ETOPAHKXCBMetopahkxcbm'')');
+      MSQueryCalculation.sql.Add('= dbo.translate('''+StrengthClass+''',');
+      MSQueryCalculation.sql.Add('''Р•РўРћР РђРќРљРҐРЎР’РњРµС‚РѕСЂР°РЅРєС…СЃРІРј'',''ETOPAHKXCBMetopahkxcbm'')');
+      MSQueryCalculation.sql.Add('and t1.side='+inttostr(InSide)+'');
+{      if (strtofloat(Section) = 14) or (strtofloat(Section) = 16) or (strtofloat(Section) = 18) then
+          MSQueryCalculation.sql.Add('and t2.rolling_scheme = '''+RollingScheme+''''); РґР»СЏ 5РіРѕ СЃС‚Р°РЅР°}
+      MSQueryCalculation.Open;
   except
     on E: Exception do
-      SaveLog.Log(etError, UTF8Encode(E.ClassName + ', с сообщением: ' + E.Message));
+      SaveLog.Log(etError, E.ClassName + ', СЃ СЃРѕРѕР±С‰РµРЅРёРµРј: ' + E.Message);
   end;
 
 {$IFDEF DEBUG}
-  SaveLog.Log(etDebug, UTF8Encode('PQueryCalculation.SQL.Text -> ' + PQueryCalculation.sql.Text));
+  SaveLog.Log(etDebug, 'MSQueryCalculation.SQL.Text -> '+UTF8Decode(MSQueryCalculation.sql.Text));
+  SaveLog.Log(etDebug, 'MSQueryCalculation.RecordCount -> '+inttostr(MSQueryCalculation.RecordCount));
 {$ENDIF}
 
-  if PQueryCalculation.RecordCount < 1 then
+  if MSQueryCalculation.RecordCount < 1 then
   begin
-    SaveLog.Log(etWarning, UTF8Encode('сторона -> '+side));
-    SaveLog.Log(etWarning, UTF8Encode('недостаточно данных по температуре для расчета по плавкам -> '+HeatAll));
+    SaveLog.Log(etWarning, 'СЃС‚РѕСЂРѕРЅР° -> '+side);
+    SaveLog.Log(etWarning, 'РЅРµРґРѕСЃС‚Р°С‚РѕС‡РЅРѕ РґР°РЅРЅС‹С… РїРѕ С‚РµРјРїРµСЂР°С‚СѓСЂРµ РґР»СЏ СЂР°СЃС‡РµС‚Р° РїРѕ РїР»Р°РІРєР°Рј -> '+HeatAll);
     exit;
   end;
 
-{  a := 0;
-  while not PQueryCalculation.Eof do
+  {// С‚РµРјРїРµСЂР°С‚СѓСЂР° Р±РµР· РјРµРґРёР°РЅС‹
+  a := 0;
+  while not MSQueryCalculation.Eof do
   begin
     if a = length(TempArray) then
       SetLength(TempArray, a + 1);
-    TempArray[a] := PQueryCalculation.FieldByName('temperature').AsInteger;
+    TempArray[a] := MSQueryCalculation.FieldByName('temperature').AsInteger;
     inc(a);
-    PQueryCalculation.Next;
+    MSQueryCalculation.Next;
   end;}
 
   a := 0;
   b := a;
   i := a;
-  while not PQueryCalculation.Eof do
+  while not MSQueryCalculation.Eof do
   begin
     if a = length(RawTempArray) then SetLength(RawTempArray, a + 1);
-//    SetLength(RawTempArray, 5);
-    RawTempArray[a] := PQueryCalculation.FieldByName('temperature').AsInteger;
+    RawTempArray[a] := MSQueryCalculation.FieldByName('temperature').AsInteger;
     inc(a);
 
 {$IFDEF DEBUG}
@@ -906,24 +901,24 @@ exit;
     if a = 4 then
     begin
       if b = length(TempArray) then SetLength(TempArray, b + 1);
-      TempArray[b] := GetMedian(RawTempArray);
+      TempArray[b] := Median(RawTempArray);
       inc(b);
       a := 0;
     end;
-    PQueryCalculation.Next;
+    MSQueryCalculation.Next;
   end;
 
 {$IFDEF DEBUG}
-  SaveLog.Log(etDebug, UTF8Encode('count temperature all -> ' + inttostr(i)));
-  SaveLog.Log(etDebug, UTF8Encode('count temperature median -> ' + inttostr(b)));
+  SaveLog.Log(etDebug, 'count temperature all -> ' + inttostr(i));
+  SaveLog.Log(etDebug, 'count temperature median -> ' + inttostr(b));
 {$ENDIF}
 
-  FreeAndNil(PQueryCalculation);
-  FreeAndNil(PQueryData);
+  FreeAndNil(MSQueryCalculation);
+  FreeAndNil(MSQueryData);
 
   TempAvg := Mean(TempArray);
   TempStdDev := StdDev(TempArray);
-  SetLength(TempArray, 0); // обнуляем массив c температурой
+  SetLength(TempArray, 0); // РѕР±РЅСѓР»СЏРµРј РјР°СЃСЃРёРІ c С‚РµРјРїРµСЂР°С‚СѓСЂРѕР№
   TempMin := TempAvg - TempStdDev;
   TempMax := TempAvg + TempStdDev;
   TempDiff := TempMax - TempMin;
@@ -943,19 +938,19 @@ exit;
   // -- report
 
 {$IFDEF DEBUG}
-  SaveLog.Log(etDebug, UTF8Encode('TempAvg -> ' + floattostr(TempAvg)));
-  SaveLog.Log(etDebug, UTF8Encode('TempStdDev -> ' + floattostr(TempStdDev)));
-  SaveLog.Log(etDebug, UTF8Encode('TempMin -> ' + floattostr(TempMin)));
-  SaveLog.Log(etDebug, UTF8Encode('TempMax -> ' + floattostr(TempMax)));
-  SaveLog.Log(etDebug, UTF8Encode('TempDiff -> ' + floattostr(TempDiff)));
-  SaveLog.Log(etDebug, UTF8Encode('R -> ' + floattostr(R)));
-  SaveLog.Log(etDebug, UTF8Encode('AdjustmentMin -> ' + inttostr(AdjustmentMin)));
-  SaveLog.Log(etDebug, UTF8Encode('AdjustmentMax -> ' + inttostr(AdjustmentMax)));
+  SaveLog.Log(etDebug, 'TempAvg -> ' + floattostr(TempAvg));
+  SaveLog.Log(etDebug, 'TempStdDev -> ' + floattostr(TempStdDev));
+  SaveLog.Log(etDebug, 'TempMin -> ' + floattostr(TempMin));
+  SaveLog.Log(etDebug, 'TempMax -> ' + floattostr(TempMax));
+  SaveLog.Log(etDebug, 'TempDiff -> ' + floattostr(TempDiff));
+  SaveLog.Log(etDebug, 'R -> ' + floattostr(R));
+  SaveLog.Log(etDebug, 'AdjustmentMin -> ' + inttostr(AdjustmentMin));
+  SaveLog.Log(etDebug, 'AdjustmentMax -> ' + inttostr(AdjustmentMax));
 {$ENDIF}
 
     if ((InSide = 0) and (left.step = 0)) then
     begin
-      // увеличиваем диапозон на 10 градусов
+      // СѓРІРµР»РёС‡РёРІР°РµРј РґРёР°РїРѕР·РѕРЅ РЅР° 10 РіСЂР°РґСѓСЃРѕРІ
       left.LowRed := Round(TempMin + AdjustmentMax) - 10;
       left.HighRed := Round(TempMax + AdjustmentMin) + 10;
       // -- report
@@ -963,38 +958,38 @@ exit;
       CalculatedData(InSide, 'high=''' + inttostr(left.HighRed) + '''');
       // -- report
 {$IFDEF DEBUG}
-      SaveLog.Log(etDebug, UTF8Encode('LowRedLeft -> ' + inttostr(left.LowRed)));
-      SaveLog.Log(etDebug, UTF8Encode('HighRedLeft -> ' + inttostr(left.HighRed)));
-      SaveLog.Log(etDebug, UTF8Encode('left.step first -> ' + inttostr(left.step)));
+      SaveLog.Log(etDebug, 'LowRedLeft -> ' + inttostr(left.LowRed));
+      SaveLog.Log(etDebug, 'HighRedLeft -> ' + inttostr(left.HighRed));
+      SaveLog.Log(etDebug, 'left.step first -> ' + inttostr(left.step));
 {$ENDIF}
-      inc(left.step); // маркер 2го прохода
-      // возвращаем плавки по которым произволдился расчет
+      inc(left.step); // РјР°СЂРєРµСЂ 2РіРѕ РїСЂРѕС…РѕРґР°
+      // РІРѕР·РІСЂР°С‰Р°РµРј РїР»Р°РІРєРё РїРѕ РєРѕС‚РѕСЂС‹Рј РїСЂРѕРёР·РІРѕР»РґРёР»СЃСЏ СЂР°СЃС‡РµС‚
       Result := HeatAll;
       exit;
     end;
     if ((InSide = 0) and (left.step = 1)) then
     begin
-      // увеличиваем диапозон на 5 градусов
-      left.LowGreen := Round(TempMin + AdjustmentMax) - 5; //вместо 2.5 ибо округляется
+      // СѓРІРµР»РёС‡РёРІР°РµРј РґРёР°РїРѕР·РѕРЅ РЅР° 5 РіСЂР°РґСѓСЃРѕРІ
+      left.LowGreen := Round(TempMin + AdjustmentMax) - 5; //РІРјРµСЃС‚Рѕ 2.5 РёР±Рѕ РѕРєСЂСѓРіР»СЏРµС‚СЃСЏ
       left.HighGreen := Round(TempMax + AdjustmentMin) + 5;
       // -- report
       CalculatedData(InSide, 'low=''' + inttostr(left.LowGreen) + '''');
       CalculatedData(InSide, 'high=''' + inttostr(left.HighGreen) + '''');
       // -- report
 {$IFDEF DEBUG}
-      SaveLog.Log(etDebug, UTF8Encode('LowGreenLeft -> ' + inttostr(left.LowGreen)));
-      SaveLog.Log(etDebug, UTF8Encode('HighGreenLeft -> ' + inttostr(left.HighGreen)));
-      SaveLog.Log(etDebug, UTF8Encode('left.step last -> ' + inttostr(left.step)));
+      SaveLog.Log(etDebug, 'LowGreenLeft -> ' + inttostr(left.LowGreen));
+      SaveLog.Log(etDebug, 'HighGreenLeft -> ' + inttostr(left.HighGreen));
+      SaveLog.Log(etDebug, 'left.step last -> ' + inttostr(left.step));
 {$ENDIF}
-//      left.step := 0; // сброс этапа перенесен в начало
-      // возвращаем плавки по которым произволдился расчет
+//      left.step := 0; // СЃР±СЂРѕСЃ СЌС‚Р°РїР° РїРµСЂРµРЅРµСЃРµРЅ РІ РЅР°С‡Р°Р»Рѕ
+      // РІРѕР·РІСЂР°С‰Р°РµРј РїР»Р°РІРєРё РїРѕ РєРѕС‚РѕСЂС‹Рј РїСЂРѕРёР·РІРѕР»РґРёР»СЃСЏ СЂР°СЃС‡РµС‚
       Result := HeatAll;
       exit;
     end;
 
     if ((InSide = 1) and (right.step = 0)) then
     begin
-      // увеличиваем диапозон на 10 градусов
+      // СѓРІРµР»РёС‡РёРІР°РµРј РґРёР°РїРѕР·РѕРЅ РЅР° 10 РіСЂР°РґСѓСЃРѕРІ
       right.LowRed := Round(TempMin + AdjustmentMax) - 10;
       right.HighRed := Round(TempMax + AdjustmentMin) + 10;
       // -- report
@@ -1002,18 +997,18 @@ exit;
       CalculatedData(InSide, 'high=''' + inttostr(right.HighRed) + '''');
       // -- report
 {$IFDEF DEBUG}
-      SaveLog.Log(etDebug, UTF8Encode('LowRedRight -> ' + inttostr(right.LowRed)));
-      SaveLog.Log(etDebug, UTF8Encode('HighRedRight -> ' + inttostr(right.HighRed)));
-      SaveLog.Log(etDebug, UTF8Encode('right.step first -> ' + inttostr(right.step)));
+      SaveLog.Log(etDebug, 'LowRedRight -> ' + inttostr(right.LowRed));
+      SaveLog.Log(etDebug, 'HighRedRight -> ' + inttostr(right.HighRed));
+      SaveLog.Log(etDebug, 'right.step first -> ' + inttostr(right.step));
 {$ENDIF}
-      inc(right.step); // маркер 2го прохода
-      // возвращаем плавки по которым произволдился расчет
+      inc(right.step); // РјР°СЂРєРµСЂ 2РіРѕ РїСЂРѕС…РѕРґР°
+      // РІРѕР·РІСЂР°С‰Р°РµРј РїР»Р°РІРєРё РїРѕ РєРѕС‚РѕСЂС‹Рј РїСЂРѕРёР·РІРѕР»РґРёР»СЃСЏ СЂР°СЃС‡РµС‚
       Result := HeatAll;
       exit;
     end;
     if ((InSide = 1) and (right.step = 1)) then
     begin
-      // увеличиваем диапозон на 5 градусов
+      // СѓРІРµР»РёС‡РёРІР°РµРј РґРёР°РїРѕР·РѕРЅ РЅР° 5 РіСЂР°РґСѓСЃРѕРІ
       right.LowGreen := Round(TempMin + AdjustmentMax) - 5;
       right.HighGreen := Round(TempMax + AdjustmentMin) + 5;
       // -- report
@@ -1021,18 +1016,18 @@ exit;
       CalculatedData(InSide, 'high=''' + inttostr(right.HighGreen) + '''');
       // -- report
 {$IFDEF DEBUG}
-    SaveLog.Log(etDebug, UTF8Encode('LowGreenRight -> ' + inttostr(right.LowGreen)));
-    SaveLog.Log(etDebug, UTF8Encode('HighGreenRight -> ' + inttostr(right.HighGreen)));
-    SaveLog.Log(etDebug, UTF8Encode('right.step last -> ' + inttostr(right.step)));
+    SaveLog.Log(etDebug, 'LowGreenRight -> ' + inttostr(right.LowGreen));
+    SaveLog.Log(etDebug, 'HighGreenRight -> ' + inttostr(right.HighGreen));
+    SaveLog.Log(etDebug, 'right.step last -> ' + inttostr(right.step));
 {$ENDIF}
-//      right.step := 0; // сброс этапа перенесен в начало
-      // возвращаем плавки по которым произволдился расчет
+//      right.step := 0; // СЃР±СЂРѕСЃ СЌС‚Р°РїР° РїРµСЂРµРЅРµСЃРµРЅ РІ РЅР°С‡Р°Р»Рѕ
+      // РІРѕР·РІСЂР°С‰Р°РµРј РїР»Р°РІРєРё РїРѕ РєРѕС‚РѕСЂС‹Рј РїСЂРѕРёР·РІРѕР»РґРёР»СЃСЏ СЂР°СЃС‡РµС‚
       Result := HeatAll;
       exit;
-    end;}
+    end;
 end;
 
-{{
+
 function CarbonEquivalent(InHeat: string; InSide: integer): boolean;
 var
   CeMin, CeMax, CeAvg, CeMinP, CeMaxM, CeAvgP, CeAvgM, rangeMin: real;
@@ -1049,7 +1044,7 @@ begin
 
   CeArray := SqlCarbonEquivalent(InHeat);
 
-  CeMin := CeArray[0, 1]; // Берем первое значение из матрицы
+  CeMin := CeArray[0, 1]; // Р‘РµСЂРµРј РїРµСЂРІРѕРµ Р·РЅР°С‡РµРЅРёРµ РёР· РјР°С‚СЂРёС†С‹
   CeMax := CeMin;
   For i := Low(CeArray) To High(CeArray) Do
   Begin
@@ -1060,11 +1055,11 @@ begin
   End;
 
 {$IFDEF DEBUG}
-  SaveLog('debug' + #9#9 + 'CeMin -> ' + floattostr(CeMin));
-  SaveLog('debug' + #9#9 + 'CeMax -> ' + floattostr(CeMax));
+  SaveLog.Log(etDebug, 'CeMin -> ' + floattostr(CeMin));
+  SaveLog.Log(etDebug, 'CeMax -> ' + floattostr(CeMax));
 {$ENDIF}
   CeAvg := (CeMin + CeMax) / 2;
-  CeMinP := CeMin + 0.02; //было 0.03
+  CeMinP := CeMin + 0.02; //Р±С‹Р»Рѕ 0.03
   CeMaxM := CeMax - 0.02;
   CeAvgP := CeAvg + 0.01; //0.015
   CeAvgM := CeAvg - 0.01;
@@ -1074,39 +1069,39 @@ begin
     If InRange(CeArray[i, 1], CeMin, CeMinP) then
     begin
 {$IFDEF DEBUG}
-      SaveLog('debug' + #9#9 + 'CeMinRangeHeat -> ' + CeArray[i, 0]);
-      SaveLog('debug' + #9#9 + 'CeMinRangeValue -> ' +floattostr(CeArray[i, 1]));
+  SaveLog.Log(etDebug, 'CeMinRangeHeat -> ' + CeArray[i, 0]);
+  SaveLog.Log(etDebug, 'CeMinRangeValue -> ' +floattostr(CeArray[i, 1]));
 {$ENDIF}
       if a = 0 then
-        CeHeatStringMin := CeArray[i, 0]
+        CeHeatStringMin := ''''+CeArray[i, 0]+''''
       else
-        CeHeatStringMin := CeHeatStringMin + '|' + CeArray[i, 0];
+        CeHeatStringMin := CeHeatStringMin + ',' + ''''+CeArray[i, 0]+'''';
       inc(a);
     end;
 
     if InRange(CeArray[i, 1], CeMaxM, CeMax) then
     begin
 {$IFDEF DEBUG}
-      SaveLog('debug' + #9#9 + 'CeMaxRangeHeat -> ' + CeArray[i, 0]);
-      SaveLog('debug' + #9#9 + 'CeMaxRangeValue -> ' + floattostr(CeArray[i, 1]));
+  SaveLog.Log(etDebug, 'CeMaxRangeHeat -> ' + CeArray[i, 0]);
+  SaveLog.Log(etDebug, 'CeMaxRangeValue -> ' + floattostr(CeArray[i, 1]));
 {$ENDIF}
       if b = 0 then
-        CeHeatStringMax := CeArray[i, 0]
+        CeHeatStringMax := ''''+CeArray[i, 0]+''''
       else
-        CeHeatStringMax := CeHeatStringMax + '|' + CeArray[i, 0];
+        CeHeatStringMax := CeHeatStringMax + ',' + ''''+CeArray[i, 0]+'''';
       inc(b);
     end;
 
     if InRange(CeArray[i, 1], CeAvgM, CeAvgP) then
     begin
 {$IFDEF DEBUG}
-      SaveLog('debug' + #9#9 + 'CeAvgRangeHeat -> ' + CeArray[i, 0]);
-      SaveLog('debug' + #9#9 + 'CeAvgRangeValue -> ' + floattostr(CeArray[i, 1]));
+  SaveLog.Log(etDebug, 'CeAvgRangeHeat -> ' + CeArray[i, 0]);
+  SaveLog.Log(etDebug, 'CeAvgRangeValue -> ' + floattostr(CeArray[i, 1]));
 {$ENDIF}
       if c = 0 then
-        CeHeatStringAvg := CeArray[i, 0]
+        CeHeatStringAvg := ''''+CeArray[i, 0]+''''
       else
-        CeHeatStringAvg := CeHeatStringAvg + '|' + CeArray[i, 0];
+        CeHeatStringAvg := CeHeatStringAvg + ',' + ''''+CeArray[i, 0]+'''';
       inc(c);
     end;
   end;
@@ -1122,42 +1117,48 @@ begin
   // -- report
 
 {$IFDEF DEBUG}
-  SaveLog('debug' + #9#9 + 'CeInHeat -> ' + InHeat);
-  SaveLog('debug' + #9#9 + 'CeMin -> ' + floattostr(CeMin));
-  SaveLog('debug' + #9#9 + 'CeMax -> ' + floattostr(CeMax));
-  SaveLog('debug' + #9#9 + 'CeAvg -> ' + floattostr(CeAvg));
-  SaveLog('debug' + #9#9 + 'CeMinP -> ' + floattostr(CeMinP));
-  SaveLog('debug' + #9#9 + 'CeMaxM -> ' + floattostr(CeMaxM));
-  SaveLog('debug' + #9#9 + 'CeAvgP -> ' + floattostr(CeAvgP));
-  SaveLog('debug' + #9#9 + 'CeAvgM -> ' + floattostr(CeAvgM));
+  SaveLog.Log(etDebug, 'CeInHeat -> ' + InHeat);
+  SaveLog.Log(etDebug, 'CeMin -> ' + floattostr(CeMin));
+  SaveLog.Log(etDebug, 'CeMax -> ' + floattostr(CeMax));
+  SaveLog.Log(etDebug, 'CeAvg -> ' + floattostr(CeAvg));
+  SaveLog.Log(etDebug, 'CeMinP -> ' + floattostr(CeMinP));
+  SaveLog.Log(etDebug, 'CeMaxM -> ' + floattostr(CeMaxM));
+  SaveLog.Log(etDebug, 'CeAvgP -> ' + floattostr(CeAvgP));
+  SaveLog.Log(etDebug, 'CeAvgM -> ' + floattostr(CeAvgM));
 {$ENDIF}
+
+  SetLength(CeArray, 0); // РѕР±РЅСѓР»СЏРµРј РјР°СЃСЃРёРІ
+  SetLength(CeArray, 1, 2);
+
   if InSide = 0 then
   begin
-    // -- Се по текущей плавке
-    CeArray := SqlCarbonEquivalent('''' + left.Heat + '''');
+    // -- РЎРµ РїРѕ С‚РµРєСѓС‰РµР№ РїР»Р°РІРєРµ
+    CeArray[0, 0] := left.Heat;
+    CeArray[0, 1] := left.ce;
 {$IFDEF DEBUG}
-    SaveLog('debug' + #9#9 + 'Currentleft.Heat -> ' + CeArray[0, 0]);
-    SaveLog('debug' + #9#9 + 'CurrentCeLeft -> ' + floattostr(CeArray[0, 1]));
+  SaveLog.Log(etDebug, 'Currentleft.Heat -> ' + CeArray[0, 0]);
+  SaveLog.Log(etDebug, 'CurrentCeLeft -> ' + floattostr(CeArray[0, 1]));
 {$ENDIF}
   end
   else
   begin
-    // -- Се по текущей плавке
-    CeArray := SqlCarbonEquivalent('''' + right.Heat + '''');
+    // -- РЎРµ РїРѕ С‚РµРєСѓС‰РµР№ РїР»Р°РІРєРµ
+    CeArray[0, 0] := right.Heat;
+    CeArray[0, 1] := right.ce;
 {$IFDEF DEBUG}
-    SaveLog('debug' + #9#9 + 'Currentright.Heat -> ' + CeArray[0, 0]);
-    SaveLog('debug' + #9#9 + 'CurrentCeRight -> ' + floattostr(CeArray[0, 1]));
+  SaveLog.Log(etDebug, 'Currentright.Heat -> ' + CeArray[0, 0]);
+  SaveLog.Log(etDebug, 'CurrentCeRight -> ' + floattostr(CeArray[0, 1]));
 {$ENDIF}
   end;
 
-  // -- текущая плавка к какому из диапозонов относится min,max,avg
+  // -- С‚РµРєСѓС‰Р°СЏ РїР»Р°РІРєР° Рє РєР°РєРѕРјСѓ РёР· РґРёР°РїРѕР·РѕРЅРѕРІ РѕС‚РЅРѕСЃРёС‚СЃСЏ min,max,avg
   if InRange(CeArray[0, 1], CeMin, CeMinP) and (CeHeatStringMin <> '') then
   begin
 {$IFDEF DEBUG}
-    SaveLog('debug' + #9#9 + 'CurrentCeMinRange -> ' + CeArray[0, 0]);
-    SaveLog('debug' + #9#9 + 'CurrentCeMinRangeValue -> '+floattostr(CeArray[0, 1]));
+  SaveLog.Log(etDebug, 'CurrentCeMinRange -> ' + CeArray[0, 0]);
+  SaveLog.Log(etDebug, 'CurrentCeMinRangeValue -> '+floattostr(CeArray[0, 1]));
 {$ENDIF}
-//-- расчет осуществляется на ближаешем значение от min
+//-- СЂР°СЃС‡РµС‚ РѕСЃСѓС‰РµСЃС‚РІР»СЏРµС‚СЃСЏ РЅР° Р±Р»РёР¶Р°РµС€РµРј Р·РЅР°С‡РµРЅРёРµ РѕС‚ min
 {    // -- report
     CalculatedData(InSide, 'ce_category=''min''');
     // -- report
@@ -1175,16 +1176,16 @@ begin
 {$ENDIF}
         CalculatingInMechanicalCharacteristics(CeHeatStringMin, 1);
     end;}
-//-- расчет осуществляется на ближаешем значение от min
+//-- СЂР°СЃС‡РµС‚ РѕСЃСѓС‰РµСЃС‚РІР»СЏРµС‚СЃСЏ РЅР° Р±Р»РёР¶Р°РµС€РµРј Р·РЅР°С‡РµРЅРёРµ РѕС‚ min
   end;
 
   if InRange(CeArray[0, 1], CeMaxM, CeMax) and (CeHeatStringMax <> '') then
   begin
 {$IFDEF DEBUG}
-    SaveLog('debug' + #9#9 + 'CurrentCeMaxRange -> ' + CeArray[0, 0]);
-    SaveLog('debug' + #9#9 + 'CurrentCeMaxRangeValue -> '+floattostr(CeArray[0, 1]));
+  SaveLog.Log(etDebug, 'CurrentCeMaxRange -> ' + CeArray[0, 0]);
+  SaveLog.Log(etDebug, 'CurrentCeMaxRangeValue -> '+floattostr(CeArray[0, 1]));
 {$ENDIF}
-//-- расчет осуществляется на ближаешем значение от max
+//-- СЂР°СЃС‡РµС‚ РѕСЃСѓС‰РµСЃС‚РІР»СЏРµС‚СЃСЏ РЅР° Р±Р»РёР¶Р°РµС€РµРј Р·РЅР°С‡РµРЅРёРµ РѕС‚ max
 {    // -- report
     CalculatedData(InSide, 'ce_category=''max''');
     // -- report
@@ -1202,16 +1203,16 @@ begin
 {$ENDIF}
         CalculatingInMechanicalCharacteristics(CeHeatStringMax, 1);
     end;}
-//-- расчет осуществляется на ближаешем значение от max
+//-- СЂР°СЃС‡РµС‚ РѕСЃСѓС‰РµСЃС‚РІР»СЏРµС‚СЃСЏ РЅР° Р±Р»РёР¶Р°РµС€РµРј Р·РЅР°С‡РµРЅРёРµ РѕС‚ max
   end;
 
   if InRange(CeArray[0, 1], CeAvgM, CeAvgP) and (CeHeatStringAvg <> '') then
   begin
 {$IFDEF DEBUG}
-    SaveLog('debug' + #9#9 + 'CurrentCeAvgRange -> ' + CeArray[0, 0]);
-    SaveLog('debug' + #9#9 + 'CurrentCeAvgRangeValue -> '+floattostr(CeArray[0, 1]));
+  SaveLog.Log(etDebug, 'CurrentCeAvgRange -> ' + CeArray[0, 0]);
+  SaveLog.Log(etDebug, 'CurrentCeAvgRangeValue -> '+floattostr(CeArray[0, 1]));
 {$ENDIF}
-//-- расчет осуществляется на ближаешем значение от avg
+//-- СЂР°СЃС‡РµС‚ РѕСЃСѓС‰РµСЃС‚РІР»СЏРµС‚СЃСЏ РЅР° Р±Р»РёР¶Р°РµС€РµРј Р·РЅР°С‡РµРЅРёРµ РѕС‚ avg
 {    // -- report
     CalculatedData(InSide, 'ce_category=''avg''');
     // -- report
@@ -1229,11 +1230,11 @@ begin
 {$ENDIF}
         CalculatingInMechanicalCharacteristics(CeHeatStringAvg, 1);
     end;}
-//-- расчет осуществляется на ближаешем значение от avg
+//-- СЂР°СЃС‡РµС‚ РѕСЃСѓС‰РµСЃС‚РІР»СЏРµС‚СЃСЏ РЅР° Р±Р»РёР¶Р°РµС€РµРј Р·РЅР°С‡РµРЅРёРµ РѕС‚ avg
   end;
 
   SetLength(range, 3);
-  //получаем минимальную разницу
+  //РїРѕР»СѓС‡Р°РµРј РјРёРЅРёРјР°Р»СЊРЅСѓСЋ СЂР°Р·РЅРёС†Сѓ
   range[0] := ABS(CeMin - CeArray[0, 1]);
   range[1] := ABS(CeMax - CeArray[0, 1]);
   range[2] := ABS(CeAvg - CeArray[0, 1]);
@@ -1242,7 +1243,7 @@ begin
 
   for i := low(range) To high(range) Do
     if range[i] < rangeMin then
-      rangeMin := range[i];  // к какому из пределов ближе
+      rangeMin := range[i];  // Рє РєР°РєРѕРјСѓ РёР· РїСЂРµРґРµР»РѕРІ Р±Р»РёР¶Рµ
 
   for i := low(range) To high(range) Do
   begin
@@ -1253,20 +1254,31 @@ begin
         if InSide = 0 then
         begin
 {$IFDEF DEBUG}
-  SaveLog('debug' + #9#9 + 'CeMinRangeleft.Heat -> ' + CeHeatStringMin);
+  SaveLog.Log(etDebug, 'CeMinRangeleft.Heat -> ' + CeHeatStringMin);
 {$ENDIF}
           // -- report
-          CalculatedData(InSide, 'ce_category=''мин''');
+          CalculatedData(InSide, 'ce_category=''min''');
           // -- report
+{$IFDEF DEBUG}
+  SaveLog.Log(etDebug, 'do CalculatingInMechanicalCharacteristics');
+{$ENDIF}
+         try
           CalculatingInMechanicalCharacteristics(CeHeatStringMin, 0);
+          except
+           on E: Exception do
+             SaveLog.Log(etError, E.ClassName+', СЃ СЃРѕРѕР±С‰РµРЅРёРµРј: '+E.Message);
+          end;
+{$IFDEF DEBUG}
+  SaveLog.Log(etDebug, 'after CalculatingInMechanicalCharacteristics');
+{$ENDIF}
         end
         else
         begin
 {$IFDEF DEBUG}
-  SaveLog('debug' + #9#9 + 'CeMinRangeright.Heat -> ' + CeHeatStringMin);
+  SaveLog.Log(etDebug, 'CeMinRangeright.Heat -> ' + CeHeatStringMin);
 {$ENDIF}
           // -- report
-          CalculatedData(InSide, 'ce_category=''мин''');
+          CalculatedData(InSide, 'ce_category=''min''');
           // -- report
           CalculatingInMechanicalCharacteristics(CeHeatStringMin, 1);
         end;
@@ -1276,20 +1288,20 @@ begin
         if InSide = 0 then
         begin
 {$IFDEF DEBUG}
-  SaveLog('debug' + #9#9 + 'CeMaxRangeleft.Heat -> ' + CeHeatStringMax);
+  SaveLog.Log(etDebug, 'CeMaxRangeleft.Heat -> ' + CeHeatStringMax);
 {$ENDIF}
           // -- report
-          CalculatedData(InSide, 'ce_category=''макс''');
+          CalculatedData(InSide, 'ce_category=''max''');
           // -- report
           CalculatingInMechanicalCharacteristics(CeHeatStringMax, 0);
         end
         else
         begin
 {$IFDEF DEBUG}
-  SaveLog('debug' + #9#9 + 'CeMaxRangeright.Heat -> ' + CeHeatStringMax);
+  SaveLog.Log(etDebug, 'CeMaxRangeright.Heat -> ' + CeHeatStringMax);
 {$ENDIF}
           // -- report
-          CalculatedData(InSide, 'ce_category=''макс''');
+          CalculatedData(InSide, 'ce_category=''max''');
           // -- report
           CalculatingInMechanicalCharacteristics(CeHeatStringMax, 1);
         end;
@@ -1299,20 +1311,20 @@ begin
         if InSide = 0 then
         begin
 {$IFDEF DEBUG}
-  SaveLog('debug' + #9#9 + 'CeAvgRangeleft.Heat -> ' + CeHeatStringAvg);
+  SaveLog.Log(etDebug, 'CeAvgRangeleft.Heat -> ' + CeHeatStringAvg);
 {$ENDIF}
           // -- report
-          CalculatedData(InSide, 'ce_category=''сред''');
+          CalculatedData(InSide, 'ce_category=''avg''');
           // -- report
           CalculatingInMechanicalCharacteristics(CeHeatStringAvg, 0);
         end
         else
         begin
 {$IFDEF DEBUG}
-  SaveLog('debug' + #9#9 + 'CeAvgRangeright.Heat -> ' + CeHeatStringAvg);
+  SaveLog.Log(etDebug, 'CeAvgRangeright.Heat -> ' + CeHeatStringAvg);
 {$ENDIF}
           // -- report
-          CalculatedData(InSide, 'ce_category=''сред''');
+          CalculatedData(InSide, 'ce_category=''avg''');
           // -- report
           CalculatingInMechanicalCharacteristics(CeHeatStringAvg, 1);
         end;
@@ -1321,35 +1333,12 @@ begin
   end;
 
 {$IFDEF DEBUG}
-  SaveLog('debug' + #9#9 + 'CeRangeMinValue -> ' + floattostr(rangeMin));
-  SaveLog('debug' + #9#9 + 'min range[0] -> ' + floattostr(range[0]));
-  SaveLog('debug' + #9#9 + 'max range[1] -> ' + floattostr(range[1]));
-  SaveLog('debug' + #9#9 + 'avg range[2] -> ' + floattostr(range[2]));
-  SaveLog('debug' + #9#9 + 'rangeM -> ' + floattostr(rangeM));
+  SaveLog.Log(etDebug, 'CeRangeMinValue -> ' + floattostr(rangeMin));
+  SaveLog.Log(etDebug, 'min range[0] -> ' + floattostr(range[0]));
+  SaveLog.Log(etDebug, 'max range[1] -> ' + floattostr(range[1]));
+  SaveLog.Log(etDebug, 'avg range[2] -> ' + floattostr(range[2]));
+  SaveLog.Log(etDebug, 'rangeM -> ' + floattostr(rangeM));
 {$ENDIF}
-end;
-}}
-
-function HeatToIn(InHeat: string): string;
-var
-  i: integer;
-  AllHeat: string;
-  st: TStringList;
-begin
-  st := TStringList.Create;
-  st.Text := StringReplace(InHeat, '|', #13#10, [rfReplaceAll]);
-
-  for i := 0 to st.Count - 1 do
-  begin
-    if i <> st.Count - 1 then
-      st.Strings[i] := '''' + st.Strings[i] + '''' + ','
-    else
-      st.Strings[i] := '''' + st.Strings[i] + '''';
-
-    AllHeat := AllHeat + '' + st.Strings[i] + '';
-  end;
-  st.Free;
-  Result := AllHeat;
 end;
 
 
@@ -1381,7 +1370,7 @@ begin
   Result := digits;
 end;
 
-{{
+{ delphi median
 function GetMedian(aArray: TDoubleDynArray): Double;
 var
   lMiddleIndex: Integer;
@@ -1393,41 +1382,72 @@ begin
     Result := aArray[lMiddleIndex]
   else
     Result := (aArray[lMiddleIndex - 1] + aArray[lMiddleIndex]) / 2;
+end;}
+
+
+procedure bubbleSort(var list: TDoubleArray);
+var
+  i, j, n: integer;
+  t: double;
+begin
+  n := length(list);
+  for i := n downto 2 do
+    for j := 0 to i - 1 do
+      if list[j] > list[j + 1] then
+      begin
+        t := list[j];
+        list[j] := list[j + 1];
+        list[j + 1] := t;
+      end;
 end;
-}}
+
+
+function Median(aArray: TDoubleArray): double;
+var
+  lMiddleIndex: integer;
+begin
+  bubbleSort(aArray);
+  lMiddleIndex := (high(aArray) - low(aArray)) div 2;
+  if Odd(Length(aArray)) then
+    Result := aArray[lMiddleIndex + 1]
+  else
+    Result := (aArray[lMiddleIndex + 1] + aArray[lMiddleIndex]) / 2;
+end;
+
 
 constructor TIdHeat.Create;
 begin
-    tid              := 0;
-    Heat             := ''; // плавка
-    Grade            := ''; // марка стали
-    Section          := ''; // профиль
-    Standard         := ''; // стандарт
-    StrengthClass    := ''; // клас прочности
-    c                := '';
-    mn               := '';
-    cr               := '';
-    si               := '';
-    b                := '';
-    ce               := '';
-    OldStrengthClass := ''; // старый клас прочности
-    old_tid          := 0; // стара плавка
-    RollingMill      := '';
-//    marker           := false;
-    LowRed           := 0;
-    HighRed          := 0;
-    LowGreen         := 0;
-    HighGreen        := 0;
-    step             := 0;
+    tid                   := 0;
+    Heat                  := ''; // РїР»Р°РІРєР°
+    Grade                 := ''; // РјР°СЂРєР° СЃС‚Р°Р»Рё
+    Section               := ''; // РїСЂРѕС„РёР»СЊ
+    Standard              := ''; // СЃС‚Р°РЅРґР°СЂС‚
+    StrengthClass         := ''; // РєР»Р°СЃ РїСЂРѕС‡РЅРѕСЃС‚Рё
+    c                     := '';
+    mn                    := '';
+    cr                    := '';
+    si                    := '';
+    b                     := '';
+    ce                    := '';
+    OldStrengthClass      := ''; // СЃС‚Р°СЂС‹Р№ РєР»Р°СЃ РїСЂРѕС‡РЅРѕСЃС‚Рё
+    old_tid               := 0; // СЃС‚Р°СЂР° РїР»Р°РІРєР°
+    RollingMill           := '';
+    marker                := 0;
+    LowRed                := 0;
+    HighRed               := 0;
+    LowGreen              := 0;
+    HighGreen             := 0;
+    step                  := 0;
+    technological_sample  := -1;
 end;
 
 
-// При загрузке программы класс будет создаваться
+// РџСЂРё Р·Р°РіСЂСѓР·РєРµ РїСЂРѕРіСЂР°РјРјС‹ РєР»Р°СЃСЃ Р±СѓРґРµС‚ СЃРѕР·РґР°РІР°С‚СЊСЃСЏ
 initialization
 left := TIdHeat.Create;
 right := TIdHeat.Create;
 
-// При закрытии программы уничтожаться
+// РџСЂРё Р·Р°РєСЂС‹С‚РёРё РїСЂРѕРіСЂР°РјРјС‹ СѓРЅРёС‡С‚РѕР¶Р°С‚СЊСЃСЏ
 finalization
 FreeAndNil(left);
 FreeAndNil(right);

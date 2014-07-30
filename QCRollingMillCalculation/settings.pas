@@ -40,8 +40,8 @@ type
 var
   SaveLog: TEventLog;
   CurrentDir: string;
-  DaemonDescription: string = 'управление качеством - вычисление пределов для '+
-                              'прокатных станов MC 250';
+  DaemonDescription: string = 'СѓРїСЂР°РІР»РµРЅРёРµ РєР°С‡РµСЃС‚РІРѕРј - РІС‹С‡РёСЃР»РµРЅРёРµ РїСЂРµРґРµР»РѕРІ РґР»СЏ '+
+                              'РїСЂРѕРєР°С‚РЅС‹С… СЃС‚Р°РЅРѕРІ MC 250';
   DaemonName: string;
   Version: string;
   Info: TVersionInfo;
@@ -76,10 +76,10 @@ begin
   SaveLog.DefaultEventType := etDebug;
   SaveLog.AppendContent := true;
   SaveLog.FileName := ChangeFileExt(ParamStr(0), '.log');
-  //текущая дириктория
+  //С‚РµРєСѓС‰Р°СЏ РґРёСЂРёРєС‚РѕСЂРёСЏ
   CurrentDir := SysToUtf8(ExtractFilePath(ParamStr(0)));
   DaemonName := ChangeFileExt(ExtractFileName(ParamStr(0)), '' );
-  // точка вместо запятой при преобразовании в строку
+  // С‚РѕС‡РєР° РІРјРµСЃС‚Рѕ Р·Р°РїСЏС‚РѕР№ РїСЂРё РїСЂРµРѕР±СЂР°Р·РѕРІР°РЅРёРё РІ СЃС‚СЂРѕРєСѓ
   FormatSettings.DecimalSeparator := '.';
   ConfigSettings(true);
   Info := TVersionInfo.Create;
@@ -105,7 +105,7 @@ begin
 
     try
       SConnect.Database := CurrentDir + '\' + DBFile;
-      SConnect.LibraryLocation := '.\sqlite3.dll';// отказался от полных путей не читает
+      SConnect.LibraryLocation := '.\sqlite3.dll';// РѕС‚РєР°Р·Р°Р»СЃСЏ РѕС‚ РїРѕР»РЅС‹С… РїСѓС‚РµР№ РЅРµ С‡РёС‚Р°РµС‚
       SConnect.Protocol := 'sqlite-3';
       SConnect.Connect;
       SQuery.Connection := SConnect;
@@ -119,7 +119,7 @@ begin
          SQuery.ExecSQL;
       except
         on E: Exception do
-          SaveLog.Log(etError, E.ClassName + ', с сообщением: ' + E.Message);
+          SaveLog.Log(etError, E.ClassName + ', СЃ СЃРѕРѕР±С‰РµРЅРёРµРј: ' + E.Message);
       end;
 
 //      SqlJournalMode;
@@ -127,7 +127,7 @@ begin
       ReadConfigSettings;
     except
       on E: Exception do
-        SaveLog.Log(etError, E.ClassName + ', с сообщением: ' + E.Message);
+        SaveLog.Log(etError, E.ClassName + ', СЃ СЃРѕРѕР±С‰РµРЅРёРµРј: ' + E.Message);
     end;
   end
   else
@@ -150,7 +150,7 @@ begin
       SQuery.Open;
   except
     on E: Exception do
-      SaveLog.Log(etError, E.ClassName + ', с сообщением: ' + E.Message);
+      SaveLog.Log(etError, E.ClassName + ', СЃ СЃРѕРѕР±С‰РµРЅРёРµРј: ' + E.Message);
   end;
 
   while not SQuery.Eof do
@@ -206,7 +206,7 @@ begin
       SQuery.Open;
   except
     on E: Exception do
-      SaveLog.Log(etError, E.ClassName + ', с сообщением: ' + E.Message);
+      SaveLog.Log(etError, E.ClassName + ', СЃ СЃРѕРѕР±С‰РµРЅРёРµРј: ' + E.Message);
   end;
 
   if SQuery.FieldByName('journal_mode').AsString <> 'wal' then
@@ -218,17 +218,17 @@ begin
       SQuery.ExecSQL;
     except
       on E: Exception do
-        SaveLog.Log(etError, E.ClassName + ', с сообщением: ' + E.Message);
+        SaveLog.Log(etError, E.ClassName + ', СЃ СЃРѕРѕР±С‰РµРЅРёРµРј: ' + E.Message);
     end;
   end;
 end;
 
-// При загрузке программы класс будет создаваться
+// РџСЂРё Р·Р°РіСЂСѓР·РєРµ РїСЂРѕРіСЂР°РјРјС‹ РєР»Р°СЃСЃ Р±СѓРґРµС‚ СЃРѕР·РґР°РІР°С‚СЊСЃСЏ
 initialization
 SettingsApp := TSettings.Create;
 
 
-// При закрытии программы уничтожаться
+// РџСЂРё Р·Р°РєСЂС‹С‚РёРё РїСЂРѕРіСЂР°РјРјС‹ СѓРЅРёС‡С‚РѕР¶Р°С‚СЊСЃСЏ
 finalization
 SettingsApp.Destroy;
 

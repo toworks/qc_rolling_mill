@@ -1,0 +1,334 @@
+{
+
+  CREATE TABLE settings (
+  name  VARCHAR( 50 )   PRIMARY KEY
+  NOT NULL
+  UNIQUE,
+  value VARCHAR( 256 )
+  );
+}
+
+unit settings;
+
+interface
+
+uses
+  SysUtils, Classes, ZConnection, ZDataset, versioninfo, FileUtil;
+
+type
+  TSettings = class
+  private
+    { Private declarations }
+  public
+    Constructor Create; overload;
+    Destructor Destroy; override;
+  end;
+
+  TFormPopup = Record
+    width           : string[5];
+    height          : string[5];
+    FontSize        : string[3];
+    FontColor       : string[50];
+    FormColor       : string[50];
+    FormLeftActive  : boolean;
+    FormLeftTop     : string[10];
+    FormLeftLeft    : string[10];
+    FormRightActive : boolean;
+    FormRightTop    : string[10];
+    FormRightLeft   : string[10];
+//    constructor Create(_Heat, _Grade, _Section, _Standard, _StrengthClass: string);
+  end;
+
+  TFbSql = Record
+    ip            : string[20];
+    db_name       : string[255];
+    lib           : string[20];
+    dialect       : string[1];
+    user          : string[50];
+    password      : string[50];
+  end;
+
+
+var
+  SaveLog: TEventLog;
+  CurrentDir: string;
+  HeadName: string = ' MC 250-';
+  Version: string;
+  Info: TVersionInfo;
+
+  DBFile: string = 'data.sdb';
+
+  SettingsApp: TSettings;
+  SConnect: TZConnection;
+  SQuery: TZQuery;
+  ErrorSettings: boolean = false;
+
+  FbSqlSettings: TFbSql;
+  RollingMillConfigArray: Array [1 .. 3] of String;
+  FormPopupSettings: TFormPopup;
+
+
+  // {$DEFINE DEBUG}
+
+function ConfigSettings(InData: boolean): boolean;
+function SqlJournalMode: boolean;
+function ReadConfigSettings: boolean;
+
+implementation
+
+{uses
+  logging;}
+
+
+constructor TSettings.Create;
+begin
+  inherited Create;
+  SaveLog := TEventLog.Create(nil);
+  SaveLog.LogType := ltFile;
+  SaveLog.DefaultEventType := etDebug;
+  SaveLog.AppendContent := true;
+  SaveLog.FileName := ChangeFileExt(ParamStr(0), '.log');
+  //текуща§ дириктори§
+  CurrentDir := SysToUtf8(ExtractFilePath(ParamStr(0)));
+  ConfigSettings(true);
+  Info := TVersionInfo.Create;
+  Info.Load(HInstance);
+  Version := Info.ProductVersion+'   build('+Info.FileVersion+')';
+end;
+
+
+destructor TSettings.Destroy;
+begin
+  ConfigSettings(false);
+  inherited Destroy;
+end;
+
+
+function ConfigSettings(InData: boolean): boolean;
+begin
+
+  if InData then
+  begin
+    SConnect := TZConnection.Create(nil);
+    SQuery := TZQuery.Create(nil);
+
+    try
+      SConnect.Database := CurrentDir + '\' + DBFile;
+      SConnect.LibraryLocation := '.\sqlite3.dll';// отказалс€ от полных путей не читает
+      SConnect.Protocol := 'sqlite-3';
+      SConnect.Connect;
+      SQuery.Connection := SConnect;
+
+      try
+         SQuery.Close;
+         SQuery.SQL.Clear;
+         SQuery.SQL.Add('CREATE TABLE IF NOT EXISTS settings');
+         SQuery.SQL.Add('( name VARCHAR(50) PRIMARY KEY NOT NULL UNIQUE');
+         SQuery.SQL.Add(', value VARCHAR(256) )');
+         SQuery.ExecSQL;
+      except
+        on E: Exception do
+          SaveLog('error' + #9#9 + E.ClassName + ', с сообщением: ' + E.Message);
+      end;
+
+//      SqlJournalMode;
+
+      ReadConfigSettings;
+    except
+      on E: Exception do
+        SaveLog('error' + #9#9 + E.ClassName + ', с сообщением: ' + E.Message);
+    end;
+  end
+  else
+  begin
+    FreeAndNil(SQuery);
+    FreeAndNil(SConnect);
+  end;
+
+end;
+
+function ReadConfigSettings: boolean;
+begin
+
+  try
+      SQuery.Close;
+      SQuery.SQL.Clear;
+      SQuery.SQL.Add('SELECT * FROM settings');
+      SQuery.Open;
+  except
+    on E: Exception do
+      SaveLog('error' + #9#9 + E.ClassName + ', с сообщением: ' + E.Message);
+  end;
+
+  while not SQuery.Eof do
+  begin
+    // fbsql
+    if SQuery.FieldByName('name').AsString = '::FbSql::ip' then
+      FbSqlSettings.ip := SQuery.FieldByName('value').AsString;
+    if SQuery.FieldByName('name').AsString = '::FbSql::db_name' then
+      FbSqlSettings.db_name := SQuery.FieldByName('value').AsString;
+    if SQuery.FieldByName('name').AsString = '::FbSql::library' then
+      FbSqlSettings.lib := SQuery.FieldByName('value').AsString;
+    if SQuery.FieldByName('name').AsString = '::FbSql::dialect' then
+      FbSqlSettings.dialect := SQuery.FieldByName('value').AsString;
+    if SQuery.FieldByName('name').AsString = '::FbSql::user' then
+      FbSqlSettings.user := SQuery.FieldByName('value').AsString;
+    if SQuery.FieldByName('name').AsString = '::FbSql::password' then
+      FbSqlSettings.password := SQuery.FieldByName('value').AsString;
+
+    // rolling mill
+    if SQuery.FieldByName('name').AsString = '::RollingMill::number' then
+      RollingMillConfigArray[1] := SQuery.FieldByName('value').AsString;
+
+    // form popup setting
+    if SQuery.FieldByName('name').AsString = '::form::width' then
+      FormPopupSettings.width := SQuery.FieldByName('value').AsString;
+
+    if SQuery.FieldByName('name').AsString = '::form::height' then
+      FormPopupSettings.height := SQuery.FieldByName('value').AsString;
+
+    if SQuery.FieldByName('name').AsString = '::form::font_size' then
+      FormPopupSettings.FontSize := SQuery.FieldByName('value').AsString;
+
+    if SQuery.FieldByName('name').AsString = '::form::font_color' then
+      FormPopupSettings.FontColor := SQuery.FieldByName('value').AsString;
+
+    if SQuery.FieldByName('name').AsString = '::form::color' then
+      FormPopupSettings.FormColor := SQuery.FieldByName('value').AsString;
+
+    if SQuery.FieldByName('name').AsString = '::FormLeft::active' then
+      FormPopupSettings.FormLeftActive := strtobool(SQuery.FieldByName('value').AsString);
+
+    if SQuery.FieldByName('name').AsString = '::FormLeft::top' then
+      FormPopupSettings.FormLeftTop := SQuery.FieldByName('value').AsString;
+
+    if SQuery.FieldByName('name').AsString = '::FormLeft::left' then
+      FormPopupSettings.FormLeftLeft := SQuery.FieldByName('value').AsString;
+
+    if SQuery.FieldByName('name').AsString = '::FormRight::active' then
+      FormPopupSettings.FormRightActive := strtobool(SQuery.FieldByName('value').AsString);
+
+    if SQuery.FieldByName('name').AsString = '::FormRight::top' then
+      FormPopupSettings.FormRightTop := SQuery.FieldByName('value').AsString;
+
+    if SQuery.FieldByName('name').AsString = '::FormRight::left' then
+      FormPopupSettings.FormRightLeft := SQuery.FieldByName('value').AsString;
+
+    SQuery.Next;
+  end;
+
+  //default settings
+  if FbSqlSettings.lib = '' then
+     FbSqlSettings.lib := 'fbclient.dll';
+  if FbSqlSettings.dialect = '' then begin
+     if RollingMillConfigArray[1] <> '1' then
+        FbSqlSettings.dialect := '3'
+     else
+        FbSqlSettings.dialect := '1'
+  end;
+  // rolling mill
+  if RollingMillConfigArray[1] = '' then
+     RollingMillConfigArray[1] := '1';
+  // form popup setting
+  if FormPopupSettings.width = '' then
+     FormPopupSettings.width := '800';
+  if FormPopupSettings.height = '' then
+     FormPopupSettings.height := '600';
+  if FormPopupSettings.FontSize = '' then
+     FormPopupSettings.FontSize := '350';
+  if FormPopupSettings.FontColor = '' then
+     FormPopupSettings.FontColor := 'clBlack';
+  if FormPopupSettings.FormColor = '' then
+     FormPopupSettings.FormColor := 'clDefault';
+{  if FormPopupSettings.FormLeftActive = '' then
+     FormPopupSettings.FormLeftActive := '0';}
+  if FormPopupSettings.FormLeftTop = '' then
+     FormPopupSettings.FormLeftTop := '0';
+  if FormPopupSettings.FormLeftLeft = '' then
+     FormPopupSettings.FormLeftLeft := '0';
+{  if FormPopupSettings.FormRightActive = '' then
+     FormPopupSettings.FormRightActive := '0';}
+  if FormPopupSettings.FormRightTop = '' then
+     FormPopupSettings.FormRightTop := '0';
+  if FormPopupSettings.FormRightLeft = '' then
+     FormPopupSettings.FormRightLeft := '0';
+
+  if SQuery.EOF then
+     ErrorSettings := true;
+
+  with FbSqlSettings do
+  begin
+       if ip = '' then
+          ErrorSettings := true
+       else begin ErrorSettings := false; exit; end;
+       if db_name = '' then
+          ErrorSettings := true
+       else begin ErrorSettings := false; exit; end;
+       if user = '' then
+          ErrorSettings := true
+       else begin ErrorSettings := false; exit; end;
+       if password = '' then
+          ErrorSettings := true
+       else begin ErrorSettings := false; exit; end;
+  end;
+end;
+
+function SqlJournalMode: boolean;
+begin
+  try
+      SQuery.Close;
+      SQuery.SQL.Clear;
+      SQuery.SQL.Add('PRAGMA journal_mode');
+      SQuery.Open;
+  except
+    on E: Exception do
+      SaveLog('error' + #9#9 + E.ClassName + ', с сообщением: ' + E.Message);
+  end;
+
+  if SQuery.FieldByName('journal_mode').AsString <> 'wal' then
+  begin
+    try
+      SQuery.Close;
+      SQuery.SQL.Clear;
+      SQuery.SQL.Add('PRAGMA journal_mode = wal');
+      SQuery.ExecSQL;
+    except
+      on E: Exception do
+        SaveLog('error' + #9#9 + E.ClassName + ', с сообщением: ' + E.Message);
+    end;
+  end;
+end;
+
+// ѕри загрузке программы класс будет создаватьс€
+initialization
+SettingsApp := TSettings.Create;
+//текуща€ дириктори€
+CurrentDir := GetCurrentDirUTF8;
+ConfigSettings(true);
+if not ErrorSettings then begin
+   if RollingMillConfigArray[1] <> '1' then
+      ConfigFirebirdSetting(true)
+   else
+      ConfigFirebirdSettingToOldIB(true);
+end;
+
+Info := TVersionInfo.Create;
+Info.Load(HInstance);
+Version := Info.ProductVersion+'   build('+Info.FileVersion+')';
+
+
+// ѕри закрытии программы уничтожатьс€
+finalization
+if not ErrorSettings then begin
+   if RollingMillConfigArray[1] <> '1' then
+      ConfigFirebirdSetting(false)
+   else
+      ConfigFirebirdSettingToOldIB(true);
+end;
+
+ConfigSettings(false);
+SettingsApp.Destroy;
+
+end.
+
+

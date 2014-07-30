@@ -1,0 +1,82 @@
+object Form1: TForm1
+  Left = 324
+  Height = 288
+  Top = 284
+  Width = 642
+  Caption = 'Form1'
+  ClientHeight = 288
+  ClientWidth = 642
+  OnCreate = FormCreate
+  LCLVersion = '1.2.2.0'
+  object DBGrid1: TDBGrid
+    Left = 6
+    Height = 216
+    Top = 8
+    Width = 630
+    Color = clWindow
+    Columns = <>
+    TabOrder = 0
+    OnDrawColumnCell = DBGrid1DrawColumnCell
+    OnPrepareCanvas = DBGrid1PrepareCanvas
+  end
+  object b_action: TButton
+    Left = 560
+    Height = 23
+    Top = 256
+    Width = 75
+    Caption = 'выполнить'
+    OnClick = b_actionClick
+    TabOrder = 1
+  end
+  object rb_calculated_data: TRadioButton
+    Left = 432
+    Height = 19
+    Top = 240
+    Width = 123
+    Caption = 'расчетные данные'
+    OnChange = ChangeHeatColor
+    TabOrder = 2
+  end
+  object rb_temperature: TRadioButton
+    Left = 432
+    Height = 19
+    Top = 260
+    Width = 90
+    Caption = 'температура'
+    OnChange = DBGridClear
+    TabOrder = 3
+  end
+  object e_heat: TEdit
+    Left = 288
+    Height = 23
+    Top = 236
+    Width = 120
+    OnChange = ChangeHeatColor
+    TabOrder = 4
+  end
+  object cb_export: TCheckBox
+    Left = 288
+    Height = 19
+    Top = 260
+    Width = 105
+    Caption = 'экспорт в файл'
+    TabOrder = 5
+  end
+  object l_n_heat: TLabel
+    Left = 240
+    Height = 15
+    Top = 240
+    Width = 38
+    Caption = 'плавка'
+    ParentColor = False
+  end
+  object cb_n_rolling_mill: TComboBox
+    Left = 8
+    Height = 23
+    Top = 236
+    Width = 88
+    ItemHeight = 15
+    OnChange = cb_n_rolling_millChange
+    TabOrder = 6
+  end
+end
