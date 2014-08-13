@@ -17,7 +17,7 @@
     <VersionInfo>
       <UseVersionInfo Value="True"/>
       <AutoIncrementBuild Value="True"/>
-      <BuildNr Value="1"/>
+      <BuildNr Value="2"/>
       <StringTable ProductVersion="0.0alpha"/>
     </VersionInfo>
     <BuildModes Count="2">
@@ -81,7 +81,7 @@
         <PackageName Value="LCL"/>
       </Item5>
     </RequiredPackages>
-    <Units Count="7">
+    <Units Count="8">
       <Unit0>
         <Filename Value="QCRollingMillClient.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -106,20 +106,25 @@
         <UnitName Value="gui"/>
       </Unit3>
       <Unit4>
+        <Filename Value="sql.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="sql"/>
+      </Unit4>
+      <Unit5>
         <Filename Value="chart.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="chart"/>
-      </Unit4>
-      <Unit5>
+      </Unit5>
+      <Unit6>
         <Filename Value="thread_main.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="thread_main"/>
-      </Unit5>
-      <Unit6>
+      </Unit6>
+      <Unit7>
         <Filename Value="thread_heat.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="thread_heat"/>
-      </Unit6>
+      </Unit7>
     </Units>
   </ProjectOptions>
   <CompilerOptions>

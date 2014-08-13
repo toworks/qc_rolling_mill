@@ -38,6 +38,7 @@ type
     l_chemical_right: TLabel;
     l_heat_left: TLabel;
     l_heat_right: TLabel;
+    procedure Button1Click(Sender: TObject);
     function OneInstance: boolean;
     procedure UniqueInstanceAppOtherInstance(Sender: TObject;
       ParamCount: Integer; Parameters: array of String);
@@ -72,6 +73,7 @@ var
   function SysTrayIconCreate: boolean;
   function PopUpMenuCreate: boolean;
   function ShowTrayMessage(InTitle, InMessage: AnsiString; InFlag: integer): boolean;
+  function ViewClear: boolean;
 
 
 implementation
@@ -100,6 +102,8 @@ begin
 
   //проверка 1 экземпляр программы
   OneInstance;
+
+  ViewClear;
 
 //  SaveLog.Log(etInfo, 'app  start');
 

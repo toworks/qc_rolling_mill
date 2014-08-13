@@ -219,7 +219,9 @@ begin
      MSConnection.Connected := true;
      MSQueryCalculation.Close;
      MSQueryCalculation.sql.Clear;
-     MSQueryCalculation.sql.Add('select * FROM temperature_current');
+{     MSQueryCalculation.sql.Add('select * FROM temperature_current');}
+     { OCI_ERROR: ORA-01795: maximum number of expressions IN a list is 1000 }
+     MSQueryCalculation.sql.Add('select top 1000 * FROM temperature_current');
      MSQueryCalculation.sql.Add('where dbo.translate(strength_class, ');
      MSQueryCalculation.sql.Add('''ЕТОРАНКХСВМеторанкхсвм'',''ETOPAHKXCBMetopahkxcbm'')');
      MSQueryCalculation.sql.Add('= dbo.translate('''+StrengthClass+''', ');

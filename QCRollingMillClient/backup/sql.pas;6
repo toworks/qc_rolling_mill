@@ -20,7 +20,7 @@ var
   MSQuery: TSQLQuery;
   MSTransaction: TSQLTransaction;
 
-//  {$DEFINE DEBUG}
+  {$DEFINE DEBUG}
 
   function ConfigOracleSetting(InData: boolean): boolean;
   function ConfigMsSetting(InData: boolean): boolean;
@@ -33,7 +33,7 @@ var
 implementation
 
 uses
-    settings, gui, thread_heat_;
+    settings, gui, thread_heat;
 
 
 function ConfigOracleSetting(InData: boolean): boolean;
@@ -300,12 +300,12 @@ begin
              if not MSQuery.FieldByName('high').IsNull then
  	        right.HighRed := MSQuery.FieldByName('high').AsInteger;
           end;
-{{$IFDEF DEBUG}
+{$IFDEF DEBUG}
   SaveLog.Log(etDebug, 'side -> '+inttostr(InSide));
   SaveLog.Log(etDebug, 'step -> '+MSQuery.FieldByName('step').AsString);
   SaveLog.Log(etDebug, 'LowRed -> '+MSQuery.FieldByName('low').AsString);
   SaveLog.Log(etDebug, 'HighRed -> '+MSQuery.FieldByName('high').AsString);
-{$ENDIF}}
+{$ENDIF}
        end else begin
           if Inside = 0 then begin
              if not MSQuery.FieldByName('low').IsNull then
@@ -322,12 +322,12 @@ begin
              if not MSQuery.FieldByName('ce_category').IsNull then
                 right.ce_category := '('+MSQuery.FieldByName('ce_category').AsString+')';
           end;
-{{$IFDEF DEBUG}
+{$IFDEF DEBUG}
   SaveLog.Log(etDebug, 'side -> '+inttostr(InSide));
   SaveLog.Log(etDebug, 'step -> '+MSQuery.FieldByName('step').AsString);
   SaveLog.Log(etDebug, 'LowGreen -> '+MSQuery.FieldByName('low').AsString);
   SaveLog.Log(etDebug, 'HighGreen -> '+MSQuery.FieldByName('high').AsString);
-{$ENDIF}}
+{$ENDIF}
        end;
        MSQuery.Next;
   end;

@@ -38,7 +38,9 @@ type
     l_chemical_right: TLabel;
     l_heat_left: TLabel;
     l_heat_right: TLabel;
-    procedure Button1Click(Sender: TObject);
+    procedure ChartRightClick(Sender: TObject);
+    procedure ChartRightMouseMove(Sender: TObject; Shift: TShiftState; X,
+      Y: Integer);
     function OneInstance: boolean;
     procedure UniqueInstanceAppOtherInstance(Sender: TObject;
       ParamCount: Integer; Parameters: array of String);

@@ -56,7 +56,7 @@ var
   left: TIdHeat;
   right: TIdHeat;
 
-  {$DEFINE DEBUG}
+//  {$DEFINE DEBUG}
 
   function GetCurrentDataLeft: boolean;
   function GetCurrentDataRight: boolean;
@@ -76,7 +76,7 @@ begin
   // создаем поток True - создание остановка, False - создание старт
   ThreadHeat := TThreadHeat.Create(True);
   ThreadHeat.Priority := tpNormal;
-  ThreadHeat.FreeOnTerminate := True;
+  ThreadHeat.FreeOnTerminate := fales;True;
   ThreadHeat.Start;
 end;
 
@@ -147,10 +147,6 @@ begin
   begin
      left.old_tid := left.tid;
      left.marker := 1;
-{     left.LowRed := 0;
-     left.HighRed := 0;
-     left.LowGreen := 0;
-     left.HighGreen := 0;}
      ClearData(left);
      // химия
      GetChemicalAnalysis(left.Heat, side);
@@ -186,10 +182,6 @@ begin
   begin
      right.old_tid := right.tid;
      right.marker := 1;
-{     right.LowRed := 0;
-     right.HighRed := 0;
-     right.LowGreen := 0;
-     right.HighGreen := 0;}
      ClearData(right);
      // химия
      GetChemicalAnalysis(right.Heat, side);

@@ -116,6 +116,7 @@ begin
   ChartLeftCreate(Form1);
   ChartRightCreate(Form1);
   ThreadMain := TThreadMain.Create;
+  ThreadHeat := TThreadHeat.Create;
 end;
 
 

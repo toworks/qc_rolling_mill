@@ -289,24 +289,34 @@ begin
 
   while not MSQuery.EOF do begin
        if MSQuery.FieldByName('step').AsInteger = 0 then begin
+{$IFDEF DEBUG}
+  SaveLog.Log(etDebug, 'step -> '+MSQuery.FieldByName('step').AsString);
+{$ENDIF}
           if Inside = 0 then begin
              if not MSQuery.FieldByName('low').IsNull then
                 left.LowRed := MSQuery.FieldByName('low').AsInteger;
              if not MSQuery.FieldByName('high').IsNull then
 	        left.HighRed := MSQuery.FieldByName('high').AsInteger;
+{$IFDEF DEBUG}
+  SaveLog.Log(etDebug, 'side -> '+inttostr(InSide));
+  SaveLog.Log(etDebug, 'left LowRed -> '+MSQuery.FieldByName('low').AsString);
+  SaveLog.Log(etDebug, 'left HighRed -> '+MSQuery.FieldByName('high').AsString);
+{$ENDIF}
           end else begin
              if not MSQuery.FieldByName('low').IsNull then
                 right.LowRed := MSQuery.FieldByName('low').AsInteger;
              if not MSQuery.FieldByName('high').IsNull then
  	        right.HighRed := MSQuery.FieldByName('high').AsInteger;
-          end;
-{{$IFDEF DEBUG}
+{$IFDEF DEBUG}
   SaveLog.Log(etDebug, 'side -> '+inttostr(InSide));
-  SaveLog.Log(etDebug, 'step -> '+MSQuery.FieldByName('step').AsString);
-  SaveLog.Log(etDebug, 'LowRed -> '+MSQuery.FieldByName('low').AsString);
-  SaveLog.Log(etDebug, 'HighRed -> '+MSQuery.FieldByName('high').AsString);
-{$ENDIF}}
+  SaveLog.Log(etDebug, 'right LowRed -> '+MSQuery.FieldByName('low').AsString);
+  SaveLog.Log(etDebug, 'right HighRed -> '+MSQuery.FieldByName('high').AsString);
+{$ENDIF}
+          end;
        end else begin
+{$IFDEF DEBUG}
+  SaveLog.Log(etDebug, 'step -> '+MSQuery.FieldByName('step').AsString);
+{$ENDIF}
           if Inside = 0 then begin
              if not MSQuery.FieldByName('low').IsNull then
                 left.LowGreen := MSQuery.FieldByName('low').AsInteger;
@@ -314,6 +324,11 @@ begin
                 left.HighGreen := MSQuery.FieldByName('high').AsInteger;
              if not MSQuery.FieldByName('ce_category').IsNull then
                 left.ce_category := '('+MSQuery.FieldByName('ce_category').AsString+')';
+{$IFDEF DEBUG}
+  SaveLog.Log(etDebug, 'side -> '+inttostr(InSide));
+  SaveLog.Log(etDebug, 'left LowGreen -> '+MSQuery.FieldByName('low').AsString);
+  SaveLog.Log(etDebug, 'left HighGreen -> '+MSQuery.FieldByName('high').AsString);
+{$ENDIF}
           end else begin
              if not MSQuery.FieldByName('low').IsNull then
                 right.LowGreen := MSQuery.FieldByName('low').AsInteger;
@@ -321,13 +336,12 @@ begin
                 right.HighGreen := MSQuery.FieldByName('high').AsInteger;
              if not MSQuery.FieldByName('ce_category').IsNull then
                 right.ce_category := '('+MSQuery.FieldByName('ce_category').AsString+')';
-          end;
-{{$IFDEF DEBUG}
+{$IFDEF DEBUG}
   SaveLog.Log(etDebug, 'side -> '+inttostr(InSide));
-  SaveLog.Log(etDebug, 'step -> '+MSQuery.FieldByName('step').AsString);
-  SaveLog.Log(etDebug, 'LowGreen -> '+MSQuery.FieldByName('low').AsString);
-  SaveLog.Log(etDebug, 'HighGreen -> '+MSQuery.FieldByName('high').AsString);
-{$ENDIF}}
+  SaveLog.Log(etDebug, 'right LowGreen -> '+MSQuery.FieldByName('low').AsString);
+  SaveLog.Log(etDebug, 'right HighGreen -> '+MSQuery.FieldByName('high').AsString);
+{$ENDIF}
+          end;
        end;
        MSQuery.Next;
   end;

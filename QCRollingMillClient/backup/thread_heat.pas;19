@@ -60,6 +60,7 @@ var
 
   function GetCurrentDataLeft: boolean;
   function GetCurrentDataRight: boolean;
+  function ClearData(InSide: integer): boolean;
 
 
 implementation
@@ -77,9 +78,6 @@ begin
   ThreadHeat.Priority := tpNormal;
   ThreadHeat.FreeOnTerminate := True;
   ThreadHeat.Start;
-{$IFDEF DEBUG}
-  SaveLog.Log(etDebug, 'create heat thread');
-{$ENDIF}
 end;
 
 
@@ -89,9 +87,6 @@ begin
     ThreadHeat.Terminate;
     CriticalSectionHeat.Destroy;
   end;
-{$IFDEF DEBUG}
-  SaveLog.Log(etDebug, 'destroy heat thread');
-{$ENDIF}
   inherited Destroy;
 end;
 
@@ -108,7 +103,7 @@ begin
    inc(i);
    SaveLog.Log(etDebug, 'thread heat loop ' + Format('tick :%d', [i]));
  {$ENDIF}
-     CriticalSectionMain.Enter;
+    CriticalSectionHeat.Enter;
     try
          //reconnect
          ConfigMsSetting(false);
@@ -127,7 +122,7 @@ begin
        on E: Exception do
          SaveLog.Log(etError, E.ClassName+', с сообщением: '+E.Message);
      end;
-     CriticalSectionMain.Leave;
+     CriticalSectionHeat.Leave;
 
     until Terminated;
     SaveLog.Log(etInfo, 'tread heat loop stopped');
@@ -211,6 +206,12 @@ begin
   if right.c = '' then
     // химия при перезапуске сервиса
     GetChemicalAnalysis(right.Heat, side);
+end;
+
+
+function ClearData(InSide: integer): boolean;
+begin
+
 end;
 
 

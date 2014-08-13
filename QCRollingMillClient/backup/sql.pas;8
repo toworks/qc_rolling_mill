@@ -33,7 +33,7 @@ var
 implementation
 
 uses
-    settings{, gui}, thread_heat;
+    settings, gui, thread_heat;
 
 
 function ConfigOracleSetting(InData: boolean): boolean;
@@ -203,7 +203,7 @@ begin
 	MSQuery.Close;
 	MSQuery.SQL.Clear;
 	MSQuery.SQL.Add('select top 2 * from temperature_current');
-//	MSQuery.SQL.Add('where rolling_mill='+rolling_mill+'');
+	MSQuery.SQL.Add('where rolling_mill='+rolling_mill+'');
 	MSQuery.SQL.Add('and side in (0,1)');
 	MSQuery.SQL.Add('order by timestamp desc');
 {$IFDEF DEBUG}
@@ -275,7 +275,7 @@ begin
 {{$IFDEF DEBUG}
   MSQuery.SQL.Add('where cid=1403261908');
 {$ENDIF}}
-//      	MSQuery.SQL.Add('and rolling_mill='+rolling_mill+'');
+      	MSQuery.SQL.Add('and rolling_mill='+rolling_mill+'');
 	MSQuery.SQL.Add('and side='+inttostr(InSide)+'');
 	MSQuery.SQL.Add('order by timestamp desc');
 {$IFDEF DEBUG}

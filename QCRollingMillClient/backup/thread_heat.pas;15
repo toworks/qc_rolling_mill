@@ -60,6 +60,7 @@ var
 
   function GetCurrentDataLeft: boolean;
   function GetCurrentDataRight: boolean;
+  function ClearData(InSide: TIdHeat): boolean;
 
 
 implementation
@@ -75,11 +76,8 @@ begin
   // создаем поток True - создание остановка, False - создание старт
   ThreadHeat := TThreadHeat.Create(True);
   ThreadHeat.Priority := tpNormal;
-//  ThreadHeat.FreeOnTerminate := True;
+  ThreadHeat.FreeOnTerminate := True;
   ThreadHeat.Start;
-{$IFDEF DEBUG}
-  SaveLog.Log(etDebug, 'create heat thread');
-{$ENDIF}
 end;
 
 
@@ -89,9 +87,6 @@ begin
     ThreadHeat.Terminate;
     CriticalSectionHeat.Destroy;
   end;
-{$IFDEF DEBUG}
-  SaveLog.Log(etDebug, 'destroy heat thread');
-{$ENDIF}
   inherited Destroy;
 end;
 
@@ -108,8 +103,8 @@ begin
    inc(i);
    SaveLog.Log(etDebug, 'thread heat loop ' + Format('tick :%d', [i]));
  {$ENDIF}
-     CriticalSectionHeat.Enter;
-{    try
+    CriticalSectionHeat.Enter;
+    try
          //reconnect
          ConfigMsSetting(false);
 
@@ -126,7 +121,7 @@ begin
      except
        on E: Exception do
          SaveLog.Log(etError, E.ClassName+', с сообщением: '+E.Message);
-     end;}
+     end;
      CriticalSectionHeat.Leave;
 
     until Terminated;
@@ -152,10 +147,11 @@ begin
   begin
      left.old_tid := left.tid;
      left.marker := 1;
-     left.LowRed := 0;
+{     left.LowRed := 0;
      left.HighRed := 0;
      left.LowGreen := 0;
-     left.HighGreen := 0;
+     left.HighGreen := 0;}
+     ClearData(left);
      // химия
      GetChemicalAnalysis(left.Heat, side);
      // записываем идентификатор старой плавки |номер стана|сторона|
@@ -194,6 +190,7 @@ begin
      right.HighRed := 0;
      right.LowGreen := 0;
      right.HighGreen := 0;
+//     ClearData(right);
      // химия
      GetChemicalAnalysis(right.Heat, side);
      // записываем идентификатор старой плавки |номер стана|сторона|
@@ -211,6 +208,29 @@ begin
   if right.c = '' then
     // химия при перезапуске сервиса
     GetChemicalAnalysis(right.Heat, side);
+end;
+
+
+function ClearData(InSide: TIdHeat): boolean;
+begin
+     InSide.LowRed := 0;
+     InSide.HighRed := 0;
+     InSide.LowGreen := 0;
+     InSide.HighGreen := 0;
+
+     InSide.Heat := '';
+     InSide.Grade := '';
+     InSide.StrengthClass := '';
+     InSide.Section := '';
+     InSide.Standard := '';
+
+     InSide.c := '';
+     InSide.mn := '';
+     InSide.si := '';
+     InSide.cr := '';
+     InSide.b := '';
+     InSide.ce := '';
+     InSide.ce_category := '';
 end;
 
 
@@ -247,7 +267,7 @@ end;
 
 // При загрузке программы класс будет создаватьс¤
 initialization
-//ThreadHeat := TThreadHeat.Create;
+ThreadHeat := TThreadHeat.Create;
 left := TIdHeat.Create;
 right := TIdHeat.Create;
 

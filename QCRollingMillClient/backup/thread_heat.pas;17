@@ -60,6 +60,7 @@ var
 
   function GetCurrentDataLeft: boolean;
   function GetCurrentDataRight: boolean;
+  function ClearData(InSide: TIdHeat): boolean;
 
 
 implementation
@@ -77,9 +78,6 @@ begin
   ThreadHeat.Priority := tpNormal;
   ThreadHeat.FreeOnTerminate := True;
   ThreadHeat.Start;
-{$IFDEF DEBUG}
-  SaveLog.Log(etDebug, 'create heat thread');
-{$ENDIF}
 end;
 
 
@@ -89,9 +87,6 @@ begin
     ThreadHeat.Terminate;
     CriticalSectionHeat.Destroy;
   end;
-{$IFDEF DEBUG}
-  SaveLog.Log(etDebug, 'destroy heat thread');
-{$ENDIF}
   inherited Destroy;
 end;
 
@@ -108,7 +103,7 @@ begin
    inc(i);
    SaveLog.Log(etDebug, 'thread heat loop ' + Format('tick :%d', [i]));
  {$ENDIF}
-     CriticalSectionHeat.Enter;
+    CriticalSectionHeat.Enter;
     try
          //reconnect
          ConfigMsSetting(false);
@@ -214,6 +209,29 @@ begin
 end;
 
 
+function ClearData(InSide: TIdHeat): boolean;
+begin
+     InSide.LowRed := 0;
+     InSide.HighRed := 0;
+     InSide.LowGreen := 0;
+     InSide.HighGreen := 0;
+
+     InSide.Heat := '';
+     InSide.Grade := '';
+     InSide.StrengthClass := '';
+     InSide.Section := '';
+     InSide.Standard := '';
+
+     InSide.c := '';
+     InSide.mn := '';
+     InSide.si := '';
+     InSide.cr := '';
+     InSide.b := '';
+     InSide.ce := '';
+     InSide.ce_category := '';
+end;
+
+
 constructor TIdHeat.Create;
 begin
     tid                      := 0;
@@ -247,7 +265,7 @@ end;
 
 // При загрузке программы класс будет создаватьс¤
 initialization
-//ThreadHeat := TThreadHeat.Create;
+ThreadHeat := TThreadHeat.Create;
 left := TIdHeat.Create;
 right := TIdHeat.Create;
 

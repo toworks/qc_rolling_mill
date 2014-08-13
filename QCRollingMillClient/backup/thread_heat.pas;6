@@ -60,7 +60,7 @@ var
 
   function GetCurrentDataLeft: boolean;
   function GetCurrentDataRight: boolean;
-  function ClearData(InSide: integer): boolean;
+  function ClearData(InSide: TIdHeat): boolean;
 
 
 implementation
@@ -147,10 +147,7 @@ begin
   begin
      left.old_tid := left.tid;
      left.marker := 1;
-     left.LowRed := 0;
-     left.HighRed := 0;
-     left.LowGreen := 0;
-     left.HighGreen := 0;
+     ClearData(left);
      // химия
      GetChemicalAnalysis(left.Heat, side);
      // записываем идентификатор старой плавки |номер стана|сторона|
@@ -185,10 +182,7 @@ begin
   begin
      right.old_tid := right.tid;
      right.marker := 1;
-     right.LowRed := 0;
-     right.HighRed := 0;
-     right.LowGreen := 0;
-     right.HighGreen := 0;
+     ClearData(right);
      // химия
      GetChemicalAnalysis(right.Heat, side);
      // записываем идентификатор старой плавки |номер стана|сторона|
@@ -202,16 +196,39 @@ begin
      right.marker := 0;
      ReadSaveOldData('save', rolling_mill, inttostr(side));
   end;
-
+{$IFDEF DEBUG}
+  SaveLog.Log(etDebug, '1 side -> '+inttostr(side));
+  SaveLog.Log(etDebug, '1 right LowRed -> '+inttostr(right.LowRed));
+  SaveLog.Log(etDebug, '1 right HighRed -> '+inttostr(right.HighRed));
+  SaveLog.Log(etDebug, '1 right LowGreen -> '+inttostr(right.LowGreen));
+  SaveLog.Log(etDebug, '1 right HighGreen -> '+inttostr(right.HighGreen));
+{$ENDIF}
   if right.c = '' then
     // химия при перезапуске сервиса
     GetChemicalAnalysis(right.Heat, side);
 end;
 
 
-function ClearData(InSide: integer): boolean;
+function ClearData(InSide: TIdHeat): boolean;
 begin
+     InSide.LowRed := 0;
+     InSide.HighRed := 0;
+     InSide.LowGreen := 0;
+     InSide.HighGreen := 0;
 
+     InSide.Heat := '';
+     InSide.Grade := '';
+     InSide.StrengthClass := '';
+     InSide.Section := '';
+     InSide.Standard := '';
+
+     InSide.c := '';
+     InSide.mn := '';
+     InSide.si := '';
+     InSide.cr := '';
+     InSide.b := '';
+     InSide.ce := '';
+     InSide.ce_category := '';
 end;
 
 

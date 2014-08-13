@@ -72,6 +72,7 @@ var
   function SysTrayIconCreate: boolean;
   function PopUpMenuCreate: boolean;
   function ShowTrayMessage(InTitle, InMessage: AnsiString; InFlag: integer): boolean;
+  function ViewClear: boolean;
 
 
 implementation
@@ -101,6 +102,8 @@ begin
   //проверка 1 экземпляр программы
   OneInstance;
 
+  ViewClear;
+
 //  SaveLog.Log(etInfo, 'app  start');
 
   for i := 1 to 6 do
@@ -115,8 +118,6 @@ begin
   SysTrayIconCreate;
   ChartLeftCreate(Form1);
   ChartRightCreate(Form1);
-  ThreadMain := TThreadMain.Create;
-//  ThreadHeat := TThreadHeat.Create;
 end;
 
 
@@ -382,6 +383,24 @@ begin
     TerminateProcess(GetCurrentProcess, 0);
   {$endif}
 end;
+
+
+function ViewClear: boolean;
+var
+  i: integer;
+begin
+
+  for i := 0 to Form1.ComponentCount - 1 do
+  begin
+    if (Form1.Components[i] is TLabel) then
+    begin
+      if copy(Form1.Components[i].Name, 1, 4) <> 'l_n_' then
+        TLabel(Form1.FindComponent(Form1.Components[i].Name)).Caption := '';
+    end;
+  end;
+
+end;
+
 
 end.
 

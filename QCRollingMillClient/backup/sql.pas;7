@@ -20,7 +20,7 @@ var
   MSQuery: TSQLQuery;
   MSTransaction: TSQLTransaction;
 
-//  {$DEFINE DEBUG}
+  {$DEFINE DEBUG}
 
   function ConfigOracleSetting(InData: boolean): boolean;
   function ConfigMsSetting(InData: boolean): boolean;
@@ -322,12 +322,12 @@ begin
              if not MSQuery.FieldByName('ce_category').IsNull then
                 right.ce_category := '('+MSQuery.FieldByName('ce_category').AsString+')';
           end;
-{{$IFDEF DEBUG}
+{$IFDEF DEBUG}
   SaveLog.Log(etDebug, 'side -> '+inttostr(InSide));
   SaveLog.Log(etDebug, 'step -> '+MSQuery.FieldByName('step').AsString);
   SaveLog.Log(etDebug, 'LowGreen -> '+MSQuery.FieldByName('low').AsString);
   SaveLog.Log(etDebug, 'HighGreen -> '+MSQuery.FieldByName('high').AsString);
-{$ENDIF}}
+{$ENDIF}
        end;
        MSQuery.Next;
   end;

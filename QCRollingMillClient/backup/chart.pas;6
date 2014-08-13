@@ -159,7 +159,7 @@ begin
   end;
 
   // max -3 градуса от high красных
-  if (left.HighGreen <> 0) and (left.HighGreen >= left.HighRed) and
+  if (left.HighGreen <> 0) and (left.HighGreen <= left.HighRed) and
      (left.LowGreen < left.HighRed) then begin
        with form1.ChartLeftLineSeriesGreenHight do begin
            if left.HighRed > 0 then
@@ -300,7 +300,7 @@ begin
   end;
 
   // max -3 градуса от high красных
-  if (right.HighGreen <> 0) and (right.HighGreen >= right.HighRed) and
+  if (right.HighGreen <> 0) and (right.HighGreen <= right.HighRed) and
      (right.LowGreen < right.HighRed) then begin
        with form1.ChartRightLineSeriesGreenHight do begin
            if right.HighRed > 0 then
@@ -333,7 +333,7 @@ end;
 function LimitMinMax(InTemperature, InSide: integer): TLimits;
 begin
   // side left=0, side right=1
-  if (InTemperature <> 0) and (left.LowRed <> 0) and (left.HighRed <> 0) and
+  if (left.LowRed <> 0) and (left.HighRed <> 0) and
      (InSide = 0) then
   begin
     Result.min := left.LowRed-30;
@@ -341,7 +341,7 @@ begin
     exit;
   end;
 
-  if (InTemperature <> 0) and (right.LowRed <> 0) and (right.HighRed <> 0) and
+  if (right.LowRed <> 0) and (right.HighRed <> 0) and
      (InSide = 1) then
   begin
     Result.min := right.LowRed-30;
@@ -349,6 +349,10 @@ begin
     exit;
   end;
 
+  Result.min := 250;
+  Result.max := 1250;
+
+{
   if InTemperature < 450 then
   begin
     Result.min := 250;
@@ -377,7 +381,7 @@ begin
   begin
     Result.min := 950;
     Result.max := 1250;
-  end;
+  end;}
 end;
 
 

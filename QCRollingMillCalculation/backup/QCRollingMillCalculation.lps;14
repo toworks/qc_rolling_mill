@@ -4,7 +4,7 @@
     <PathDelim Value="\"/>
     <Version Value="9"/>
     <BuildModes Active="Release"/>
-    <Units Count="9">
+    <Units Count="10">
       <Unit0>
         <Filename Value="QCRollingMillCalculation.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -53,11 +53,10 @@
         <Filename Value="sql.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="sql"/>
-        <IsVisibleTab Value="True"/>
         <EditorIndex Value="0"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="341"/>
-        <CursorPos X="13" Y="369"/>
+        <TopLine Value="67"/>
+        <CursorPos X="22" Y="86"/>
         <UsageCount Value="206"/>
         <Loaded Value="True"/>
       </Unit5>
@@ -65,10 +64,11 @@
         <Filename Value="thread_calculated_data.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="thread_calculated_data"/>
+        <IsVisibleTab Value="True"/>
         <EditorIndex Value="1"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="387"/>
-        <CursorPos X="15" Y="405"/>
+        <TopLine Value="67"/>
+        <CursorPos X="1" Y="93"/>
         <UsageCount Value="209"/>
         <Loaded Value="True"/>
       </Unit6>
@@ -88,6 +88,17 @@
         <CursorPos X="39" Y="7"/>
         <UsageCount Value="157"/>
       </Unit8>
+      <Unit9>
+        <Filename Value="..\reports_new\gui.lfm"/>
+        <ComponentName Value="Form1"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="1"/>
+        <CursorPos X="1" Y="1"/>
+        <UsageCount Value="10"/>
+        <DefaultSyntaxHighlighter Value="LFM"/>
+      </Unit9>
     </Units>
     <General>
       <ActiveWindowIndexAtStart Value="0"/>

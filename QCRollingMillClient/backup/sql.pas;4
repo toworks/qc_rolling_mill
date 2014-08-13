@@ -20,7 +20,7 @@ var
   MSQuery: TSQLQuery;
   MSTransaction: TSQLTransaction;
 
-//  {$DEFINE DEBUG}
+  {$DEFINE DEBUG}
 
   function ConfigOracleSetting(InData: boolean): boolean;
   function ConfigMsSetting(InData: boolean): boolean;
@@ -33,7 +33,7 @@ var
 implementation
 
 uses
-    settings{, gui}, thread_heat_;
+    settings, gui, thread_heat;
 
 
 function ConfigOracleSetting(InData: boolean): boolean;
@@ -289,16 +289,29 @@ begin
 
   while not MSQuery.EOF do begin
        if MSQuery.FieldByName('step').AsInteger = 0 then begin
+{$IFDEF DEBUG}
+  SaveLog.Log(etDebug, 'step -> '+MSQuery.FieldByName('step').AsString);
+{$ENDIF}
           if Inside = 0 then begin
              if not MSQuery.FieldByName('low').IsNull then
                 left.LowRed := MSQuery.FieldByName('low').AsInteger;
              if not MSQuery.FieldByName('high').IsNull then
 	        left.HighRed := MSQuery.FieldByName('high').AsInteger;
+{$IFDEF DEBUG}
+  SaveLog.Log(etDebug, 'side -> '+inttostr(InSide));
+  SaveLog.Log(etDebug, 'left LowRed -> '+MSQuery.FieldByName('low').AsString);
+  SaveLog.Log(etDebug, 'left HighRed -> '+MSQuery.FieldByName('high').AsString);
+{$ENDIF}
           end else begin
              if not MSQuery.FieldByName('low').IsNull then
                 right.LowRed := MSQuery.FieldByName('low').AsInteger;
              if not MSQuery.FieldByName('high').IsNull then
  	        right.HighRed := MSQuery.FieldByName('high').AsInteger;
+{$IFDEF DEBUG}
+  SaveLog.Log(etDebug, 'side -> '+inttostr(InSide));
+  SaveLog.Log(etDebug, 'right LowRed -> '+MSQuery.FieldByName('low').AsString);
+  SaveLog.Log(etDebug, 'right HighRed -> '+MSQuery.FieldByName('high').AsString);
+{$ENDIF}
           end;
 {{$IFDEF DEBUG}
   SaveLog.Log(etDebug, 'side -> '+inttostr(InSide));
@@ -307,6 +320,9 @@ begin
   SaveLog.Log(etDebug, 'HighRed -> '+MSQuery.FieldByName('high').AsString);
 {$ENDIF}}
        end else begin
+{$IFDEF DEBUG}
+  SaveLog.Log(etDebug, 'step -> '+MSQuery.FieldByName('step').AsString);
+{$ENDIF}
           if Inside = 0 then begin
              if not MSQuery.FieldByName('low').IsNull then
                 left.LowGreen := MSQuery.FieldByName('low').AsInteger;
@@ -314,6 +330,11 @@ begin
                 left.HighGreen := MSQuery.FieldByName('high').AsInteger;
              if not MSQuery.FieldByName('ce_category').IsNull then
                 left.ce_category := '('+MSQuery.FieldByName('ce_category').AsString+')';
+{$IFDEF DEBUG}
+  SaveLog.Log(etDebug, 'side -> '+inttostr(InSide));
+  SaveLog.Log(etDebug, 'left LowRed -> '+MSQuery.FieldByName('low').AsString);
+  SaveLog.Log(etDebug, 'left HighRed -> '+MSQuery.FieldByName('high').AsString);
+{$ENDIF}
           end else begin
              if not MSQuery.FieldByName('low').IsNull then
                 right.LowGreen := MSQuery.FieldByName('low').AsInteger;
@@ -322,12 +343,12 @@ begin
              if not MSQuery.FieldByName('ce_category').IsNull then
                 right.ce_category := '('+MSQuery.FieldByName('ce_category').AsString+')';
           end;
-{{$IFDEF DEBUG}
+{$IFDEF DEBUG}
   SaveLog.Log(etDebug, 'side -> '+inttostr(InSide));
   SaveLog.Log(etDebug, 'step -> '+MSQuery.FieldByName('step').AsString);
   SaveLog.Log(etDebug, 'LowGreen -> '+MSQuery.FieldByName('low').AsString);
   SaveLog.Log(etDebug, 'HighGreen -> '+MSQuery.FieldByName('high').AsString);
-{$ENDIF}}
+{$ENDIF}
        end;
        MSQuery.Next;
   end;

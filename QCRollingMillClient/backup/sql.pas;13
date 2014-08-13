@@ -33,7 +33,7 @@ var
 implementation
 
 uses
-    settings, gui, thread_main;
+    settings{, gui,} thread_heat_;
 
 
 function ConfigOracleSetting(InData: boolean): boolean;

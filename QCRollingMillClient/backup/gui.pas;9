@@ -14,6 +14,7 @@ type
   { TForm1 }
 
   TForm1 = class(TForm)
+    Button1: TButton;
     UniqueInstanceApp: TUniqueInstance;
     ChartLeft: TChart;
     ChartLeftAxisRight: TChartAxis;
@@ -38,6 +39,7 @@ type
     l_chemical_right: TLabel;
     l_heat_left: TLabel;
     l_heat_right: TLabel;
+    procedure Button1Click(Sender: TObject);
     function OneInstance: boolean;
     procedure UniqueInstanceAppOtherInstance(Sender: TObject;
       ParamCount: Integer; Parameters: array of String);
@@ -72,6 +74,7 @@ var
   function SysTrayIconCreate: boolean;
   function PopUpMenuCreate: boolean;
   function ShowTrayMessage(InTitle, InMessage: AnsiString; InFlag: integer): boolean;
+  function ViewClear: boolean;
 
 
 implementation
@@ -100,6 +103,8 @@ begin
 
   //проверка 1 экземпляр программы
   OneInstance;
+
+  ViewClear;
 
 //  SaveLog.Log(etInfo, 'app  start');
 
@@ -380,6 +385,24 @@ begin
     TerminateProcess(GetCurrentProcess, 0);
   {$endif}
 end;
+
+
+function ViewClear: boolean;
+var
+  i: integer;
+begin
+
+  for i := 0 to Form1.ComponentCount - 1 do
+  begin
+    if (Form1.Components[i] is TLabel) then
+    begin
+      if copy(Form1.Components[i].Name, 1, 4) <> 'l_n_' then
+        TLabel(Form1.FindComponent(Form1.Components[i].Name)).Caption := '';
+    end;
+  end;
+
+end;
+
 
 end.
 

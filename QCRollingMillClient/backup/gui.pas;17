@@ -7,7 +7,7 @@ interface
 uses
   Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, StdCtrls,
   ExtCtrls, UniqueInstance, dateutils, TAGraph, TAIntervalSources, TASeries,
-  TAChartUtils, TAChartAxis, TAChartAxisUtils, Menus;
+  TAChartUtils, TAChartAxis, TAChartAxisUtils, Menus, SyncObjs;
 
 type
 

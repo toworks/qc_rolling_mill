@@ -115,8 +115,6 @@ begin
   SysTrayIconCreate;
   ChartLeftCreate(Form1);
   ChartRightCreate(Form1);
-  ThreadMain := TThreadMAin.Create;
-  ThreadHeat := TThreadHeat.Create;
 end;
 
 

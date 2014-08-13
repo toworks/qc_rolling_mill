@@ -38,6 +38,8 @@ type
     l_chemical_right: TLabel;
     l_heat_left: TLabel;
     l_heat_right: TLabel;
+    procedure ChartRightMouseMove(Sender: TObject; Shift: TShiftState; X,
+      Y: Integer);
     function OneInstance: boolean;
     procedure UniqueInstanceAppOtherInstance(Sender: TObject;
       ParamCount: Integer; Parameters: array of String);
@@ -72,7 +74,7 @@ var
   function SysTrayIconCreate: boolean;
   function PopUpMenuCreate: boolean;
   function ShowTrayMessage(InTitle, InMessage: AnsiString; InFlag: integer): boolean;
-  function ViewClear(NameComponent: string): boolean;
+  function ViewClear: boolean;
 
 
 implementation
@@ -133,6 +135,13 @@ begin
       Enabled := True;
       Loaded;
     end;
+end;
+
+procedure TForm1.ChartRightMouseMove(Sender: TObject; Shift: TShiftState; X,
+  Y: Integer);
+begin
+    form1.ChartRight.Extent.UseYMin := false;
+  form1.ChartRight.Extent.UseYMax := false;
 end;
 
 
@@ -385,7 +394,7 @@ begin
 end;
 
 
-function ViewClear(NameComponent: string): boolean;
+function ViewClear: boolean;
 var
   i: integer;
 begin
@@ -394,7 +403,7 @@ begin
   begin
     if (Form1.Components[i] is TLabel) then
     begin
-      if copy(Form1.Components[i].Name, 1, 4) = NameComponent then
+      if copy(Form1.Components[i].Name, 1, 4) <> 'l_n_' then
         TLabel(Form1.FindComponent(Form1.Components[i].Name)).Caption := '';
     end;
   end;

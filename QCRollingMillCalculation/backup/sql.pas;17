@@ -257,6 +257,9 @@ begin
   SaveLog.Log(etDebug, 'count -> '+inttostr(i));
 {$ENDIF}
 
+  if not OraConnect.Ping then
+     OraConnect.Reconnect;
+
   try
      OraQuery.Close;
      OraQuery.SQL.Clear;
@@ -319,6 +322,9 @@ var
   i: integer;
   HeatCeArray: TArrayArrayVariant;
 begin
+  if not OraConnect.Ping then
+     OraConnect.Reconnect;
+
   try
      OraQuery.Close;
      OraQuery.SQL.Clear;

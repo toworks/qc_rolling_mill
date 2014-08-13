@@ -22,9 +22,9 @@ var
   TimestampLastLeft: TDateTime = 0;
   TimestampLastRight: TDateTime = 0;
   CountSameTemperature: integer = 9;// счетчик одинаковой температуры
-  CountLineSeries: integer = 50; //удаляются LineSeries > 200
-  ColorCurrentLine: TColor = $0000A800;
-  ColorWarningLine: TColor = clYellow;
+  CountLineSeries: integer = 200; //удаляются LineSeries > 200
+  ColorCurrentLine: TColor = clBlue;
+  ColorWarningLine: TColor = $0000A800;
   ColorAlarmLine: TColor = clRed;
 
   {$DEFINE DEBUG}
@@ -41,7 +41,7 @@ var
 implementation
 
 uses
-  gui, settings, thread_heat, thread_main;
+  gui, settings, thread_main, thread_heat;
 
 { left }
 function ViewsChartsLeft: boolean;
@@ -85,7 +85,7 @@ begin
                         inttostr(form1.ChartLeftLineSeriesCurrent.ListSource.Count);}
 
   with form1.ChartLeftLineSeriesCurrent do begin
-     if temperature = 0 then
+     if temperature > 0 then
      AddXY(now, temperature, '', ColorCurrentLine)
      else
        AddX(0, '', clNone);
@@ -159,7 +159,7 @@ begin
   end;
 
   // max -3 градуса от high красных
-  if (left.HighGreen <> 0) and (left.HighGreen >= left.HighRed) and
+  if (left.HighGreen <> 0) and (left.HighGreen <= left.HighRed) and
      (left.LowGreen < left.HighRed) then begin
        with form1.ChartLeftLineSeriesGreenHight do begin
            if left.HighRed > 0 then
@@ -300,11 +300,11 @@ begin
   end;
 
   // max -3 градуса от high красных
-  if (right.HighGreen <> 0) and (right.HighGreen >= right.HighRed) and
+  if (right.HighGreen <> 0) and (right.HighGreen <= right.HighRed) and
      (right.LowGreen < right.HighRed) then begin
        with form1.ChartRightLineSeriesGreenHight do begin
            if right.HighRed > 0 then
-             AddXY(now, right.HighRed-3, '', ColorWarningLine);
+             AddXY(now, right.HighRed-3, '', ColorWarningLine)
            else
              AddX(0, '', clNone);
            if Count > CountLineSeries then
@@ -333,7 +333,7 @@ end;
 function LimitMinMax(InTemperature, InSide: integer): TLimits;
 begin
   // side left=0, side right=1
-  if (InTemperature <> 0) and (left.LowRed <> 0) and (left.HighRed <> 0) and
+  if (left.LowRed <> 0) and (left.HighRed <> 0) and
      (InSide = 0) then
   begin
     Result.min := left.LowRed-30;
@@ -341,14 +341,20 @@ begin
     exit;
   end;
 
-  if (InTemperature <> 0) and (right.LowRed <> 0) and (right.HighRed <> 0) and
+  if (right.LowRed <> 0) and (right.HighRed <> 0) and
      (InSide = 1) then
   begin
     Result.min := right.LowRed-30;
     Result.max := right.HighRed+30;
     exit;
   end;
-
+showmessage(inttostr(InTemperature)+' min = '+inttostr(Result.min)+' max = '+inttostr(Result.max));
+  if InTemperature = 0 then
+  begin
+    Result.min := 250;
+    Result.max := 1250;
+  end;
+{
   if InTemperature < 450 then
   begin
     Result.min := 250;
@@ -377,7 +383,7 @@ begin
   begin
     Result.min := 950;
     Result.max := 1250;
-  end;
+  end;}
 end;
 
 

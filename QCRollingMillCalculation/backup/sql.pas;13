@@ -71,6 +71,7 @@ begin
   end
   else
   begin
+        OraSqlSettings.configured := false;
         FreeAndNil(OraConnect);
         FreeAndNil(OraQuery);
   end;
@@ -257,8 +258,10 @@ begin
   SaveLog.Log(etDebug, 'count -> '+inttostr(i));
 {$ENDIF}
 
-  if not OraConnect.Ping then
-     OraConnect.Reconnect;
+  if not OraConnect.Connected then begin
+     ConfigOracleSetting(false);
+     ConfigOracleSetting(true);
+  end;
 
   try
      OraQuery.Close;
@@ -322,8 +325,10 @@ var
   i: integer;
   HeatCeArray: TArrayArrayVariant;
 begin
-  if not OraConnect.Ping then
-     OraConnect.Reconnect;
+   if not OraConnect.Connected then begin
+      ConfigOracleSetting(false);
+      ConfigOracleSetting(true);
+   end;
 
   try
      OraQuery.Close;

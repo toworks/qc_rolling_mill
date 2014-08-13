@@ -232,7 +232,7 @@ begin
   end;
 
 {$IFDEF DEBUG}
-  SaveLog.Log(etDebug, 'MSQueryCalculation.SQL.Text -> '+UTF8Encode(MSQueryCalculation.sql.Text));
+  SaveLog.Log(etDebug, 'MSQueryCalculation.SQL.Text -> '+UTF8Decode(MSQueryCalculation.sql.Text));
   SaveLog.Log(etDebug, 'MSQueryCalculation.RecordCount -> '+inttostr(MSQueryCalculation.RecordCount));
 {$ENDIF}
 
@@ -256,6 +256,9 @@ begin
   SaveLog.Log(etDebug, 'heats -> '+heats);
   SaveLog.Log(etDebug, 'count -> '+inttostr(i));
 {$ENDIF}
+
+  if not OraConnect.Ping then
+     OraConnect.Reconnect;
 
   try
      OraQuery.Close;
@@ -319,6 +322,16 @@ var
   i: integer;
   HeatCeArray: TArrayArrayVariant;
 begin
+  try
+      if OraConnect <> nil then begin
+         if not OraConnect.Ping then
+            OraConnect.Reconnect;
+      end;
+  except
+    on E: Exception do
+      SaveLog.Log(etError, E.ClassName + ', с сообщением: ' + E.Message);
+  end;
+
   try
      OraQuery.Close;
      OraQuery.SQL.Clear;
