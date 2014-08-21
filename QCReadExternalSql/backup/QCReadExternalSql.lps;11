@@ -46,8 +46,8 @@
         <UnitName Value="thread_main"/>
         <EditorIndex Value="1"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="78"/>
-        <CursorPos X="14" Y="112"/>
+        <TopLine Value="103"/>
+        <CursorPos X="37" Y="130"/>
         <UsageCount Value="206"/>
         <Loaded Value="True"/>
       </Unit4>
@@ -67,8 +67,8 @@
         <IsVisibleTab Value="True"/>
         <EditorIndex Value="0"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="9"/>
-        <CursorPos X="20" Y="64"/>
+        <TopLine Value="101"/>
+        <CursorPos X="43" Y="133"/>
         <UsageCount Value="206"/>
         <Loaded Value="True"/>
       </Unit6>
@@ -76,7 +76,7 @@
     <General>
       <ActiveWindowIndexAtStart Value="0"/>
     </General>
-    <JumpHistory Count="5" HistoryIndex="4">
+    <JumpHistory Count="6" HistoryIndex="5">
       <Position1>
         <Filename Value="sql.pas"/>
         <Caret Line="510" Column="5" TopLine="489"/>
@@ -97,6 +97,10 @@
         <Filename Value="sql.pas"/>
         <Caret Line="458" Column="34" TopLine="445"/>
       </Position5>
+      <Position6>
+        <Filename Value="sql.pas"/>
+        <Caret Line="103" Column="17" TopLine="78"/>
+      </Position6>
     </JumpHistory>
   </ProjectSession>
   <EditorMacros Count="0"/>

@@ -227,43 +227,46 @@ begin
     SaveLog.Log(etDebug, 'rolling mill -> '+inttostr(InRollingMill));
   {$ENDIF}
 
-  if 250 < TempLeft then begin
-     with OutToSql do begin
-          tid_ := tid;
-          heat_ := heat;
-          grade_ := grade;
-          StrengthClass_ := StrengthClassLeft;
-          section_ := SectionLeft;
-          standard_ := standard;
-          rolling_mill_ := inttostr(InRollingMill);
-          temperature_ := inttostr(TempLeft);
-          side_ := '0';
-          recordid_ := recordid;
-     end;
-     MSSqlWrite(OutToSql);
-     //free memory
-     Finalize(OutToSql);
-     FillChar(OutToSql,sizeof(OutToSql),0);
-  end;
 
-  if 250 < TempRight then begin
-     with OutToSql do begin
-          tid_ := tid;
-          heat_ := heat;
-          grade_ := grade;
-          StrengthClass_ := StrengthClassRight;
-          section_ := SectionRight;
-          standard_ := standard;
-          rolling_mill_ := inttostr(InRollingMill);
-          temperature_ := inttostr(TempRight);
-          side_ := '1';
-          recordid_ := recordid;
-     end;
-     MSSqlWrite(OutToSql);
-     //free memory
-     Finalize(OutToSql);
-     FillChar(OutToSql,sizeof(OutToSql),0);
+  with OutToSql do begin
+       tid_ := tid;
+       heat_ := heat;
+       grade_ := grade;
+       StrengthClass_ := StrengthClassLeft;
+       section_ := SectionLeft;
+       standard_ := standard;
+       rolling_mill_ := inttostr(InRollingMill);
+       if 250 < TempLeft then
+          temperature_ := inttostr(TempLeft);
+       else
+          temperature_ := '0';
+       side_ := '0';
+       recordid_ := recordid;
   end;
+  MSSqlWrite(OutToSql);
+  //free memory
+  Finalize(OutToSql);
+  FillChar(OutToSql,sizeof(OutToSql),0);
+
+  with OutToSql do begin
+       tid_ := tid;
+       heat_ := heat;
+       grade_ := grade;
+       StrengthClass_ := StrengthClassRight;
+       section_ := SectionRight;
+       standard_ := standard;
+       rolling_mill_ := inttostr(InRollingMill);
+       if 250 < TempRight then
+          temperature_ := inttostr(TempRight);
+       else
+          temperature_ := '0';
+       side_ := '1';
+       recordid_ := recordid;
+  end;
+  MSSqlWrite(OutToSql);
+  //free memory
+  Finalize(OutToSql);
+  FillChar(OutToSql,sizeof(OutToSql),0);
 end;
 
 
@@ -363,42 +366,45 @@ begin
   SaveLog.Log(etDebug, 'rolling mill -> 1');//+inttostr(InRollingMill));
 {$ENDIF}
 
-  if 250 < TempLeft then begin
-     with OutToSql do begin
-          tid_ := tid;
-          heat_ := heat;
-          grade_ := grade;
-          StrengthClass_ := StrengthClassLeft;
-          section_ := SectionLeft;
-          standard_ := standard;
-          rolling_mill_ := '1';
+  with OutToSql do begin
+       tid_ := tid;
+       heat_ := heat;
+       grade_ := grade;
+       StrengthClass_ := StrengthClassLeft;
+       section_ := SectionLeft;
+       standard_ := standard;
+       rolling_mill_ := '1';
+       if 250 < TempLeft then
           temperature_ := inttostr(TempLeft);
-          side_ := '0';
-          recordid_ := recordid;
-     end;
-     MSSqlWrite(OutToSql);
-     //free memory
-     Finalize(OutToSql);
-     FillChar(OutToSql,sizeof(OutToSql),0);
+       else
+          temperature_ := '0';
+       side_ := '0';
+       recordid_ := recordid;
   end;
+  MSSqlWrite(OutToSql);
+  //free memory
+  Finalize(OutToSql);
+  FillChar(OutToSql,sizeof(OutToSql),0);
 
-  if 250 < TempRight then begin
-     with OutToSql do begin
-          tid_ := tid;
-          heat_ := heat;
-          grade_ := grade;
-          StrengthClass_ := StrengthClassRight;
-          section_ := SectionRight;
-          standard_ := standard;
-          rolling_mill_ := '1';
+  with OutToSql do begin
+       tid_ := tid;
+       heat_ := heat;
+       grade_ := grade;
+       StrengthClass_ := StrengthClassRight;
+       section_ := SectionRight;
+       standard_ := standard;
+       rolling_mill_ := '1';
+       if 250 < TempRight then
+          temperature_ := inttostr(TempRight)
+       else
           temperature_ := inttostr(TempRight);
-          side_ := '1';
-          recordid_ := recordid;
-     end;
-     MSSqlWrite(OutToSql);
-     //free memory
-     Finalize(OutToSql);
-     FillChar(OutToSql,sizeof(OutToSql),0);
+       side_ := '1';
+       recordid_ := recordid;
+  end;
+  MSSqlWrite(OutToSql);
+  //free memory
+  Finalize(OutToSql);
+  FillChar(OutToSql,sizeof(OutToSql),0);
   end;
 
 end;
@@ -474,9 +480,10 @@ begin
        MSConnection.Connected := true;
        MSQuery.Close;
        MSQuery.SQL.Clear;
-       MSQuery.SQL.Add('UPDATE temperature_current SET heat='+InData.heat_+',');
-       MSQuery.SQL.Add('grade='+InData.grade_+', strength_class='+InData.StrengthClass_+',');
-       MSQuery.SQL.Add('section='+InData.section_+', standard='+InData.standard_+',');
+       MSQuery.SQL.Add('UPDATE temperature_current SET heat='''+UTF8Encode(InData.heat_)+''',');
+       MSQuery.SQL.Add('grade='''+UTF8Encode(InData.grade_)+''',');
+       MSQuery.SQL.Add('strength_class='''+UTF8Encode(InData.StrengthClass_)+''',');
+       MSQuery.SQL.Add('section='+InData.section_+', standard='''+UTF8Encode(InData.standard_)+''',');
        MSQuery.SQL.Add('temperature='+InData.temperature_+'');
        MSQuery.SQL.Add('where tid='+InData.tid_+' and rolling_mill='+InData.rolling_mill_+' and side='+InData.side_+'');
        MSQuery.SQL.Add('IF @@ROWCOUNT=0');

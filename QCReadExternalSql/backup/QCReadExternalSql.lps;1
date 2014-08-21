@@ -46,7 +46,7 @@
         <UnitName Value="thread_main"/>
         <EditorIndex Value="1"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="47"/>
+        <TopLine Value="26"/>
         <CursorPos X="5" Y="107"/>
         <UsageCount Value="206"/>
         <Loaded Value="True"/>
@@ -67,8 +67,8 @@
         <IsVisibleTab Value="True"/>
         <EditorIndex Value="0"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="459"/>
-        <CursorPos X="121" Y="482"/>
+        <TopLine Value="177"/>
+        <CursorPos X="64" Y="453"/>
         <UsageCount Value="206"/>
         <Loaded Value="True"/>
       </Unit6>

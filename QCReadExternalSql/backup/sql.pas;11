@@ -147,36 +147,27 @@ var
   str: TStringList;
 begin
   try
-      if FConnect <> nil then begin
-         if not FConnect.Ping then
-            FConnect.Reconnect;
-      end;
-  except
-    on E: Exception do
-      SaveLog.Log(etError, E.ClassName + ', с сообщением: ' + E.Message);
-  end;
-
-  try
-      FQuery.Close;
-      FQuery.SQL.Clear;
-      FQuery.SQL.Add('select FIRST 1 begindt, NOPLAV as heat,');
-      FQuery.SQL.Add('MARKA as grade, STANDART as standard');
-      FQuery.SQL.Add('FROM melts where state=1 order by begindt desc');
-      FQuery.Open;
+      FQuery[InRollingMill].Close;
+      FQuery[InRollingMill].SQL.Clear;
+      FQuery[InRollingMill].SQL.Add('select FIRST 1 begindt, NOPLAV as heat,');
+      FQuery[InRollingMill].SQL.Add('MARKA as grade, STANDART as standard');
+      FQuery[InRollingMill].SQL.Add('FROM melts where state=1 order by begindt desc');
+      FQuery[InRollingMill].Open;
   except
     on E: Exception do begin
       SaveLog.Log(etError, E.ClassName + ', с сообщением: ' + E.Message);
+      ConfigFirebirdSetting(false, InRollingMill);
       exit;
     end;
   end;
 
   try
-    heat := FQuery.FieldByName('heat').AsString;
-    grade := FQuery.FieldByName('grade').AsString;
-    standard := FQuery.FieldByName('standard').AsString;
+    heat := FQuery[InRollingMill].FieldByName('heat').AsString;
+    grade := FQuery[InRollingMill].FieldByName('grade').AsString;
+    standard := FQuery[InRollingMill].FieldByName('standard').AsString;
 
     heat_local := StringReplace(heat,'-','_', [rfReplaceAll]);
-    timestamp := FQuery.FieldByName('begindt').AsDateTime;
+    timestamp := FQuery[InRollingMill].FieldByName('begindt').AsDateTime;
     table_name := 'P'+FormatDateTime('yymmdd', timestamp)+'N'+heat_local
   except
     on E: Exception do
@@ -184,16 +175,17 @@ begin
   end;
 
   try
-      FQuery.Close;
-      FQuery.SQL.Clear;
-      FQuery.SQL.Add('select *');
-      FQuery.SQL.Add('FROM '+table_name);
-      FQuery.SQL.Add('where recordid=(select max(recordid)');
-      FQuery.SQL.Add('FROM '+table_name+')');
-      FQuery.Open;
+      FQuery[InRollingMill].Close;
+      FQuery[InRollingMill].SQL.Clear;
+      FQuery[InRollingMill].SQL.Add('select *');
+      FQuery[InRollingMill].SQL.Add('FROM '+table_name);
+      FQuery[InRollingMill].SQL.Add('where recordid=(select max(recordid)');
+      FQuery[InRollingMill].SQL.Add('FROM '+table_name+')');
+      FQuery[InRollingMill].Open;
   except
     on E: Exception do begin
       SaveLog.Log(etError, E.ClassName + ', с сообщением: ' + E.Message);
+      ConfigFirebirdSetting(false, InRollingMill);
       exit;
     end;
   end;
@@ -201,18 +193,18 @@ begin
   try
      tid := inttostr(DateTimeToUnix(timestamp));
      str := TStringList.Create;
-     recordid := FQuery.FieldByName('recordid').AsString;
-     str.Text := StringReplace(FQuery.FieldByName('SECL').AsString, '_', #13#10, [rfReplaceAll]);
+     recordid := FQuery[InRollingMill].FieldByName('recordid').AsString;
+     str.Text := StringReplace(FQuery[InRollingMill].FieldByName('SECL').AsString, '_', #13#10, [rfReplaceAll]);
      SectionLeft := str.Strings[0];
      StrengthClassLeft := UpperCase(str.Strings[1]);
      str.Free;
      str := TStringList.Create;
-     str.Text := StringReplace(FQuery.FieldByName('SECR').AsString, '_', #13#10, [rfReplaceAll]);
+     str.Text := StringReplace(FQuery[InRollingMill].FieldByName('SECR').AsString, '_', #13#10, [rfReplaceAll]);
      SectionRight := str.Strings[0];
      StrengthClassRight := UpperCase(str.Strings[1]);
      str.Free;
-     TempLeft := FQuery.FieldByName('TMOUTL').AsInteger;
-     TempRight := FQuery.FieldByName('TMOUTR').AsInteger;
+     TempLeft := FQuery[InRollingMill].FieldByName('TMOUTL').AsInteger;
+     TempRight := FQuery[InRollingMill].FieldByName('TMOUTR').AsInteger;
   except
     on E: Exception do begin
       SaveLog.Log(etError, E.ClassName + ', с сообщением: ' + E.Message);
@@ -285,15 +277,6 @@ var
    OutToSql: TMeltingCharacteristics;
    str: TStringList;
 begin
-  try
-      if FConnectOld <> nil then begin
-         if not FConnectOld.Connected then
-            FConnectOld.Connected := true;
-      end;
-  except
-    on E: Exception do
-      SaveLog.Log(etError, E.ClassName + ', с сообщением: ' + E.Message);
-  end;
   {$IFDEF DEBUG}
     SaveLog.Log(etDebug, 'configured -> '+booltostr(FbSqlSettings[1].configured));
   {$ENDIF}
@@ -308,6 +291,7 @@ begin
   except
     on E: Exception do begin
       SaveLog.Log(etError, E.ClassName + ', с сообщением: ' + E.Message);
+      ConfigFirebirdSettingToOldIB(false);
       exit;
     end;
   end;
@@ -337,6 +321,7 @@ begin
   except
     on E: Exception do begin
       SaveLog.Log(etError, E.ClassName + ', с сообщением: ' + E.Message);
+      ConfigFirebirdSettingToOldIB(false);
       exit;
     end;
   end;
@@ -489,7 +474,10 @@ begin
        MSConnection.Connected := true;
        MSQuery.Close;
        MSQuery.SQL.Clear;
-       MSQuery.SQL.Add('UPDATE temperature_current SET temperature='+InData.temperature_+'');
+       MSQuery.SQL.Add('UPDATE temperature_current SET heat='+InData.heat_+',');
+       MSQuery.SQL.Add('grade='+InData.grade_+', strength_class='+InData.StrengthClass_+',');
+       MSQuery.SQL.Add('section='+InData.section_+', standard='+InData.standard_+',');
+       MSQuery.SQL.Add('temperature='+InData.temperature_+'');
        MSQuery.SQL.Add('where tid='+InData.tid_+' and rolling_mill='+InData.rolling_mill_+' and side='+InData.side_+'');
        MSQuery.SQL.Add('IF @@ROWCOUNT=0');
        MSQuery.SQL.Add('INSERT INTO temperature_current (tid, [timestamp], ');
