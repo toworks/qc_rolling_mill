@@ -156,7 +156,7 @@ begin
   except
     on E: Exception do begin
       SaveLog.Log(etError, E.ClassName + ', с сообщением: ' + E.Message);
-      ConfigFirebirdSetting(false);
+      ConfigFirebirdSetting(false, InRollingMill);
       exit;
     end;
   end;
@@ -185,7 +185,7 @@ begin
   except
     on E: Exception do begin
       SaveLog.Log(etError, E.ClassName + ', с сообщением: ' + E.Message);
-      ConfigFirebirdSetting(false);
+      ConfigFirebirdSetting(false, InRollingMill);
       exit;
     end;
   end;
@@ -277,15 +277,6 @@ var
    OutToSql: TMeltingCharacteristics;
    str: TStringList;
 begin
-  try
-      if FConnectOld <> nil then begin
-         if not FConnectOld.Connected then
-            FConnectOld.Connected := true;
-      end;
-  except
-    on E: Exception do
-      SaveLog.Log(etError, E.ClassName + ', с сообщением: ' + E.Message);
-  end;
   {$IFDEF DEBUG}
     SaveLog.Log(etDebug, 'configured -> '+booltostr(FbSqlSettings[1].configured));
   {$ENDIF}
@@ -330,6 +321,7 @@ begin
   except
     on E: Exception do begin
       SaveLog.Log(etError, E.ClassName + ', с сообщением: ' + E.Message);
+      ConfigFirebirdSettingToOldIB(false);
       exit;
     end;
   end;
@@ -482,7 +474,10 @@ begin
        MSConnection.Connected := true;
        MSQuery.Close;
        MSQuery.SQL.Clear;
-       MSQuery.SQL.Add('UPDATE temperature_current SET temperature='+InData.temperature_+'');
+       MSQuery.SQL.Add('UPDATE temperature_current SET heat='+InData.heat_+',');
+       MSQuery.SQL.Add('grade='+InData.grade_+', strength_class='+InData.StrengthClass_+',');
+       MSQuery.SQL.Add('section='+InData.section_+', standard='+InData.standard_+',');
+       MSQuery.SQL.Add('temperature='+InData.temperature_+'');
        MSQuery.SQL.Add('where tid='+InData.tid_+' and rolling_mill='+InData.rolling_mill_+' and side='+InData.side_+'');
        MSQuery.SQL.Add('IF @@ROWCOUNT=0');
        MSQuery.SQL.Add('INSERT INTO temperature_current (tid, [timestamp], ');

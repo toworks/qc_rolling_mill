@@ -89,7 +89,11 @@ begin
          if not OraSqlSettings.configured then
             ConfigOracleSetting(true);
 
-         if not OraConnect.Ping then begin
+{$IFDEF DEBUG}
+  SaveLog.Log(etDebug, 'MSConnection.Connected -> '+booltostr(MSConnection.Connected));
+  SaveLog.Log(etDebug, 'OraConnect.Connected -> '+booltostr(OraConnect.Connected));
+{$ENDIF}
+         if not MSConnection.Connected then begin
             ConfigMsSetting(false);
             ConfigMsSetting(true);
          end;
@@ -401,7 +405,7 @@ end;
 
 function ReadChemicalAnalysis(InHeat: string; InSide: integer): boolean;
 begin
-  if not OraConnect.Ping then begin
+  if not OraConnect.Connected then begin
      ConfigOracleSetting(false);
      ConfigOracleSetting(true);
   end;
@@ -534,7 +538,7 @@ begin
   { оставить только  InHeat}
   HeatAll := InHeat;
 
-  if not OraConnect.Ping then begin
+  if not OraConnect.Connected then begin
      ConfigOracleSetting(false);
      ConfigOracleSetting(true);
   end;

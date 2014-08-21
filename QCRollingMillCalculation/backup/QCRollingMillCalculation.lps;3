@@ -53,10 +53,11 @@
         <Filename Value="sql.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="sql"/>
+        <IsVisibleTab Value="True"/>
         <EditorIndex Value="0"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="85"/>
-        <CursorPos X="35" Y="93"/>
+        <TopLine Value="197"/>
+        <CursorPos X="50" Y="225"/>
         <UsageCount Value="206"/>
         <Loaded Value="True"/>
       </Unit5>
@@ -64,11 +65,10 @@
         <Filename Value="thread_calculated_data.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="thread_calculated_data"/>
-        <IsVisibleTab Value="True"/>
         <EditorIndex Value="1"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="80"/>
-        <CursorPos X="1" Y="94"/>
+        <TopLine Value="531"/>
+        <CursorPos X="6" Y="532"/>
         <UsageCount Value="209"/>
         <Loaded Value="True"/>
       </Unit6>
@@ -103,7 +103,7 @@
     <General>
       <ActiveWindowIndexAtStart Value="0"/>
     </General>
-    <JumpHistory Count="29" HistoryIndex="28">
+    <JumpHistory Count="30" HistoryIndex="29">
       <Position1>
         <Filename Value="thread_calculated_data.pas"/>
         <Caret Line="437" Column="26" TopLine="409"/>
@@ -220,6 +220,10 @@
         <Filename Value="thread_calculated_data.pas"/>
         <Caret Line="579" Column="26" TopLine="562"/>
       </Position29>
+      <Position30>
+        <Filename Value="sql.pas"/>
+        <Caret Line="162" Column="16" TopLine="160"/>
+      </Position30>
     </JumpHistory>
   </ProjectSession>
   <EditorMacros Count="0"/>

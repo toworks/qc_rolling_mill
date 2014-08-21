@@ -3,7 +3,7 @@
   <ProjectSession>
     <PathDelim Value="\"/>
     <Version Value="9"/>
-    <BuildModes Active="Debug"/>
+    <BuildModes Active="Release"/>
     <Units Count="10">
       <Unit0>
         <Filename Value="QCRollingMillClient.lpr"/>
@@ -57,7 +57,6 @@
         <Filename Value="chart.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="chart"/>
-        <IsVisibleTab Value="True"/>
         <EditorIndex Value="0"/>
         <WindowIndex Value="0"/>
         <TopLine Value="289"/>
@@ -78,10 +77,11 @@
         <Filename Value="thread_heat.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="thread_heat"/>
+        <IsVisibleTab Value="True"/>
         <EditorIndex Value="1"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="1"/>
-        <CursorPos X="16" Y="72"/>
+        <TopLine Value="101"/>
+        <CursorPos X="5" Y="95"/>
         <UsageCount Value="119"/>
         <Loaded Value="True"/>
       </Unit7>
@@ -105,7 +105,7 @@
     <General>
       <ActiveWindowIndexAtStart Value="0"/>
     </General>
-    <JumpHistory Count="26" HistoryIndex="25">
+    <JumpHistory Count="27" HistoryIndex="26">
       <Position1>
         <Filename Value="thread_heat.pas"/>
         <Caret Line="251" Column="34" TopLine="225"/>
@@ -210,16 +210,11 @@
         <Filename Value="thread_heat.pas"/>
         <Caret Line="79" Column="41" TopLine="61"/>
       </Position26>
+      <Position27>
+        <Filename Value="thread_heat.pas"/>
+        <Caret Line="72" Column="16" TopLine="1"/>
+      </Position27>
     </JumpHistory>
   </ProjectSession>
-  <Debugging>
-    <BreakPoints Count="1">
-      <Item1>
-        <Kind Value="bpkData"/>
-        <WatchScope Value="wpsGlobal"/>
-        <WatchKind Value="wpkReadWrite"/>
-      </Item1>
-    </BreakPoints>
-  </Debugging>
   <EditorMacros Count="0"/>
 </CONFIG>

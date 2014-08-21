@@ -156,6 +156,7 @@ begin
   except
     on E: Exception do begin
       SaveLog.Log(etError, E.ClassName + ', с сообщением: ' + E.Message);
+      ConfigFirebirdSetting(false, InRollingMill);
       exit;
     end;
   end;
@@ -184,6 +185,7 @@ begin
   except
     on E: Exception do begin
       SaveLog.Log(etError, E.ClassName + ', с сообщением: ' + E.Message);
+      ConfigFirebirdSetting(false, InRollingMill);
       exit;
     end;
   end;
@@ -275,15 +277,6 @@ var
    OutToSql: TMeltingCharacteristics;
    str: TStringList;
 begin
-  try
-      if FConnectOld <> nil then begin
-         if not FConnectOld.Connected then
-            FConnectOld.Connected := true;
-      end;
-  except
-    on E: Exception do
-      SaveLog.Log(etError, E.ClassName + ', с сообщением: ' + E.Message);
-  end;
   {$IFDEF DEBUG}
     SaveLog.Log(etDebug, 'configured -> '+booltostr(FbSqlSettings[1].configured));
   {$ENDIF}
@@ -298,6 +291,7 @@ begin
   except
     on E: Exception do begin
       SaveLog.Log(etError, E.ClassName + ', с сообщением: ' + E.Message);
+      ConfigFirebirdSettingToOldIB(false);
       exit;
     end;
   end;
@@ -327,6 +321,7 @@ begin
   except
     on E: Exception do begin
       SaveLog.Log(etError, E.ClassName + ', с сообщением: ' + E.Message);
+      ConfigFirebirdSettingToOldIB(false);
       exit;
     end;
   end;

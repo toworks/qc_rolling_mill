@@ -396,14 +396,9 @@ end;
 
 function ReadChemicalAnalysis(InHeat: string; InSide: integer): boolean;
 begin
-  try
-      if OraConnect <> nil then begin
-         if not OraConnect.Ping then
-            OraConnect.Reconnect;
-      end;
-  except
-    on E: Exception do
-      SaveLog.Log(etError, E.ClassName + ', с сообщением: ' + E.Message);
+  if not OraConnect.Ping then begin
+     ConfigOracleSetting(false);
+     ConfigOracleSetting(true);
   end;
 
   try
@@ -421,7 +416,7 @@ begin
   except
     on E : Exception do
       begin
-        SaveLog.Log(etError, UTF8Encode(E.ClassName+', с сообщением: '+E.Message));
+        SaveLog.Log(etError, E.ClassName+', с сообщением: '+E.Message);
         exit;
       end;
   end;
@@ -533,6 +528,11 @@ begin
 
   { оставить только  InHeat}
   HeatAll := InHeat;
+
+  if not OraConnect.Ping then begin
+     ConfigOracleSetting(false);
+     ConfigOracleSetting(true);
+  end;
 
   try
       OraQuery.Close;

@@ -348,13 +348,12 @@ begin
     Result.max := right.HighRed+30;
     exit;
   end;
-showmessage(inttostr(InTemperature));
-  if InTemperature = 0 then
-  begin
-    Result.min := 250;
-    Result.max := 1250;
-  end;
-{
+
+  Result.min := 250;
+  Result.max := 1250;
+
+  showmessage(inttostr(InTemperature)+' min = '+inttostr(Result.min)+' max = '+inttostr(Result.max));
+
   if InTemperature < 450 then
   begin
     Result.min := 250;
@@ -383,7 +382,8 @@ showmessage(inttostr(InTemperature));
   begin
     Result.min := 950;
     Result.max := 1250;
-  end;}
+  end;
+  showmessage(inttostr(InTemperature)+' min = '+inttostr(Result.min)+' max = '+inttostr(Result.max));
 end;
 
 

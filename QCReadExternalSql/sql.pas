@@ -474,7 +474,11 @@ begin
        MSConnection.Connected := true;
        MSQuery.Close;
        MSQuery.SQL.Clear;
-       MSQuery.SQL.Add('UPDATE temperature_current SET temperature='+InData.temperature_+'');
+       MSQuery.SQL.Add('UPDATE temperature_current SET heat='''+UTF8Encode(InData.heat_)+''',');
+       MSQuery.SQL.Add('grade='''+UTF8Encode(InData.grade_)+''',');
+       MSQuery.SQL.Add('strength_class='''+UTF8Encode(InData.StrengthClass_)+''',');
+       MSQuery.SQL.Add('section='+InData.section_+', standard='''+UTF8Encode(InData.standard_)+''',');
+       MSQuery.SQL.Add('temperature='+InData.temperature_+'');
        MSQuery.SQL.Add('where tid='+InData.tid_+' and rolling_mill='+InData.rolling_mill_+' and side='+InData.side_+'');
        MSQuery.SQL.Add('IF @@ROWCOUNT=0');
        MSQuery.SQL.Add('INSERT INTO temperature_current (tid, [timestamp], ');

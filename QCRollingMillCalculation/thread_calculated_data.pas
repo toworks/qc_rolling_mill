@@ -118,25 +118,30 @@ begin
   for i := 0 to 1 do
   begin
 
-    MSDBLibraryLoader.Enabled := true;
-    MSConnection.Connected := true;
-    MSQuery.Close;
-    MSQuery.sql.Clear;
-    MSQuery.sql.Add('select top 1 tid, heat, rolling_mill, strength_class,');
-    MSQuery.sql.Add('section, grade, standard');
-    MSQuery.sql.Add('FROM temperature_current');
-    MSQuery.sql.Add('where rolling_mill='+InRollingMill+' and side='+inttostr(i)+'');
-    MSQuery.sql.Add('order by timestamp desc');
-    MSQuery.Open;
+    try
+       MSDBLibraryLoader.Enabled := true;
+       MSConnection.Connected := true;
+       MSQuery.Close;
+       MSQuery.sql.Clear;
+       MSQuery.sql.Add('select top 1 tid, heat, rolling_mill, strength_class,');
+       MSQuery.sql.Add('section, grade, standard');
+       MSQuery.sql.Add('FROM temperature_current');
+       MSQuery.sql.Add('where rolling_mill='+InRollingMill+' and side='+inttostr(i)+'');
+       MSQuery.sql.Add('order by timestamp desc');
+       MSQuery.Open;
+    except
+     on E: Exception do
+       SaveLog.Log(etError, E.ClassName + ', с сообщением: ' + E.Message);
+    end;
 
     if i = 0 then
     begin
       left.tid := MSQuery.FieldByName('tid').AsInteger;
-      left.Heat := UTF8Decode(MSQuery.FieldByName('heat').AsString);
-      left.Grade := UTF8Decode(MSQuery.FieldByName('grade').AsString);
-      left.StrengthClass := UTF8Decode(MSQuery.FieldByName('strength_class').AsString);
+      left.Heat := MSQuery.FieldByName('heat').AsString;
+      left.Grade := MSQuery.FieldByName('grade').AsString;
+      left.StrengthClass := MSQuery.FieldByName('strength_class').AsString;
       left.Section := MSQuery.FieldByName('section').AsString;
-      left.Standard := UTF8Decode(MSQuery.FieldByName('standard').AsString);
+      left.Standard := MSQuery.FieldByName('standard').AsString;
       left.RollingMill := MSQuery.FieldByName('rolling_mill').AsString;
 
       // читаем идентификатор старой плавки |номер стана|сторона|
@@ -172,11 +177,11 @@ begin
     else
     begin
       right.tid := MSQuery.FieldByName('tid').AsInteger;
-      right.Heat := UTF8Decode(MSQuery.FieldByName('heat').AsString);
-      right.Grade := UTF8Decode(MSQuery.FieldByName('grade').AsString);
-      right.StrengthClass := UTF8Decode(MSQuery.FieldByName('strength_class').AsString);
+      right.Heat := MSQuery.FieldByName('heat').AsString;
+      right.Grade := MSQuery.FieldByName('grade').AsString;
+      right.StrengthClass := MSQuery.FieldByName('strength_class').AsString;
       right.Section := MSQuery.FieldByName('section').AsString;
-      right.Standard := UTF8Decode(MSQuery.FieldByName('standard').AsString);
+      right.Standard := MSQuery.FieldByName('standard').AsString;
       right.RollingMill := MSQuery.FieldByName('rolling_mill').AsString;
 
       // читаем идентификатор старой плавки |номер стана|сторона|

@@ -27,8 +27,8 @@ var
   FConnectOld: TIBConnection;
   FTransactionOld: TSQLTransaction;
   FQueryOld: TSQLQuery;
-  FConnect: TZConnection;
-  FQuery: TZQuery;
+  FConnect: array [2..5] of TZConnection;
+  FQuery: array [2..5] of TZQuery;
 
 //  {$DEFINE DEBUG}
 
@@ -78,6 +78,7 @@ begin
   end
   else
   begin
+        FbSqlSettings[1].configured := false;
         FreeAndNil(FTransactionOld);
         FreeAndNil(FQueryOld);
         FreeAndNil(FConnectOld);
@@ -127,6 +128,7 @@ begin
   end
   else
   begin
+        FbSqlSettings[InRollingMill].configured := false;
         FreeAndNil(FQuery);
         FreeAndNil(FConnect);
   end;

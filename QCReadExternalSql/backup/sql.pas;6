@@ -147,26 +147,27 @@ var
   str: TStringList;
 begin
   try
-      FQuery.Close;
-      FQuery.SQL.Clear;
-      FQuery.SQL.Add('select FIRST 1 begindt, NOPLAV as heat,');
-      FQuery.SQL.Add('MARKA as grade, STANDART as standard');
-      FQuery.SQL.Add('FROM melts where state=1 order by begindt desc');
-      FQuery.Open;
+      FQuery[InRollingMill].Close;
+      FQuery[InRollingMill].SQL.Clear;
+      FQuery[InRollingMill].SQL.Add('select FIRST 1 begindt, NOPLAV as heat,');
+      FQuery[InRollingMill].SQL.Add('MARKA as grade, STANDART as standard');
+      FQuery[InRollingMill].SQL.Add('FROM melts where state=1 order by begindt desc');
+      FQuery[InRollingMill].Open;
   except
     on E: Exception do begin
       SaveLog.Log(etError, E.ClassName + ', с сообщением: ' + E.Message);
+      ConfigFirebirdSetting(false);
       exit;
     end;
   end;
 
   try
-    heat := FQuery.FieldByName('heat').AsString;
-    grade := FQuery.FieldByName('grade').AsString;
-    standard := FQuery.FieldByName('standard').AsString;
+    heat := FQuery[InRollingMill].FieldByName('heat').AsString;
+    grade := FQuery[InRollingMill].FieldByName('grade').AsString;
+    standard := FQuery[InRollingMill].FieldByName('standard').AsString;
 
     heat_local := StringReplace(heat,'-','_', [rfReplaceAll]);
-    timestamp := FQuery.FieldByName('begindt').AsDateTime;
+    timestamp := FQuery[InRollingMill].FieldByName('begindt').AsDateTime;
     table_name := 'P'+FormatDateTime('yymmdd', timestamp)+'N'+heat_local
   except
     on E: Exception do
@@ -174,16 +175,17 @@ begin
   end;
 
   try
-      FQuery.Close;
-      FQuery.SQL.Clear;
-      FQuery.SQL.Add('select *');
-      FQuery.SQL.Add('FROM '+table_name);
-      FQuery.SQL.Add('where recordid=(select max(recordid)');
-      FQuery.SQL.Add('FROM '+table_name+')');
-      FQuery.Open;
+      FQuery[InRollingMill].Close;
+      FQuery[InRollingMill].SQL.Clear;
+      FQuery[InRollingMill].SQL.Add('select *');
+      FQuery[InRollingMill].SQL.Add('FROM '+table_name);
+      FQuery[InRollingMill].SQL.Add('where recordid=(select max(recordid)');
+      FQuery[InRollingMill].SQL.Add('FROM '+table_name+')');
+      FQuery[InRollingMill].Open;
   except
     on E: Exception do begin
       SaveLog.Log(etError, E.ClassName + ', с сообщением: ' + E.Message);
+      ConfigFirebirdSetting(false);
       exit;
     end;
   end;
@@ -191,18 +193,18 @@ begin
   try
      tid := inttostr(DateTimeToUnix(timestamp));
      str := TStringList.Create;
-     recordid := FQuery.FieldByName('recordid').AsString;
-     str.Text := StringReplace(FQuery.FieldByName('SECL').AsString, '_', #13#10, [rfReplaceAll]);
+     recordid := FQuery[InRollingMill].FieldByName('recordid').AsString;
+     str.Text := StringReplace(FQuery[InRollingMill].FieldByName('SECL').AsString, '_', #13#10, [rfReplaceAll]);
      SectionLeft := str.Strings[0];
      StrengthClassLeft := UpperCase(str.Strings[1]);
      str.Free;
      str := TStringList.Create;
-     str.Text := StringReplace(FQuery.FieldByName('SECR').AsString, '_', #13#10, [rfReplaceAll]);
+     str.Text := StringReplace(FQuery[InRollingMill].FieldByName('SECR').AsString, '_', #13#10, [rfReplaceAll]);
      SectionRight := str.Strings[0];
      StrengthClassRight := UpperCase(str.Strings[1]);
      str.Free;
-     TempLeft := FQuery.FieldByName('TMOUTL').AsInteger;
-     TempRight := FQuery.FieldByName('TMOUTR').AsInteger;
+     TempLeft := FQuery[InRollingMill].FieldByName('TMOUTL').AsInteger;
+     TempRight := FQuery[InRollingMill].FieldByName('TMOUTR').AsInteger;
   except
     on E: Exception do begin
       SaveLog.Log(etError, E.ClassName + ', с сообщением: ' + E.Message);
@@ -298,6 +300,7 @@ begin
   except
     on E: Exception do begin
       SaveLog.Log(etError, E.ClassName + ', с сообщением: ' + E.Message);
+      ConfigFirebirdSettingToOldIB(false);
       exit;
     end;
   end;
@@ -327,6 +330,7 @@ begin
   except
     on E: Exception do begin
       SaveLog.Log(etError, E.ClassName + ', с сообщением: ' + E.Message);
+      ConfigFirebirdSettingToOldIB(false);
       exit;
     end;
   end;

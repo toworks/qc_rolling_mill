@@ -3,7 +3,7 @@
   <ProjectSession>
     <PathDelim Value="\"/>
     <Version Value="9"/>
-    <BuildModes Active="Release"/>
+    <BuildModes Active="Debug"/>
     <Units Count="10">
       <Unit0>
         <Filename Value="QCRollingMillClient.lpr"/>
@@ -59,8 +59,8 @@
         <UnitName Value="chart"/>
         <EditorIndex Value="0"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="204"/>
-        <CursorPos X="32" Y="229"/>
+        <TopLine Value="289"/>
+        <CursorPos X="51" Y="303"/>
         <UsageCount Value="204"/>
         <Loaded Value="True"/>
       </Unit5>
@@ -80,9 +80,9 @@
         <IsVisibleTab Value="True"/>
         <EditorIndex Value="1"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="61"/>
+        <TopLine Value="1"/>
         <CursorPos X="16" Y="72"/>
-        <UsageCount Value="115"/>
+        <UsageCount Value="119"/>
         <Loaded Value="True"/>
       </Unit7>
       <Unit8>
@@ -212,5 +212,14 @@
       </Position26>
     </JumpHistory>
   </ProjectSession>
+  <Debugging>
+    <BreakPoints Count="1">
+      <Item1>
+        <Kind Value="bpkData"/>
+        <WatchScope Value="wpsGlobal"/>
+        <WatchKind Value="wpkReadWrite"/>
+      </Item1>
+    </BreakPoints>
+  </Debugging>
   <EditorMacros Count="0"/>
 </CONFIG>

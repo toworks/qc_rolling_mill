@@ -60,8 +60,8 @@
         <IsVisibleTab Value="True"/>
         <EditorIndex Value="0"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="322"/>
-        <CursorPos X="32" Y="337"/>
+        <TopLine Value="289"/>
+        <CursorPos X="51" Y="303"/>
         <UsageCount Value="204"/>
         <Loaded Value="True"/>
       </Unit5>
@@ -81,8 +81,8 @@
         <EditorIndex Value="1"/>
         <WindowIndex Value="0"/>
         <TopLine Value="1"/>
-        <CursorPos X="5" Y="18"/>
-        <UsageCount Value="115"/>
+        <CursorPos X="16" Y="72"/>
+        <UsageCount Value="119"/>
         <Loaded Value="True"/>
       </Unit7>
       <Unit8>
@@ -105,7 +105,7 @@
     <General>
       <ActiveWindowIndexAtStart Value="0"/>
     </General>
-    <JumpHistory Count="25" HistoryIndex="24">
+    <JumpHistory Count="26" HistoryIndex="25">
       <Position1>
         <Filename Value="thread_heat.pas"/>
         <Caret Line="251" Column="34" TopLine="225"/>
@@ -206,7 +206,20 @@
         <Filename Value="chart.pas"/>
         <Caret Line="336" Column="14" TopLine="311"/>
       </Position25>
+      <Position26>
+        <Filename Value="thread_heat.pas"/>
+        <Caret Line="79" Column="41" TopLine="61"/>
+      </Position26>
     </JumpHistory>
   </ProjectSession>
+  <Debugging>
+    <BreakPoints Count="1">
+      <Item1>
+        <Kind Value="bpkData"/>
+        <WatchScope Value="wpsGlobal"/>
+        <WatchKind Value="wpkReadWrite"/>
+      </Item1>
+    </BreakPoints>
+  </Debugging>
   <EditorMacros Count="0"/>
 </CONFIG>

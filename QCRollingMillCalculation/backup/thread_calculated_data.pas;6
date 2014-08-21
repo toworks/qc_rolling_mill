@@ -534,11 +534,6 @@ begin
   { оставить только  InHeat}
   HeatAll := InHeat;
 
-  if not OraConnect.Connected then begin
-     ConfigOracleSetting(false);
-     ConfigOracleSetting(true);
-  end;
-
   try
       OraQuery.Close;
       OraQuery.SQL.Clear;
@@ -577,7 +572,16 @@ begin
       OraQuery.FetchAll;
   except
     on E: Exception do
-      SaveLog.Log(etError, E.ClassName + ', с сообщением: '+E.Message);
+    begin
+      SaveLog.Log(etError, E.ClassName+', с сообщением: '+E.Message);
+      ConfigOracleSetting(false);
+      if InSide = 0 then
+         left.marker := 0
+      else
+         right.marker := 0;
+      ReadSaveOldData('save', InRollingMill, inttostr(i));
+      exit;
+    end;
   end;
 
 {$IFDEF DEBUG }

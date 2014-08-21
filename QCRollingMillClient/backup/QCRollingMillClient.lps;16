@@ -59,8 +59,8 @@
         <UnitName Value="chart"/>
         <EditorIndex Value="0"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="1"/>
-        <CursorPos X="23" Y="334"/>
+        <TopLine Value="289"/>
+        <CursorPos X="51" Y="303"/>
         <UsageCount Value="204"/>
         <Loaded Value="True"/>
       </Unit5>
@@ -80,9 +80,9 @@
         <IsVisibleTab Value="True"/>
         <EditorIndex Value="1"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="61"/>
-        <CursorPos X="41" Y="79"/>
-        <UsageCount Value="115"/>
+        <TopLine Value="1"/>
+        <CursorPos X="16" Y="72"/>
+        <UsageCount Value="119"/>
         <Loaded Value="True"/>
       </Unit7>
       <Unit8>
@@ -208,9 +208,19 @@
       </Position25>
       <Position26>
         <Filename Value="thread_heat.pas"/>
-        <Caret Line="79" Column="39" TopLine="70"/>
+        <Caret Line="79" Column="41" TopLine="61"/>
       </Position26>
     </JumpHistory>
   </ProjectSession>
+  <Debugging>
+    <BreakPoints Count="1">
+      <Item1>
+        <Kind Value="bpkData"/>
+        <WatchScope Value="wpsGlobal"/>
+        <WatchKind Value="wpkReadWrite"/>
+        <InitialEnabled Value="False"/>
+      </Item1>
+    </BreakPoints>
+  </Debugging>
   <EditorMacros Count="0"/>
 </CONFIG>

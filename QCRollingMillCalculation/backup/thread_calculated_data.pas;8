@@ -91,6 +91,7 @@ begin
 
 {$IFDEF DEBUG}
   SaveLog.Log(etDebug, 'MSConnection.Connected -> '+booltostr(MSConnection.Connected));
+  SaveLog.Log(etDebug, 'OraConnect.Connected -> '+booltostr(OraConnect.Connected));
 {$ENDIF}
          if not MSConnection.Connected then begin
             ConfigMsSetting(false);
@@ -404,11 +405,6 @@ end;
 
 function ReadChemicalAnalysis(InHeat: string; InSide: integer): boolean;
 begin
-  if not OraConnect.Connected then begin
-     ConfigOracleSetting(false);
-     ConfigOracleSetting(true);
-  end;
-
   try
       OraQuery.Close;
       OraQuery.SQL.Clear;
@@ -425,6 +421,12 @@ begin
     on E : Exception do
       begin
         SaveLog.Log(etError, E.ClassName+', с сообщением: '+E.Message);
+        ConfigOracleSetting(false);
+        if InSide = 0 then
+           left.marker := 0;
+        else
+           right.marker := 0;
+        ReadSaveOldData('save', InRollingMill, inttostr(i));
         exit;
       end;
   end;
@@ -537,11 +539,6 @@ begin
   { оставить только  InHeat}
   HeatAll := InHeat;
 
-  if not OraConnect.Connected then begin
-     ConfigOracleSetting(false);
-     ConfigOracleSetting(true);
-  end;
-
   try
       OraQuery.Close;
       OraQuery.SQL.Clear;
@@ -580,7 +577,16 @@ begin
       OraQuery.FetchAll;
   except
     on E: Exception do
-      SaveLog.Log(etError, E.ClassName + ', с сообщением: '+E.Message);
+    begin
+      SaveLog.Log(etError, E.ClassName+', с сообщением: '+E.Message);
+      ConfigOracleSetting(false);
+      if InSide = 0 then
+         left.marker := 0;
+      else
+         right.marker := 0;
+      ReadSaveOldData('save', InRollingMill, inttostr(i));
+      exit;
+    end;
   end;
 
 {$IFDEF DEBUG }

@@ -84,19 +84,13 @@ begin
  {$ENDIF}
 
     try
+         //reconnect
+         ConfigMsSetting(false);
+
          if not MsSqlSettings.configured then
             ConfigMsSetting(true);
          if not OraSqlSettings.configured then
             ConfigOracleSetting(true);
-
-{$IFDEF DEBUG}
-  SaveLog.Log(etDebug, 'MSConnection.Connected -> '+booltostr(MSConnection.Connected));
-  SaveLog.Log(etDebug, 'OraConnect.Connected -> '+booltostr(OraConnect.Connected));
-{$ENDIF}
-         if not MSConnection.Connected then begin
-            ConfigMsSetting(false);
-            ConfigMsSetting(true);
-         end;
 
          ReadCurrentHeat('1');
 //         ReadCurrentHeat('3');
@@ -579,7 +573,7 @@ begin
          left.marker := 0
       else
          right.marker := 0;
-      ReadSaveOldData('save', InRollingMill, inttostr(i));
+      ReadSaveOldData('save', RollingMill, inttostr(InSide));
       exit;
     end;
   end;

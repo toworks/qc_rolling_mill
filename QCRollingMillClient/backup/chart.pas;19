@@ -348,6 +348,10 @@ begin
     Result.max := right.HighRed+30;
     exit;
   end;
+
+  Result.min := 250;
+  Result.max := 1250;
+
 {
   if InTemperature < 450 then
   begin

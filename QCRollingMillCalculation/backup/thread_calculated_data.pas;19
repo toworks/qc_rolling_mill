@@ -459,7 +459,7 @@ var
 
   MSQueryCalculation: TSQLQuery;
   MSQueryData: TSQLQuery;
-  OraQuery: TZQuery;
+{  OraQuery: TZQuery;}
 
   i, a, b, CoefficientCount, AdjustmentMin, AdjustmentMax,
   LimitRolledProductsMin, LimitRolledProductsMax, HeatCount: integer;
@@ -510,8 +510,8 @@ begin
     exit;
   end;
 
-  OraQuery := TZQuery.Create(nil);
-  OraQuery.Connection := OraConnect;
+{  OraQuery := TZQuery.Create(nil);
+  OraQuery.Connection := OraConnect;}
 
   MSQueryCalculation := TSQLQuery.Create(nil);
   MSQueryCalculation.DataBase := MSConnection;
@@ -676,7 +676,7 @@ begin
     OraQuery.Next;
   end;
 
-  FreeAndNil(OraQuery);
+{  FreeAndNil(OraQuery);}
 
   // -- heat to works
   try
