@@ -9,10 +9,12 @@
         <Filename Value="QCRollingMillClient.lpr"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="QCRollingMillClient"/>
+        <EditorIndex Value="1"/>
         <WindowIndex Value="0"/>
         <TopLine Value="1"/>
-        <CursorPos X="82" Y="11"/>
+        <CursorPos X="1" Y="21"/>
         <UsageCount Value="222"/>
+        <Loaded Value="True"/>
       </Unit0>
       <Unit1>
         <Filename Value="settings.pas"/>
@@ -60,8 +62,8 @@
         <IsVisibleTab Value="True"/>
         <EditorIndex Value="0"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="117"/>
-        <CursorPos X="37" Y="124"/>
+        <TopLine Value="281"/>
+        <CursorPos X="41" Y="307"/>
         <UsageCount Value="204"/>
         <Loaded Value="True"/>
       </Unit5>
@@ -81,7 +83,7 @@
         <WindowIndex Value="0"/>
         <TopLine Value="101"/>
         <CursorPos X="5" Y="95"/>
-        <UsageCount Value="120"/>
+        <UsageCount Value="164"/>
       </Unit7>
       <Unit8>
         <Filename Value="thread_heat_test.pas"/>
@@ -89,7 +91,7 @@
         <WindowIndex Value="0"/>
         <TopLine Value="68"/>
         <CursorPos X="5" Y="92"/>
-        <UsageCount Value="18"/>
+        <UsageCount Value="14"/>
       </Unit8>
       <Unit9>
         <Filename Value="thread_heat_n.pas"/>
@@ -97,13 +99,13 @@
         <WindowIndex Value="0"/>
         <TopLine Value="55"/>
         <CursorPos X="47" Y="57"/>
-        <UsageCount Value="191"/>
+        <UsageCount Value="187"/>
       </Unit9>
     </Units>
     <General>
       <ActiveWindowIndexAtStart Value="0"/>
     </General>
-    <JumpHistory Count="14" HistoryIndex="13">
+    <JumpHistory Count="16" HistoryIndex="15">
       <Position1>
         <Filename Value="chart.pas"/>
         <Caret Line="352" Column="35" TopLine="322"/>
@@ -160,6 +162,14 @@
         <Filename Value="chart.pas"/>
         <Caret Line="336" Column="14" TopLine="311"/>
       </Position14>
+      <Position15>
+        <Filename Value="chart.pas"/>
+        <Caret Line="304" Column="3" TopLine="281"/>
+      </Position15>
+      <Position16>
+        <Filename Value="QCRollingMillClient.lpr"/>
+        <Caret Line="11" Column="82" TopLine="1"/>
+      </Position16>
     </JumpHistory>
   </ProjectSession>
   <EditorMacros Count="0"/>

@@ -3,7 +3,7 @@
   <ProjectSession>
     <PathDelim Value="\"/>
     <Version Value="9"/>
-    <BuildModes Active="Debug"/>
+    <BuildModes Active="Release"/>
     <Units Count="10">
       <Unit0>
         <Filename Value="QCRollingMillClient.lpr"/>
@@ -57,10 +57,11 @@
         <Filename Value="chart.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="chart"/>
+        <IsVisibleTab Value="True"/>
         <EditorIndex Value="0"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="289"/>
-        <CursorPos X="51" Y="303"/>
+        <TopLine Value="117"/>
+        <CursorPos X="8" Y="133"/>
         <UsageCount Value="204"/>
         <Loaded Value="True"/>
       </Unit5>
@@ -77,13 +78,10 @@
         <Filename Value="thread_heat.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="thread_heat"/>
-        <IsVisibleTab Value="True"/>
-        <EditorIndex Value="1"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="1"/>
-        <CursorPos X="16" Y="72"/>
-        <UsageCount Value="119"/>
-        <Loaded Value="True"/>
+        <TopLine Value="101"/>
+        <CursorPos X="5" Y="95"/>
+        <UsageCount Value="120"/>
       </Unit7>
       <Unit8>
         <Filename Value="thread_heat_test.pas"/>
@@ -105,121 +103,64 @@
     <General>
       <ActiveWindowIndexAtStart Value="0"/>
     </General>
-    <JumpHistory Count="26" HistoryIndex="25">
+    <JumpHistory Count="14" HistoryIndex="13">
       <Position1>
-        <Filename Value="thread_heat.pas"/>
-        <Caret Line="251" Column="34" TopLine="225"/>
+        <Filename Value="chart.pas"/>
+        <Caret Line="352" Column="35" TopLine="322"/>
       </Position1>
       <Position2>
-        <Filename Value="thread_heat.pas"/>
-        <Caret Line="130" Column="1" TopLine="104"/>
+        <Filename Value="chart.pas"/>
+        <Caret Line="232" Column="1" TopLine="206"/>
       </Position2>
       <Position3>
-        <Filename Value="thread_heat.pas"/>
-        <Caret Line="115" Column="6" TopLine="104"/>
+        <Filename Value="chart.pas"/>
+        <Caret Line="226" Column="50" TopLine="209"/>
       </Position3>
       <Position4>
-        <Filename Value="thread_heat.pas"/>
-        <Caret Line="130" Column="25" TopLine="106"/>
+        <Filename Value="chart.pas"/>
+        <Caret Line="231" Column="38" TopLine="209"/>
       </Position4>
       <Position5>
-        <Filename Value="thread_heat.pas"/>
-        <Caret Line="235" Column="20" TopLine="208"/>
+        <Filename Value="chart.pas"/>
+        <Caret Line="240" Column="3" TopLine="221"/>
       </Position5>
       <Position6>
         <Filename Value="chart.pas"/>
-        <Caret Line="352" Column="35" TopLine="322"/>
+        <Caret Line="273" Column="39" TopLine="266"/>
       </Position6>
       <Position7>
-        <Filename Value="thread_heat.pas"/>
-        <Caret Line="180" Column="14" TopLine="162"/>
+        <Filename Value="chart.pas"/>
+        <Caret Line="232" Column="1" TopLine="215"/>
       </Position7>
       <Position8>
-        <Filename Value="thread_heat.pas"/>
-        <Caret Line="276" Column="1" TopLine="241"/>
+        <Filename Value="chart.pas"/>
+        <Caret Line="381" Column="8" TopLine="350"/>
       </Position8>
       <Position9>
-        <Filename Value="thread_heat.pas"/>
-        <Caret Line="180" Column="14" TopLine="162"/>
+        <Filename Value="chart.pas"/>
+        <Caret Line="351" Column="72" TopLine="332"/>
       </Position9>
       <Position10>
-        <Filename Value="thread_heat.pas"/>
-        <Caret Line="276" Column="1" TopLine="241"/>
+        <Filename Value="chart.pas"/>
+        <Caret Line="336" Column="3" TopLine="324"/>
       </Position10>
       <Position11>
-        <Filename Value="thread_heat.pas"/>
-        <Caret Line="59" Column="1" TopLine="46"/>
+        <Filename Value="chart.pas"/>
+        <Caret Line="334" Column="2" TopLine="317"/>
       </Position11>
       <Position12>
-        <Filename Value="thread_heat.pas"/>
-        <Caret Line="204" Column="46" TopLine="184"/>
+        <Filename Value="chart.pas"/>
+        <Caret Line="337" Column="23" TopLine="333"/>
       </Position12>
       <Position13>
         <Filename Value="chart.pas"/>
-        <Caret Line="232" Column="1" TopLine="206"/>
+        <Caret Line="12" Column="29" TopLine="1"/>
       </Position13>
       <Position14>
         <Filename Value="chart.pas"/>
-        <Caret Line="226" Column="50" TopLine="209"/>
-      </Position14>
-      <Position15>
-        <Filename Value="chart.pas"/>
-        <Caret Line="231" Column="38" TopLine="209"/>
-      </Position15>
-      <Position16>
-        <Filename Value="chart.pas"/>
-        <Caret Line="240" Column="3" TopLine="221"/>
-      </Position16>
-      <Position17>
-        <Filename Value="chart.pas"/>
-        <Caret Line="273" Column="39" TopLine="266"/>
-      </Position17>
-      <Position18>
-        <Filename Value="chart.pas"/>
-        <Caret Line="232" Column="1" TopLine="215"/>
-      </Position18>
-      <Position19>
-        <Filename Value="chart.pas"/>
-        <Caret Line="381" Column="8" TopLine="350"/>
-      </Position19>
-      <Position20>
-        <Filename Value="chart.pas"/>
-        <Caret Line="351" Column="72" TopLine="332"/>
-      </Position20>
-      <Position21>
-        <Filename Value="chart.pas"/>
-        <Caret Line="336" Column="3" TopLine="324"/>
-      </Position21>
-      <Position22>
-        <Filename Value="chart.pas"/>
-        <Caret Line="334" Column="2" TopLine="317"/>
-      </Position22>
-      <Position23>
-        <Filename Value="chart.pas"/>
-        <Caret Line="337" Column="23" TopLine="333"/>
-      </Position23>
-      <Position24>
-        <Filename Value="chart.pas"/>
-        <Caret Line="12" Column="29" TopLine="1"/>
-      </Position24>
-      <Position25>
-        <Filename Value="chart.pas"/>
         <Caret Line="336" Column="14" TopLine="311"/>
-      </Position25>
-      <Position26>
-        <Filename Value="thread_heat.pas"/>
-        <Caret Line="79" Column="41" TopLine="61"/>
-      </Position26>
+      </Position14>
     </JumpHistory>
   </ProjectSession>
-  <Debugging>
-    <BreakPoints Count="1">
-      <Item1>
-        <Kind Value="bpkData"/>
-        <WatchScope Value="wpsGlobal"/>
-        <WatchKind Value="wpkReadWrite"/>
-      </Item1>
-    </BreakPoints>
-  </Debugging>
   <EditorMacros Count="0"/>
 </CONFIG>

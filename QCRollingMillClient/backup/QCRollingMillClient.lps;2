@@ -9,10 +9,12 @@
         <Filename Value="QCRollingMillClient.lpr"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="QCRollingMillClient"/>
+        <EditorIndex Value="1"/>
         <WindowIndex Value="0"/>
         <TopLine Value="1"/>
-        <CursorPos X="82" Y="11"/>
+        <CursorPos X="1" Y="21"/>
         <UsageCount Value="222"/>
+        <Loaded Value="True"/>
       </Unit0>
       <Unit1>
         <Filename Value="settings.pas"/>
@@ -60,8 +62,8 @@
         <IsVisibleTab Value="True"/>
         <EditorIndex Value="0"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="192"/>
-        <CursorPos X="33" Y="219"/>
+        <TopLine Value="248"/>
+        <CursorPos X="3" Y="266"/>
         <UsageCount Value="204"/>
         <Loaded Value="True"/>
       </Unit5>
@@ -81,7 +83,7 @@
         <WindowIndex Value="0"/>
         <TopLine Value="101"/>
         <CursorPos X="5" Y="95"/>
-        <UsageCount Value="157"/>
+        <UsageCount Value="164"/>
       </Unit7>
       <Unit8>
         <Filename Value="thread_heat_test.pas"/>
@@ -103,7 +105,7 @@
     <General>
       <ActiveWindowIndexAtStart Value="0"/>
     </General>
-    <JumpHistory Count="14" HistoryIndex="13">
+    <JumpHistory Count="17" HistoryIndex="16">
       <Position1>
         <Filename Value="chart.pas"/>
         <Caret Line="352" Column="35" TopLine="322"/>
@@ -160,6 +162,18 @@
         <Filename Value="chart.pas"/>
         <Caret Line="336" Column="14" TopLine="311"/>
       </Position14>
+      <Position15>
+        <Filename Value="chart.pas"/>
+        <Caret Line="304" Column="3" TopLine="281"/>
+      </Position15>
+      <Position16>
+        <Filename Value="QCRollingMillClient.lpr"/>
+        <Caret Line="11" Column="82" TopLine="1"/>
+      </Position16>
+      <Position17>
+        <Filename Value="chart.pas"/>
+        <Caret Line="275" Column="3" TopLine="253"/>
+      </Position17>
     </JumpHistory>
   </ProjectSession>
   <EditorMacros Count="0"/>

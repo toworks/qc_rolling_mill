@@ -60,8 +60,8 @@
         <IsVisibleTab Value="True"/>
         <EditorIndex Value="0"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="154"/>
-        <CursorPos X="8" Y="187"/>
+        <TopLine Value="296"/>
+        <CursorPos X="3" Y="313"/>
         <UsageCount Value="204"/>
         <Loaded Value="True"/>
       </Unit5>
@@ -81,7 +81,7 @@
         <WindowIndex Value="0"/>
         <TopLine Value="101"/>
         <CursorPos X="5" Y="95"/>
-        <UsageCount Value="120"/>
+        <UsageCount Value="164"/>
       </Unit7>
       <Unit8>
         <Filename Value="thread_heat_test.pas"/>
@@ -89,7 +89,7 @@
         <WindowIndex Value="0"/>
         <TopLine Value="68"/>
         <CursorPos X="5" Y="92"/>
-        <UsageCount Value="18"/>
+        <UsageCount Value="14"/>
       </Unit8>
       <Unit9>
         <Filename Value="thread_heat_n.pas"/>
@@ -97,13 +97,13 @@
         <WindowIndex Value="0"/>
         <TopLine Value="55"/>
         <CursorPos X="47" Y="57"/>
-        <UsageCount Value="191"/>
+        <UsageCount Value="187"/>
       </Unit9>
     </Units>
     <General>
       <ActiveWindowIndexAtStart Value="0"/>
     </General>
-    <JumpHistory Count="14" HistoryIndex="13">
+    <JumpHistory Count="15" HistoryIndex="14">
       <Position1>
         <Filename Value="chart.pas"/>
         <Caret Line="352" Column="35" TopLine="322"/>
@@ -160,6 +160,10 @@
         <Filename Value="chart.pas"/>
         <Caret Line="336" Column="14" TopLine="311"/>
       </Position14>
+      <Position15>
+        <Filename Value="chart.pas"/>
+        <Caret Line="304" Column="3" TopLine="281"/>
+      </Position15>
     </JumpHistory>
   </ProjectSession>
   <EditorMacros Count="0"/>

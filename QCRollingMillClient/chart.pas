@@ -122,7 +122,7 @@ end;
 function ViewsGreenLimintsLeft: boolean;
 begin
   // max
-  if (left.LowGreen > left.LowRed) and (left.HighGreen < left.HighRed) and
+  if (left.HighGreen < left.HighRed) and
      (left.HighGreen > left.LowGreen) then begin
      with form1.ChartLeftLineSeriesGreenHight do begin
         if left.HighGreen > 0 then
@@ -135,8 +135,8 @@ begin
   end;
 
   // min
-  if (left.LowGreen > left.LowRed) and (left.LowGreen < left.HighRed) and
-     (left.HighGreen > left.LowRed) then begin
+  if (left.LowGreen > left.LowRed) and
+     (left.LowGreen < left.HighGreen) then begin
      with form1.ChartLeftLineSeriesGreenLow do begin
         if left.LowGreen > 0 then
           AddXY(now, left.LowGreen, '', ColorWarningLine)
@@ -262,7 +262,7 @@ end;
 function ViewsGreenLimintsRight: boolean;
 begin
   // max
-  if (right.LowGreen > right.LowRed) and (right.HighGreen < right.HighRed) and
+  if (right.HighGreen < right.HighRed) and
      (right.HighGreen > right.LowGreen) then begin
      with form1.ChartRightLineSeriesGreenHight do begin
          if right.HighGreen > 0 then
@@ -275,8 +275,8 @@ begin
   end;
 
   // min
-  if (right.LowGreen > right.LowRed) and (right.LowGreen < right.HighRed) and
-     (right.HighGreen > right.LowRed) then begin
+  if (right.LowGreen > right.LowRed) and
+     (right.LowGreen < right.HighGreen) then begin
      with form1.ChartRightLineSeriesGreenLow do begin
          if right.LowGreen > 0 then
            AddXY(now, right.LowGreen, '', ColorWarningLine)
