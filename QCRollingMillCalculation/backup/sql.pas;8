@@ -346,6 +346,7 @@ begin
    begin
      SaveLog.Log(etError, E.ClassName+', с сообщением: '+E.Message);
      ConfigOracleSetting(false);
+     exit;
    end;
   end;
 

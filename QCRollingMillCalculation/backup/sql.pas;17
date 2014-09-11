@@ -257,8 +257,10 @@ begin
   SaveLog.Log(etDebug, 'count -> '+inttostr(i));
 {$ENDIF}
 
-  if not OraConnect.Ping then
-     OraConnect.Reconnect;
+  if not OraConnect.Ping then begin
+     ConfigOracleSetting(false);
+     ConfigOracleSetting(true);
+  end;
 
   try
      OraQuery.Close;

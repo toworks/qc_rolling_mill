@@ -164,7 +164,9 @@ begin
     MSQuery.SQL.Add(', t2.ce_avg');
     MSQuery.SQL.Add(', t2.ce_avg_down');
     MSQuery.SQL.Add(', t2.ce_avg_up');
-    MSQuery.SQL.Add(', t2.ce_category');
+    MSQuery.SQL.Add(', cast(case t2.ce_category when ''min'' then ''мин''');
+    MSQuery.SQL.Add('when ''max'' then ''мах'' when ''avg'' then ''сред''');
+    MSQuery.SQL.Add('end as nvarchar(10)) as ce_category');
     MSQuery.SQL.Add('from temperature_current t1');
     MSQuery.SQL.Add('INNER JOIN');
     MSQuery.SQL.Add('calculated_data t2');
@@ -174,8 +176,8 @@ begin
     MSQuery.SQL.Add('and t1.side=t2.side');
     if trim(form1.e_heat.Text) <> '' then
         MSQuery.SQL.Add('where t1.heat = '''+trim(form1.e_heat.Text)+'''');
+    MSQuery.SQL.Add('and t1.rolling_mill = '+rolling_mill+'');
     MSQuery.SQL.Add('order by t1.tid desc, t2.step asc');
-SaveLog.Log(etDebug, MSQuery.SQL.Text);
     MSQuery.Open;
   except
     on E: Exception do
@@ -206,6 +208,7 @@ begin
     MSQuery.SQL.Add('and t1.rolling_mill=t2.rolling_mill');
     MSQuery.SQL.Add('and t1.side=t2.side');
     MSQuery.SQL.Add('where t1.heat = '''+trim(form1.e_heat.Text)+'''');
+    MSQuery.SQL.Add('and t1.rolling_mill = '+rolling_mill+'');
     MSQuery.SQL.Add('order by t1.tid desc');
     MSQuery.Open;
   except

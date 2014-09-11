@@ -43,6 +43,7 @@ object Form1: TForm1
     Top = 260
     Width = 90
     Caption = 'температура'
+    OnChange = DBGridClear
     TabOrder = 3
   end
   object e_heat: TEdit

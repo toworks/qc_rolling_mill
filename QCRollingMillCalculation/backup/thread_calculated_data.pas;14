@@ -89,6 +89,11 @@ begin
          if not OraSqlSettings.configured then
             ConfigOracleSetting(true);
 
+         if not OraConnect.Ping then begin
+            ConfigMsSetting(false);
+            ConfigMsSetting(true);
+         end;
+
          ReadCurrentHeat('1');
 //         ReadCurrentHeat('3');
      except

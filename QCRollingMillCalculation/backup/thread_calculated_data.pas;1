@@ -137,11 +137,11 @@ begin
     if i = 0 then
     begin
       left.tid := MSQuery.FieldByName('tid').AsInteger;
-      left.Heat := UTF8Decode(MSQuery.FieldByName('heat').AsString);
-      left.Grade := UTF8Decode(MSQuery.FieldByName('grade').AsString);
-      left.StrengthClass := UTF8Decode(MSQuery.FieldByName('strength_class').AsString);
+      left.Heat := MSQuery.FieldByName('heat').AsString;
+      left.Grade := MSQuery.FieldByName('grade').AsString;
+      left.StrengthClass := MSQuery.FieldByName('strength_class').AsString;
       left.Section := MSQuery.FieldByName('section').AsString;
-      left.Standard := UTF8Decode(MSQuery.FieldByName('standard').AsString);
+      left.Standard := MSQuery.FieldByName('standard').AsString;
       left.RollingMill := MSQuery.FieldByName('rolling_mill').AsString;
 
       // читаем идентификатор старой плавки |номер стана|сторона|
@@ -177,11 +177,11 @@ begin
     else
     begin
       right.tid := MSQuery.FieldByName('tid').AsInteger;
-      right.Heat := (MSQuery.FieldByName('heat').AsString);
-      right.Grade := (MSQuery.FieldByName('grade').AsString);
-      right.StrengthClass := (MSQuery.FieldByName('strength_class').AsString);
+      right.Heat := MSQuery.FieldByName('heat').AsString;
+      right.Grade := MSQuery.FieldByName('grade').AsString;
+      right.StrengthClass := MSQuery.FieldByName('strength_class').AsString;
       right.Section := MSQuery.FieldByName('section').AsString;
-      right.Standard := (MSQuery.FieldByName('standard').AsString);
+      right.Standard := MSQuery.FieldByName('standard').AsString;
       right.RollingMill := MSQuery.FieldByName('rolling_mill').AsString;
 
       // читаем идентификатор старой плавки |номер стана|сторона|

@@ -579,7 +579,7 @@ begin
          left.marker := 0
       else
          right.marker := 0;
-      ReadSaveOldData('save', InRollingMill, inttostr(i));
+      ReadSaveOldData('save', RollingMill, inttostr(InSide));
       exit;
     end;
   end;

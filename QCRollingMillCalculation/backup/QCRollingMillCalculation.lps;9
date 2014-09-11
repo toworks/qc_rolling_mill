@@ -53,10 +53,11 @@
         <Filename Value="sql.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="sql"/>
+        <IsVisibleTab Value="True"/>
         <EditorIndex Value="0"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="265"/>
-        <CursorPos X="62" Y="282"/>
+        <TopLine Value="160"/>
+        <CursorPos X="64" Y="172"/>
         <UsageCount Value="206"/>
         <Loaded Value="True"/>
       </Unit5>
@@ -64,11 +65,10 @@
         <Filename Value="thread_calculated_data.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="thread_calculated_data"/>
-        <IsVisibleTab Value="True"/>
         <EditorIndex Value="1"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="562"/>
-        <CursorPos X="45" Y="580"/>
+        <TopLine Value="530"/>
+        <CursorPos X="1" Y="94"/>
         <UsageCount Value="209"/>
         <Loaded Value="True"/>
       </Unit6>
@@ -103,7 +103,7 @@
     <General>
       <ActiveWindowIndexAtStart Value="0"/>
     </General>
-    <JumpHistory Count="30" HistoryIndex="29">
+    <JumpHistory Count="29" HistoryIndex="28">
       <Position1>
         <Filename Value="thread_calculated_data.pas"/>
         <Caret Line="437" Column="26" TopLine="409"/>
@@ -210,20 +210,16 @@
       </Position26>
       <Position27>
         <Filename Value="sql.pas"/>
-        <Caret Line="351" Column="14" TopLine="367"/>
+        <Caret Line="279" Column="28" TopLine="263"/>
       </Position27>
       <Position28>
-        <Filename Value="sql.pas"/>
-        <Caret Line="279" Column="28" TopLine="263"/>
+        <Filename Value="thread_calculated_data.pas"/>
+        <Caret Line="409" Column="15" TopLine="391"/>
       </Position28>
       <Position29>
         <Filename Value="thread_calculated_data.pas"/>
-        <Caret Line="409" Column="15" TopLine="391"/>
-      </Position29>
-      <Position30>
-        <Filename Value="thread_calculated_data.pas"/>
         <Caret Line="579" Column="26" TopLine="562"/>
-      </Position30>
+      </Position29>
     </JumpHistory>
   </ProjectSession>
   <EditorMacros Count="0"/>

@@ -459,7 +459,6 @@ var
 
   MSQueryCalculation: TSQLQuery;
   MSQueryData: TSQLQuery;
-{  OraQuery: TZQuery;}
 
   i, a, b, CoefficientCount, AdjustmentMin, AdjustmentMax,
   LimitRolledProductsMin, LimitRolledProductsMax, HeatCount: integer;
@@ -509,9 +508,6 @@ begin
     SaveLog.Log(etWarning, 'недостаточно данных по прокатанным плавкам для расчета по плавке -> '+InHeat);
     exit;
   end;
-
-{  OraQuery := TZQuery.Create(nil);
-  OraQuery.Connection := OraConnect;}
 
   MSQueryCalculation := TSQLQuery.Create(nil);
   MSQueryCalculation.DataBase := MSConnection;
@@ -675,8 +671,6 @@ begin
     inc(i);
     OraQuery.Next;
   end;
-
-{  FreeAndNil(OraQuery);}
 
   // -- heat to works
   try

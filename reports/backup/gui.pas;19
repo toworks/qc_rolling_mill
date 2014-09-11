@@ -43,7 +43,7 @@ var
   _resize: boolean;
   rolling_mill: string;
 
-   {$DEFINE DEBUG}
+//   {$DEFINE DEBUG}
 
   function AppFormTitle(InData: string): boolean;
   function DbGridCalculatedDataColumnName: boolean;
@@ -73,7 +73,7 @@ begin
   Form1.BorderIcons := Form1.BorderIcons - [biMaximize];
   Form1.DBGrid1.TitleStyle := tsNative;
 
-  SaveLog.Log(etInfo, 'app  start');
+//  SaveLog.Log(etInfo, 'app  start');
 
   if not MsSqlSettings.configured then
      ConfigMsSetting(true);
@@ -91,6 +91,7 @@ end;
 procedure TForm1.cb_n_rolling_millChange(Sender: TObject);
 begin
   rolling_mill := GetRolingMill(Form1.cb_n_rolling_mill.Text);
+  AppFormTitle(rolling_mill);
 end;
 
 
@@ -277,7 +278,7 @@ var
   i: integer;
 begin
   // 'ПРИМЕЧАНИЕ: Свойство DefaultDrawing компонента Grid должно быть  установлено в False'
-  //{for delphi}  form1.DBGrid1.DefaultDrawing := false;
+  {for delphi}  form1.DBGrid1.DefaultDrawing := false;
 
   form1.DBGrid1.Columns.Clear;
   form1.DBGrid1.Columns.Add.FieldName := 'timestamp';

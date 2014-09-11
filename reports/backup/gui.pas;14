@@ -29,6 +29,7 @@ type
     procedure DBGrid1PrepareCanvas(sender: TObject; DataCol: Integer;
       Column: TColumn; AState: TGridDrawState);
     procedure ChangeHeatColor(Sender: TObject);
+    procedure DBGridClear(Sender: TObject);
   private
     { private declarations }
   public
@@ -98,6 +99,13 @@ end;
 procedure TForm1.ChangeHeatColor(Sender: TObject);
 begin
   form1.e_heat.Color := clWindow;
+end;
+
+
+procedure TForm1.DBGridClear(Sender: TObject);
+begin
+  DBGrid1.DataSource := nil;
+  DBGrid1.Columns.Clear;
 end;
 
 

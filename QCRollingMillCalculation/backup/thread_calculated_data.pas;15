@@ -396,8 +396,10 @@ end;
 
 function ReadChemicalAnalysis(InHeat: string; InSide: integer): boolean;
 begin
-  if not OraConnect.Ping then
-     OraConnect.Reconnect;
+  if not OraConnect.Ping then begin
+     ConfigOracleSetting(false);
+     ConfigOracleSetting(true);
+  end;
 
   try
       OraQuery.Close;
@@ -527,8 +529,10 @@ begin
   { оставить только  InHeat}
   HeatAll := InHeat;
 
-  if not OraConnect.Ping then
-     OraConnect.Reconnect;
+  if not OraConnect.Ping then begin
+     ConfigOracleSetting(false);
+     ConfigOracleSetting(true);
+  end;
 
   try
       OraQuery.Close;

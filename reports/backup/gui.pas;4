@@ -16,12 +16,14 @@ type
     b_action: TButton;
     cb_export: TCheckBox;
     cb_n_rolling_mill: TComboBox;
+    cb_n_side: TComboBox;
     DBGrid1: TDBGrid;
     e_heat: TEdit;
     l_n_heat: TLabel;
     rb_calculated_data: TRadioButton;
     rb_temperature: TRadioButton;
     procedure cb_n_rolling_millChange(Sender: TObject);
+    procedure cb_n_sideChange(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure b_actionClick(Sender: TObject);
     procedure DBGrid1DrawColumnCell(Sender: TObject; const Rect: TRect;
@@ -29,6 +31,7 @@ type
     procedure DBGrid1PrepareCanvas(sender: TObject; DataCol: Integer;
       Column: TColumn; AState: TGridDrawState);
     procedure ChangeHeatColor(Sender: TObject);
+    procedure DBGridClear(Sender: TObject);
   private
     { private declarations }
   public
@@ -42,6 +45,7 @@ var
   _BufDataSet: TBufDataSet;
   _resize: boolean;
   rolling_mill: string;
+  side: string;
 
 //   {$DEFINE DEBUG}
 
@@ -52,6 +56,7 @@ var
   function SaveReport(InTimestamp, InType: string; InData: WideString): boolean;
   function GetRolingMill(InData: string): string;
   function GetTemperature: boolean;
+  function ChangeSide: boolean;
   {delphi  function GetMedian(aArray: TDoubleDynArray): Double;}
   procedure bubbleSort(var list: TDoubleArray);
   function Median(aArray: TDoubleArray): double;
@@ -79,11 +84,11 @@ begin
      ConfigMsSetting(true);
 
   for i := 1 to 6 do
-      Form1.cb_n_rolling_mill.Items.Add('МС 250-'+inttostr(i));
+       Form1.cb_n_rolling_mill.Items.Add('МС 250-'+inttostr(i));
   Form1.cb_n_rolling_mill.ReadOnly := true;
-
   Form1.cb_n_rolling_mill.ItemIndex := 0;
   rolling_mill := GetRolingMill(Form1.cb_n_rolling_mill.Text);
+
   AppFormTitle(rolling_mill);
 end;
 
@@ -94,10 +99,22 @@ begin
   AppFormTitle(rolling_mill);
 end;
 
+procedure TForm1.cb_n_sideChange(Sender: TObject);
+begin
+  side := inttostr(Form1.cb_n_side.ItemIndex);
+end;
+
 
 procedure TForm1.ChangeHeatColor(Sender: TObject);
 begin
   form1.e_heat.Color := clWindow;
+end;
+
+
+procedure TForm1.DBGridClear(Sender: TObject);
+begin
+  DBGrid1.DataSource := nil;
+  DBGrid1.Columns.Clear;
 end;
 
 
@@ -278,7 +295,7 @@ var
   i: integer;
 begin
   // 'ПРИМЕЧАНИЕ: Свойство DefaultDrawing компонента Grid должно быть  установлено в False'
-  {for delphi}  form1.DBGrid1.DefaultDrawing := false;
+  //{for delphi}  form1.DBGrid1.DefaultDrawing := false;
 
   form1.DBGrid1.Columns.Clear;
   form1.DBGrid1.Columns.Add.FieldName := 'timestamp';
@@ -359,7 +376,6 @@ begin
 
   DataSource.Enabled := true;
   form1.DBGrid1.DataSource := DataSource;
-  {for delphi}  form1.DBGrid1.DefaultDrawing := true;
 end;
 
 
@@ -505,6 +521,21 @@ begin
   result := copy(InData, length(InData), 1);
 end;
 
+
+function ChangeSide: boolean;
+begin
+  if form1.rb_temperature.Checked then begin
+    Form1.cb_n_side.Enabled := false;
+    Form1.cb_n_side.Items.Add('Левая сторона');
+    Form1.cb_n_side.Items.Add('Правая сторона');
+    Form1.cb_n_side.ReadOnly := true;
+    Form1.cb_n_side.ItemIndex := 0;
+    side := inttostr(Form1.cb_n_side.ItemIndex);
+  end else begin
+      Form1.cb_n_side.Enabled := false;
+      Form1.cb_n_side.ItemIndex := -1;
+  end;
+end;
 
 
 end.

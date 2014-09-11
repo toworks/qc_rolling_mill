@@ -110,6 +110,7 @@ begin
   end
   else
   begin
+      MsSqlSettings.configured := false;
       FreeAndNil(MSDBLibraryLoader);
       FreeAndNil(MSConnection);
       FreeAndNil(MSQuery);

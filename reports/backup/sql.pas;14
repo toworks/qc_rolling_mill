@@ -130,7 +130,7 @@ begin
     MSQuery.SQL.Clear;
     MSQuery.SQL.Add('SELECT dateadd(s, t1.timestamp, ''01/01/1970'') as timestamp');
     MSQuery.SQL.Add(', t1.heat, t1.section');
-    MSQuery.SQL.Add(', (case(''МС 250-'' as nvarchar(10))+case(t1.rolling_mill as nvarchar(10))) as rolling_mill');
+    MSQuery.SQL.Add(', cast(''МС 250-'' as nvarchar(10))+cast(t1.rolling_mill as nvarchar(10)) as rolling_mill');
     MSQuery.SQL.Add(', cast(case t1.side when 0 then ''Левая'' else ''Правая'' end as nvarchar(10)) as side');
     MSQuery.SQL.Add(', cast(case t2.step when 0 then ''Красный'' else ''Зеленый'' end as nvarchar(10)) as step');
     MSQuery.SQL.Add(', t2.coefficient_yield_point_value');
@@ -191,14 +191,19 @@ begin
     MSQuery.SQL.Clear;
     MSQuery.SQL.Add('SELECT cast(to_char(TO_TIMESTAMP(t2.timestamp), ''YYYY-MM-DD HH24:MI:SS'') as varchar(20)) as timestamp');
     MSQuery.SQL.Add(', t1.heat, t1.section');
+    MSQuery.SQL.Add(', cast(''МС 250-'' as nvarchar(10))+cast(t1.rolling_mill as nvarchar(10)) as rolling_mill');
     MSQuery.SQL.Add(', cast(case t1.side when 0 then ''Левая'' else ''Правая'' end as varchar(10)) as side');
     MSQuery.SQL.Add(', t2.temperature');
     MSQuery.SQL.Add('from temperature_current t1');
     MSQuery.SQL.Add('INNER JOIN');
     MSQuery.SQL.Add('temperature_historical t2');
     MSQuery.SQL.Add('on t1.tid=t2.tid');
-{    MSQuery.SQL.Add('where t1.heat = '''+trim(form1.e_heat.Text)+'''');}
+    { поменять на выбраный стан }
+    MSQuery.SQL.Add('and t1.rolling_mill=t2.rolling_mill');
+    MSQuery.SQL.Add('and t1.side=t2.side');
+    MSQuery.SQL.Add('where t1.heat = '''+trim(form1.e_heat.Text)+'''');
     MSQuery.SQL.Add('order by t1.tid desc');
+SaveLog.Log(etDebug, MSQuery.SQL.Text);
     MSQuery.Open;
   except
     on E: Exception do

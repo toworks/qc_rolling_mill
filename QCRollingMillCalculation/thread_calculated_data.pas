@@ -848,12 +848,12 @@ begin
       MSQueryCalculation.sql.Add('where t1.timestamp<=datediff(s, ''01/01/1970'', getdate())');
       MSQueryCalculation.sql.Add('and t1.timestamp>=datediff(s, ''01/01/1970'', getdate())-(2629743*10)');// timestamp 2629743 month * 10
       MSQueryCalculation.sql.Add('and t1.heat in ('+HeatAll+')');
-      MSQueryCalculation.sql.Add('and t1.section <= '+Section+'');
+      MSQueryCalculation.sql.Add('and t1.section = '+Section+'');
       MSQueryCalculation.sql.Add('and dbo.translate(t1.strength_class,');
       MSQueryCalculation.sql.Add('''ЕТОРАНКХСВМеторанкхсвм'',''ETOPAHKXCBMetopahkxcbm'')');
       MSQueryCalculation.sql.Add('= dbo.translate('''+StrengthClass+''',');
       MSQueryCalculation.sql.Add('''ЕТОРАНКХСВМеторанкхсвм'',''ETOPAHKXCBMetopahkxcbm'')');
-      MSQueryCalculation.sql.Add('and t1.side='+inttostr(InSide)+'');
+      MSQueryCalculation.sql.Add('and t1.side = '+inttostr(InSide)+'');
 {      if (strtofloat(Section) = 14) or (strtofloat(Section) = 16) or (strtofloat(Section) = 18) then
           MSQueryCalculation.sql.Add('and t2.rolling_scheme = '''+RollingScheme+''''); для 5го стана}
       MSQueryCalculation.Open;

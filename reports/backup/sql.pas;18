@@ -130,6 +130,7 @@ begin
     MSQuery.SQL.Clear;
     MSQuery.SQL.Add('SELECT dateadd(s, t1.timestamp, ''01/01/1970'') as timestamp');
     MSQuery.SQL.Add(', t1.heat, t1.section');
+    MSQuery.SQL.Add(', (case(''МС 250-'' as nvarchar(10))+case(t1.rolling_mill as nvarchar(10))) as rolling_mill');
     MSQuery.SQL.Add(', cast(case t1.side when 0 then ''Левая'' else ''Правая'' end as nvarchar(10)) as side');
     MSQuery.SQL.Add(', cast(case t2.step when 0 then ''Красный'' else ''Зеленый'' end as nvarchar(10)) as step');
     MSQuery.SQL.Add(', t2.coefficient_yield_point_value');

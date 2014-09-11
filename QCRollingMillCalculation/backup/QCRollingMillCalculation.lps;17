@@ -53,10 +53,11 @@
         <Filename Value="sql.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="sql"/>
+        <IsVisibleTab Value="True"/>
         <EditorIndex Value="0"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="67"/>
-        <CursorPos X="22" Y="86"/>
+        <TopLine Value="262"/>
+        <CursorPos X="25" Y="279"/>
         <UsageCount Value="206"/>
         <Loaded Value="True"/>
       </Unit5>
@@ -64,11 +65,10 @@
         <Filename Value="thread_calculated_data.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="thread_calculated_data"/>
-        <IsVisibleTab Value="True"/>
         <EditorIndex Value="1"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="67"/>
-        <CursorPos X="1" Y="93"/>
+        <TopLine Value="391"/>
+        <CursorPos X="15" Y="409"/>
         <UsageCount Value="209"/>
         <Loaded Value="True"/>
       </Unit6>
@@ -103,123 +103,127 @@
     <General>
       <ActiveWindowIndexAtStart Value="0"/>
     </General>
-    <JumpHistory Count="29" HistoryIndex="28">
+    <JumpHistory Count="30" HistoryIndex="29">
       <Position1>
-        <Filename Value="sql.pas"/>
-        <Caret Line="289" Column="83" TopLine="261"/>
+        <Filename Value="thread_calculated_data.pas"/>
+        <Caret Line="684" Column="45" TopLine="656"/>
       </Position1>
       <Position2>
-        <Filename Value="sql.pas"/>
-        <Caret Line="290" Column="83" TopLine="262"/>
+        <Filename Value="thread_calculated_data.pas"/>
+        <Caret Line="685" Column="45" TopLine="657"/>
       </Position2>
       <Position3>
-        <Filename Value="sql.pas"/>
-        <Caret Line="293" Column="28" TopLine="265"/>
+        <Filename Value="thread_calculated_data.pas"/>
+        <Caret Line="686" Column="45" TopLine="658"/>
       </Position3>
       <Position4>
-        <Filename Value="sql.pas"/>
-        <Caret Line="294" Column="28" TopLine="266"/>
+        <Filename Value="thread_calculated_data.pas"/>
+        <Caret Line="696" Column="13" TopLine="668"/>
       </Position4>
       <Position5>
         <Filename Value="sql.pas"/>
-        <Caret Line="295" Column="29" TopLine="267"/>
+        <Caret Line="37" Column="27" TopLine="34"/>
       </Position5>
       <Position6>
         <Filename Value="sql.pas"/>
-        <Caret Line="296" Column="29" TopLine="268"/>
+        <Caret Line="45" Column="17" TopLine="34"/>
       </Position6>
       <Position7>
         <Filename Value="sql.pas"/>
-        <Caret Line="297" Column="29" TopLine="269"/>
+        <Caret Line="65" Column="18" TopLine="36"/>
       </Position7>
       <Position8>
         <Filename Value="sql.pas"/>
-        <Caret Line="298" Column="29" TopLine="270"/>
+        <Caret Line="76" Column="28" TopLine="48"/>
       </Position8>
       <Position9>
         <Filename Value="sql.pas"/>
-        <Caret Line="299" Column="54" TopLine="271"/>
+        <Caret Line="284" Column="9" TopLine="266"/>
       </Position9>
       <Position10>
         <Filename Value="sql.pas"/>
-        <Caret Line="304" Column="15" TopLine="276"/>
+        <Caret Line="288" Column="21" TopLine="266"/>
       </Position10>
       <Position11>
         <Filename Value="sql.pas"/>
-        <Caret Line="331" Column="14" TopLine="302"/>
+        <Caret Line="291" Column="42" TopLine="266"/>
       </Position11>
       <Position12>
         <Filename Value="sql.pas"/>
-        <Caret Line="332" Column="14" TopLine="303"/>
+        <Caret Line="292" Column="53" TopLine="266"/>
       </Position12>
       <Position13>
         <Filename Value="sql.pas"/>
-        <Caret Line="333" Column="14" TopLine="304"/>
+        <Caret Line="293" Column="80" TopLine="266"/>
       </Position13>
       <Position14>
         <Filename Value="sql.pas"/>
-        <Caret Line="330" Column="8" TopLine="327"/>
+        <Caret Line="294" Column="83" TopLine="266"/>
       </Position14>
       <Position15>
         <Filename Value="sql.pas"/>
-        <Caret Line="333" Column="14" TopLine="326"/>
+        <Caret Line="295" Column="83" TopLine="267"/>
       </Position15>
       <Position16>
         <Filename Value="sql.pas"/>
-        <Caret Line="334" Column="14" TopLine="326"/>
+        <Caret Line="298" Column="28" TopLine="270"/>
       </Position16>
       <Position17>
         <Filename Value="sql.pas"/>
-        <Caret Line="335" Column="14" TopLine="326"/>
+        <Caret Line="299" Column="28" TopLine="271"/>
       </Position17>
       <Position18>
         <Filename Value="sql.pas"/>
-        <Caret Line="336" Column="14" TopLine="326"/>
+        <Caret Line="300" Column="29" TopLine="272"/>
       </Position18>
       <Position19>
         <Filename Value="sql.pas"/>
-        <Caret Line="337" Column="14" TopLine="326"/>
+        <Caret Line="301" Column="29" TopLine="273"/>
       </Position19>
       <Position20>
         <Filename Value="sql.pas"/>
-        <Caret Line="338" Column="14" TopLine="326"/>
+        <Caret Line="302" Column="29" TopLine="274"/>
       </Position20>
       <Position21>
         <Filename Value="sql.pas"/>
-        <Caret Line="339" Column="14" TopLine="326"/>
+        <Caret Line="303" Column="29" TopLine="275"/>
       </Position21>
       <Position22>
         <Filename Value="sql.pas"/>
-        <Caret Line="340" Column="14" TopLine="326"/>
+        <Caret Line="304" Column="54" TopLine="276"/>
       </Position22>
       <Position23>
         <Filename Value="sql.pas"/>
-        <Caret Line="341" Column="14" TopLine="326"/>
+        <Caret Line="309" Column="15" TopLine="281"/>
       </Position23>
       <Position24>
         <Filename Value="sql.pas"/>
-        <Caret Line="342" Column="14" TopLine="326"/>
+        <Caret Line="355" Column="9" TopLine="324"/>
       </Position24>
       <Position25>
         <Filename Value="sql.pas"/>
-        <Caret Line="343" Column="14" TopLine="326"/>
+        <Caret Line="367" Column="75" TopLine="339"/>
       </Position25>
       <Position26>
         <Filename Value="sql.pas"/>
-        <Caret Line="358" Column="75" TopLine="330"/>
+        <Caret Line="371" Column="21" TopLine="343"/>
       </Position26>
       <Position27>
         <Filename Value="sql.pas"/>
-        <Caret Line="362" Column="21" TopLine="334"/>
+        <Caret Line="375" Column="34" TopLine="347"/>
       </Position27>
       <Position28>
         <Filename Value="sql.pas"/>
-        <Caret Line="366" Column="34" TopLine="338"/>
+        <Caret Line="376" Column="34" TopLine="348"/>
       </Position28>
       <Position29>
         <Filename Value="sql.pas"/>
-        <Caret Line="367" Column="34" TopLine="339"/>
+        <Caret Line="378" Column="13" TopLine="350"/>
       </Position29>
+      <Position30>
+        <Filename Value="sql.pas"/>
+        <Caret Line="16" Column="11" TopLine="1"/>
+      </Position30>
     </JumpHistory>
   </ProjectSession>
   <EditorMacros Count="0"/>

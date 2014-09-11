@@ -16,12 +16,14 @@ type
     b_action: TButton;
     cb_export: TCheckBox;
     cb_n_rolling_mill: TComboBox;
+    cb_n_side: TComboBox;
     DBGrid1: TDBGrid;
     e_heat: TEdit;
     l_n_heat: TLabel;
     rb_calculated_data: TRadioButton;
     rb_temperature: TRadioButton;
     procedure cb_n_rolling_millChange(Sender: TObject);
+    procedure cb_n_sideChange(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure b_actionClick(Sender: TObject);
     procedure DBGrid1DrawColumnCell(Sender: TObject; const Rect: TRect;
@@ -29,6 +31,7 @@ type
     procedure DBGrid1PrepareCanvas(sender: TObject; DataCol: Integer;
       Column: TColumn; AState: TGridDrawState);
     procedure ChangeHeatColor(Sender: TObject);
+    procedure DBGridClear(Sender: TObject);
   private
     { private declarations }
   public
@@ -42,6 +45,7 @@ var
   _BufDataSet: TBufDataSet;
   _resize: boolean;
   rolling_mill: string;
+  side: string;
 
 //   {$DEFINE DEBUG}
 
@@ -79,11 +83,17 @@ begin
      ConfigMsSetting(true);
 
   for i := 1 to 6 do
-      Form1.cb_n_rolling_mill.Items.Add('МС 250-'+inttostr(i));
+       Form1.cb_n_rolling_mill.Items.Add('МС 250-'+inttostr(i));
   Form1.cb_n_rolling_mill.ReadOnly := true;
-
   Form1.cb_n_rolling_mill.ItemIndex := 0;
   rolling_mill := GetRolingMill(Form1.cb_n_rolling_mill.Text);
+
+  Form1.cb_n_side.Items.Add('Левая сторона');
+  Form1.cb_n_side.Items.Add('Правая сторона');
+  Form1.cb_n_side.ReadOnly := true;
+  Form1.cb_n_side.ItemIndex := 0;
+  side := inttostr(Form1.cb_n_side.ItemIndex);
+
   AppFormTitle(rolling_mill);
 end;
 
@@ -94,11 +104,23 @@ begin
   AppFormTitle(rolling_mill);
 end;
 
+procedure TForm1.cb_n_sideChange(Sender: TObject);
+begin
+  side := inttostr(Form1.cb_n_side.ItemIndex);
+  showmessage(inttostr(Form1.cb_n_side.ItemIndex));
+end;
+
 
 procedure TForm1.ChangeHeatColor(Sender: TObject);
 begin
   form1.e_heat.Color := clWindow;
-  form1.DBGrid1.Columns.Clear;
+end;
+
+
+procedure TForm1.DBGridClear(Sender: TObject);
+begin
+  DBGrid1.DataSource := nil;
+  DBGrid1.Columns.Clear;
 end;
 
 

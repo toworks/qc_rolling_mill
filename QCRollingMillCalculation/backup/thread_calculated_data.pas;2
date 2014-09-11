@@ -177,11 +177,11 @@ begin
     else
     begin
       right.tid := MSQuery.FieldByName('tid').AsInteger;
-      right.Heat := UTF8Decode(MSQuery.FieldByName('heat').AsString);
-      right.Grade := UTF8Decode(MSQuery.FieldByName('grade').AsString);
-      right.StrengthClass := UTF8Decode(MSQuery.FieldByName('strength_class').AsString);
+      right.Heat := (MSQuery.FieldByName('heat').AsString);
+      right.Grade := (MSQuery.FieldByName('grade').AsString);
+      right.StrengthClass := (MSQuery.FieldByName('strength_class').AsString);
       right.Section := MSQuery.FieldByName('section').AsString;
-      right.Standard := UTF8Decode(MSQuery.FieldByName('standard').AsString);
+      right.Standard := (MSQuery.FieldByName('standard').AsString);
       right.RollingMill := MSQuery.FieldByName('rolling_mill').AsString;
 
       // читаем идентификатор старой плавки |номер стана|сторона|

@@ -91,6 +91,7 @@ begin
 
 {$IFDEF DEBUG}
   SaveLog.Log(etDebug, 'MSConnection.Connected -> '+booltostr(MSConnection.Connected));
+  SaveLog.Log(etDebug, 'OraConnect.Connected -> '+booltostr(OraConnect.Connected));
 {$ENDIF}
          if not MSConnection.Connected then begin
             ConfigMsSetting(false);

@@ -92,10 +92,6 @@ begin
          if not OraSqlSettings.configured then
             ConfigOracleSetting(true);
 
-{$IFDEF DEBUG}
-  SaveLog.Log(etDebug, 'MSConnection.Connected -> '+booltostr(MSConnection.Connected));
-  SaveLog.Log(etDebug, 'OraConnect.Connected -> '+booltostr(OraConnect.Connected));
-{$ENDIF}
          ReadCurrentHeat('1');
 //         ReadCurrentHeat('3');
      except

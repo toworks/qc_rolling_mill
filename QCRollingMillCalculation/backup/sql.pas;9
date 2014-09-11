@@ -275,6 +275,11 @@ begin
    begin
      SaveLog.Log(etError, E.ClassName+', с сообщением: '+E.Message);
      ConfigOracleSetting(false);
+        if InSide = 0 then
+           left.marker := 0;
+        else
+           right.marker := 0;
+        ReadSaveOldData('save', RollingMill, InSide);
      exit;
    end;
   end;

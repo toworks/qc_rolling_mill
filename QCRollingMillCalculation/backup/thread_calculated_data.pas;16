@@ -396,15 +396,8 @@ end;
 
 function ReadChemicalAnalysis(InHeat: string; InSide: integer): boolean;
 begin
-  try
-      if OraConnect <> nil then begin
-         if not OraConnect.Ping then
-            OraConnect.Reconnect;
-      end;
-  except
-    on E: Exception do
-      SaveLog.Log(etError, E.ClassName + ', с сообщением: ' + E.Message);
-  end;
+  if not OraConnect.Ping then
+     OraConnect.Reconnect;
 
   try
       OraQuery.Close;
@@ -533,6 +526,9 @@ begin
 
   { оставить только  InHeat}
   HeatAll := InHeat;
+
+  if not OraConnect.Ping then
+     OraConnect.Reconnect;
 
   try
       OraQuery.Close;

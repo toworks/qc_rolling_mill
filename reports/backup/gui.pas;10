@@ -16,6 +16,7 @@ type
     b_action: TButton;
     cb_export: TCheckBox;
     cb_n_rolling_mill: TComboBox;
+    cb_n_side: TComboBox;
     DBGrid1: TDBGrid;
     e_heat: TEdit;
     l_n_heat: TLabel;
@@ -29,6 +30,7 @@ type
     procedure DBGrid1PrepareCanvas(sender: TObject; DataCol: Integer;
       Column: TColumn; AState: TGridDrawState);
     procedure ChangeHeatColor(Sender: TObject);
+    procedure DBGridClear(Sender: TObject);
   private
     { private declarations }
   public
@@ -41,8 +43,8 @@ var
   Form1: TForm1;
   _BufDataSet: TBufDataSet;
   _resize: boolean;
-  _data: boolean;
   rolling_mill: string;
+  side: string;
 
 //   {$DEFINE DEBUG}
 
@@ -80,11 +82,16 @@ begin
      ConfigMsSetting(true);
 
   for i := 1 to 6 do
-      Form1.cb_n_rolling_mill.Items.Add('МС 250-'+inttostr(i));
+       Form1.cb_n_rolling_mill.Items.Add('МС 250-'+inttostr(i));
   Form1.cb_n_rolling_mill.ReadOnly := true;
-
   Form1.cb_n_rolling_mill.ItemIndex := 0;
   rolling_mill := GetRolingMill(Form1.cb_n_rolling_mill.Text);
+
+  Form1.cb_n_side.Items.Add('Левая сторона');
+  Form1.cb_n_side.Items.Add('Правая сторона');
+  Form1.cb_n_side.ReadOnly := true;
+  Form1.cb_n_side.ItemIndex := 0;
+
   AppFormTitle(rolling_mill);
 end;
 
@@ -102,6 +109,13 @@ begin
 end;
 
 
+procedure TForm1.DBGridClear(Sender: TObject);
+begin
+  DBGrid1.DataSource := nil;
+  DBGrid1.Columns.Clear;
+end;
+
+
 procedure TForm1.b_actionClick(Sender: TObject);
 const
   Delim = ';';
@@ -110,7 +124,6 @@ var
   i: integer;
 begin
   _resize := false; //нужно для перерисовки dbgrid
-  _data := false; //нужно для перерисовки dbgrid
 
   if not form1.rb_calculated_data.Checked and not form1.rb_temperature.Checked then
     begin

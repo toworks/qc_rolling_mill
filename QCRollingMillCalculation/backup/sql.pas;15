@@ -257,7 +257,7 @@ begin
   SaveLog.Log(etDebug, 'count -> '+inttostr(i));
 {$ENDIF}
 
-  if not OraConnect.Ping then begin
+  if not OraConnect.Connected then begin
      ConfigOracleSetting(false);
      ConfigOracleSetting(true);
   end;
@@ -324,7 +324,7 @@ var
   i: integer;
   HeatCeArray: TArrayArrayVariant;
 begin
-   if not OraConnect.Ping then begin
+   if not OraConnect.Connected then begin
       ConfigOracleSetting(false);
       ConfigOracleSetting(true);
    end;

@@ -228,7 +228,7 @@ begin
      MSQueryCalculation.sql.Add('''ЕТОРАНКХСВМеторанкхсвм'',''ETOPAHKXCBMetopahkxcbm'')');
      MSQueryCalculation.sql.Add('and section = '+Section+'');
      MSQueryCalculation.sql.Add('and side = '+inttostr(InSide)+'');
-     MSQueryCalculation.sql.Add('and rolling_mill='+RollingMill+'');
+     MSQueryCalculation.sql.Add('and rolling_mill = '+RollingMill+'');
      MSQueryCalculation.Open;
   except
    on E: Exception do
