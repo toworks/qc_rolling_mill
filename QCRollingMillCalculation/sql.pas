@@ -229,6 +229,7 @@ begin
      MSQueryCalculation.sql.Add('and section = '+Section+'');
      MSQueryCalculation.sql.Add('and side = '+inttostr(InSide)+'');
      MSQueryCalculation.sql.Add('and rolling_mill = '+RollingMill+'');
+     MSQueryCalculation.sql.Add('order by timestamp desc');
      MSQueryCalculation.Open;
   except
    on E: Exception do

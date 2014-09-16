@@ -198,8 +198,12 @@ begin
     MSQuery.SQL.Add('INNER JOIN');
     MSQuery.SQL.Add('temperature_historical t2');
     MSQuery.SQL.Add('on t1.tid=t2.tid');
+    { поменять на выбраный стан }
+    MSQuery.SQL.Add('and t1.rolling_mill=t2.rolling_mill');
+    MSQuery.SQL.Add('and t1.side=t2.side');
     MSQuery.SQL.Add('where t1.heat = '''+trim(form1.e_heat.Text)+'''');
     MSQuery.SQL.Add('order by t1.tid desc');
+SaveLog.Log(etDebug, MSQuery.SQL.Text);
     MSQuery.Open;
   except
     on E: Exception do

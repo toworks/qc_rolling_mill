@@ -240,7 +240,7 @@ begin
       left.step := 0;
       // удаляем при перерасчете
       CalculatedData(0, '');
-      SaveLog.Log(etInfo, 'start calculation left side, heat -> '+left.Heat);
+      SaveLog.Log(etInfo, 'start calculation left side, heat -> '+left.Heat+#13#10);
       // start left step 0
       CalculatedData(0, 'timestamp=DATEDIFF(s, ''1970/01/01'', GETDATE())');
       HeatAllLeft := CalculatingInMechanicalCharacteristics(RolledMelting(0), 0);
@@ -253,7 +253,7 @@ begin
 {$IFDEF DEBUG}
   SaveLog.Log(etDebug, 'disable left.marker -> '+inttostr(left.marker));
 {$ENDIF}
-      SaveLog.Log(etInfo, 'end calculation left side, heat -> '+left.Heat);
+      SaveLog.Log(etInfo, 'end calculation left side, heat -> '+left.Heat+#13#10);
     except
       on E: Exception do
         SaveLog.Log(etError, E.ClassName + ', с сообщением: ' + E.Message);
@@ -268,7 +268,7 @@ begin
       right.step := 0;
       // удаляем при перерасчете
       CalculatedData(1, '');
-      SaveLog.Log(etInfo, 'start calculation right side, heat -> '+right.Heat);
+      SaveLog.Log(etInfo, 'start calculation right side, heat -> '+right.Heat+#13#10);
       // start right step 0
       CalculatedData(1, 'timestamp=DATEDIFF(s, ''1970/01/01'', GETDATE())');
       HeatAllRight := CalculatingInMechanicalCharacteristics(RolledMelting(1), 1);
@@ -278,7 +278,7 @@ begin
         CalculatedData(1, 'timestamp=DATEDIFF(s, ''1970/01/01'', GETDATE())');
         CarbonEquivalent(HeatAllRight, 1);
       end;
-      SaveLog.Log(etInfo, 'end calculation right side, heat -> '+right.Heat);
+      SaveLog.Log(etInfo, 'end calculation right side, heat -> '+right.Heat+#13#10);
     except
       on E: Exception do
         SaveLog.Log(etError, E.ClassName + ', с сообщением: ' + E.Message);
@@ -637,14 +637,16 @@ begin
   SQuery.sql.Add(', heat VARCHAR(26),timestamp INTEGER(10), grade VARCHAR(16)');
   SQuery.sql.Add(', standard VARCHAR(16), section VARCHAR(16)');
   SQuery.sql.Add(', strength_class VARCHAR(16), yield_point NUMERIC(10,6)');
-  SQuery.sql.Add(', rupture_strength NUMERIC(10,6), side NUMERIC(1,1) NOT NULL)');
+  SQuery.sql.Add(', rupture_strength NUMERIC(10,6), rolling_mill NUMERIC(1,1) NOT NULL');
+  SQuery.sql.Add(', side NUMERIC(1,1) NOT NULL)');
   SQuery.ExecSQL;
 
   // -- clean table mechanics
   try
       SQuery.Close;
       SQuery.sql.Clear;
-      SQuery.sql.Add('delete from mechanics where side='+inttostr(InSide)+'');
+      SQuery.sql.Add('delete from mechanics where rolling_mill='+RollingMill+'');
+      SQuery.sql.Add('and side='+inttostr(InSide)+'');
       SQuery.ExecSQL;
   except
     on E: Exception do
@@ -669,7 +671,8 @@ begin
               SQuery.Close;
               SQuery.sql.Clear;
               SQuery.sql.Add('insert into mechanics (heat, timestamp, grade, standard');
-              SQuery.sql.Add(', section , strength_class, yield_point, rupture_strength, side)');
+              SQuery.sql.Add(', section , strength_class, yield_point');
+              SQuery.sql.Add(', rupture_strength, rolling_mill, side)');
               SQuery.sql.Add('values (''' + OraQuery.FieldByName('heat').AsString+'''');
               SQuery.sql.Add(', strftime(''%s'', ''now'')');
               SQuery.sql.Add(', ''NULL''');
@@ -678,6 +681,7 @@ begin
               SQuery.sql.Add(', '''+OraQuery.FieldByName('strength_class').AsString+'''');
               SQuery.sql.Add(', '''+OraQuery.FieldByName('yield_point').AsString+'''');
               SQuery.sql.Add(', '''+OraQuery.FieldByName('rupture_strength').AsString+'''');
+              SQuery.sql.Add(', '''+RollingMill+'''');
               SQuery.sql.Add(', '''+inttostr(InSide)+''')');
               SQuery.ExecSQL;
           except
@@ -695,7 +699,10 @@ begin
       SQuery.Close;
       SQuery.sql.Clear;
       SQuery.sql.Add('select distinct heat from mechanics');
-      SQuery.sql.Add('where side=' + inttostr(InSide) + '');
+      SQuery.sql.Add('where rolling_mill = '+RollingMill+'');
+      SQuery.sql.Add('and side = '+inttostr(InSide)+'');
+      SQuery.sql.Add('and section = '+Section+'');
+      SQuery.sql.Add('and strength_class = '''+StrengthClass+'''');
       SQuery.Open;
   except
     on E: Exception do
@@ -845,6 +852,15 @@ begin
       MSQueryCalculation.sql.Add('inner join');
       MSQueryCalculation.sql.Add('temperature_historical t2');
       MSQueryCalculation.sql.Add('on t1.tid=t2.tid');
+      MSQueryCalculation.sql.Add('and t1.rolling_mill = t2.rolling_mill');
+      MSQueryCalculation.sql.Add('and t1.side = t2.side');
+      MSQueryCalculation.sql.Add('and t1.section = t2.section');
+      { для ПОЛНОГО сопоставления (долгое выполнение запроса, никогда не использовалось)
+      MSQueryCalculation.sql.Add('and dbo.translate(t1.strength_class,');
+      MSQueryCalculation.sql.Add('''ЕТОРАНКХСВМеторанкхсвм'',''ETOPAHKXCBMetopahkxcbm'')');
+      MSQueryCalculation.sql.Add('= dbo.translate(t2.strength_class,');
+      MSQueryCalculation.sql.Add('''ЕТОРАНКХСВМеторанкхсвм'',''ETOPAHKXCBMetopahkxcbm'')');
+      }
       MSQueryCalculation.sql.Add('where t1.timestamp<=datediff(s, ''01/01/1970'', getdate())');
       MSQueryCalculation.sql.Add('and t1.timestamp>=datediff(s, ''01/01/1970'', getdate())-(2629743*10)');// timestamp 2629743 month * 10
       MSQueryCalculation.sql.Add('and t1.heat in ('+HeatAll+')');

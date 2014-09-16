@@ -169,7 +169,6 @@ begin
      MSQueryCalculation.Close;
      MSQueryCalculation.sql.Clear;
      MSQueryCalculation.sql.Add('select * FROM technological_sample');
-     MSQueryCalculation.sql.Add('select top 999 * FROM technological_sample');
      MSQueryCalculation.sql.Add('where dbo.translate(strength_class, ');
      MSQueryCalculation.sql.Add('''ЕТОРАНКХСВМеторанкхсвм'',''ETOPAHKXCBMetopahkxcbm'')');
      MSQueryCalculation.sql.Add('= dbo.translate('''+StrengthClass+''', ');
@@ -229,7 +228,8 @@ begin
      MSQueryCalculation.sql.Add('''ЕТОРАНКХСВМеторанкхсвм'',''ETOPAHKXCBMetopahkxcbm'')');
      MSQueryCalculation.sql.Add('and section = '+Section+'');
      MSQueryCalculation.sql.Add('and side = '+inttostr(InSide)+'');
-     MSQueryCalculation.sql.Add('and rolling_mill='+RollingMill+'');
+     MSQueryCalculation.sql.Add('and rolling_mill = '+RollingMill+'');
+     MSQueryCalculation.sql.Add('order by timestamp desc');
      MSQueryCalculation.Open;
   except
    on E: Exception do

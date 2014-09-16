@@ -177,7 +177,7 @@ begin
     if trim(form1.e_heat.Text) <> '' then
         MSQuery.SQL.Add('where t1.heat = '''+trim(form1.e_heat.Text)+'''');
     MSQuery.SQL.Add('and t1.rolling_mill = '+rolling_mill+'');
-    MSQuery.SQL.Add('order by t1.tid desc, t2.step asc');
+    MSQuery.SQL.Add('and t1.side = '+side+'');
     MSQuery.Open;
   except
     on E: Exception do
@@ -209,6 +209,7 @@ begin
     MSQuery.SQL.Add('and t1.side=t2.side');
     MSQuery.SQL.Add('where t1.heat = '''+trim(form1.e_heat.Text)+'''');
     MSQuery.SQL.Add('and t1.rolling_mill = '+rolling_mill+'');
+    MSQuery.SQL.Add('and t1.side = '+side+'');
     MSQuery.SQL.Add('order by t1.tid desc');
     MSQuery.Open;
   except

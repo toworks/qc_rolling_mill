@@ -24,8 +24,8 @@
         <IsVisibleTab Value="True"/>
         <EditorIndex Value="0"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="337"/>
-        <CursorPos X="53" Y="362"/>
+        <TopLine Value="76"/>
+        <CursorPos X="28" Y="102"/>
         <UsageCount Value="87"/>
         <Loaded Value="True"/>
         <LoadedDesigner Value="True"/>
@@ -34,12 +34,10 @@
         <Filename Value="settings.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="settings"/>
-        <EditorIndex Value="1"/>
         <WindowIndex Value="0"/>
         <TopLine Value="40"/>
         <CursorPos X="11" Y="43"/>
         <UsageCount Value="87"/>
-        <Loaded Value="True"/>
       </Unit2>
       <Unit3>
         <Filename Value="versioninfo.pas"/>
@@ -54,9 +52,9 @@
         <Filename Value="sql.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="sql"/>
-        <EditorIndex Value="2"/>
+        <EditorIndex Value="1"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="194"/>
+        <TopLine Value="128"/>
         <CursorPos X="25" Y="209"/>
         <UsageCount Value="87"/>
         <Loaded Value="True"/>

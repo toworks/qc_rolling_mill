@@ -71,6 +71,7 @@ begin
   end
   else
   begin
+        OraSqlSettings.configured := false;
         FreeAndNil(OraConnect);
         FreeAndNil(OraQuery);
   end;
@@ -257,9 +258,6 @@ begin
   SaveLog.Log(etDebug, 'count -> '+inttostr(i));
 {$ENDIF}
 
-  if not OraConnect.Ping then
-     OraConnect.Reconnect;
-
   try
      OraQuery.Close;
      OraQuery.SQL.Clear;
@@ -274,7 +272,16 @@ begin
      OraQuery.FetchAll;
   except
    on E: Exception do
+   begin
      SaveLog.Log(etError, E.ClassName+', с сообщением: '+E.Message);
+     ConfigOracleSetting(false);
+     if InSide = 0 then
+        left.marker := 0;
+     else
+        right.marker := 0;
+     ReadSaveOldData('save', InRollingMill, inttostr(i));
+     exit;
+   end;
   end;
 
   i := 0;
@@ -322,9 +329,6 @@ var
   i: integer;
   HeatCeArray: TArrayArrayVariant;
 begin
-  if not OraConnect.Ping then
-     OraConnect.Reconnect;
-
   try
      OraQuery.Close;
      OraQuery.SQL.Clear;
@@ -339,7 +343,16 @@ begin
      OraQuery.FetchAll;
   except
    on E: Exception do
+   begin
      SaveLog.Log(etError, E.ClassName+', с сообщением: '+E.Message);
+     ConfigOracleSetting(false);
+     if InSide = 0 then
+        left.marker := 0;
+     else
+        right.marker := 0;
+     ReadSaveOldData('save', InRollingMill, inttostr(i));
+     exit;
+   end;
   end;
 
 {{  PQueryCe.Close;

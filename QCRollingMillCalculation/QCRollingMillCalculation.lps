@@ -4,7 +4,7 @@
     <PathDelim Value="\"/>
     <Version Value="9"/>
     <BuildModes Active="Release"/>
-    <Units Count="10">
+    <Units Count="9">
       <Unit0>
         <Filename Value="QCRollingMillCalculation.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -53,20 +53,24 @@
         <Filename Value="sql.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="sql"/>
+        <IsVisibleTab Value="True"/>
+        <EditorIndex Value="1"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="212"/>
-        <CursorPos X="53" Y="231"/>
+        <TopLine Value="230"/>
+        <CursorPos X="1" Y="252"/>
         <UsageCount Value="206"/>
+        <Loaded Value="True"/>
       </Unit5>
       <Unit6>
         <Filename Value="thread_calculated_data.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="thread_calculated_data"/>
-        <IsVisibleTab Value="True"/>
+        <EditorIndex Value="0"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="1177"/>
-        <CursorPos X="23" Y="1415"/>
+        <TopLine Value="899"/>
+        <CursorPos X="1" Y="858"/>
         <UsageCount Value="209"/>
+        <Loaded Value="True"/>
       </Unit6>
       <Unit7>
         <Filename Value="thread_main.pas"/>
@@ -74,7 +78,7 @@
         <WindowIndex Value="0"/>
         <TopLine Value="157"/>
         <CursorPos X="8" Y="182"/>
-        <UsageCount Value="181"/>
+        <UsageCount Value="157"/>
       </Unit7>
       <Unit8>
         <Filename Value="QCRollingMillCalculation.pas"/>
@@ -82,21 +86,54 @@
         <WindowIndex Value="0"/>
         <TopLine Value="1"/>
         <CursorPos X="39" Y="7"/>
-        <UsageCount Value="157"/>
+        <UsageCount Value="133"/>
       </Unit8>
-      <Unit9>
-        <Filename Value="..\reports_new\gui.lfm"/>
-        <ComponentName Value="Form1"/>
-        <HasResources Value="True"/>
-        <ResourceBaseClass Value="Form"/>
-        <WindowIndex Value="0"/>
-        <TopLine Value="1"/>
-        <CursorPos X="1" Y="1"/>
-        <UsageCount Value="10"/>
-        <DefaultSyntaxHighlighter Value="LFM"/>
-      </Unit9>
     </Units>
-    <JumpHistory Count="0" HistoryIndex="-1"/>
+    <General>
+      <ActiveWindowIndexAtStart Value="0"/>
+    </General>
+    <JumpHistory Count="10" HistoryIndex="9">
+      <Position1>
+        <Filename Value="sql.pas"/>
+        <Caret Line="9" Column="50" TopLine="1"/>
+      </Position1>
+      <Position2>
+        <Filename Value="thread_calculated_data.pas"/>
+        <Caret Line="841" Column="61" TopLine="394"/>
+      </Position2>
+      <Position3>
+        <Filename Value="thread_calculated_data.pas"/>
+        <Caret Line="731" Column="53" TopLine="706"/>
+      </Position3>
+      <Position4>
+        <Filename Value="sql.pas"/>
+        <Caret Line="322" Column="42" TopLine="315"/>
+      </Position4>
+      <Position5>
+        <Filename Value="sql.pas"/>
+        <Caret Line="171" Column="68" TopLine="154"/>
+      </Position5>
+      <Position6>
+        <Filename Value="thread_calculated_data.pas"/>
+        <Caret Line="731" Column="53" TopLine="706"/>
+      </Position6>
+      <Position7>
+        <Filename Value="thread_calculated_data.pas"/>
+        <Caret Line="686" Column="21" TopLine="539"/>
+      </Position7>
+      <Position8>
+        <Filename Value="thread_calculated_data.pas"/>
+        <Caret Line="475" Column="62" TopLine="458"/>
+      </Position8>
+      <Position9>
+        <Filename Value="thread_calculated_data.pas"/>
+        <Caret Line="618" Column="36" TopLine="590"/>
+      </Position9>
+      <Position10>
+        <Filename Value="thread_calculated_data.pas"/>
+        <Caret Line="620" Column="34" TopLine="592"/>
+      </Position10>
+    </JumpHistory>
   </ProjectSession>
   <EditorMacros Count="0"/>
 </CONFIG>

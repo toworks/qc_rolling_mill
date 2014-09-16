@@ -187,6 +187,10 @@ end;
 function SqlTemperature: boolean;
 begin
   try
+    MSQuery.PacketRecords := -1;  //FetchAll
+
+    MSDBLibraryLoader.Enabled := true;
+    MSConnection.Connected := true;
     MSQuery.Close;
     MSQuery.SQL.Clear;
     MSQuery.SQL.Add('SELECT cast(to_char(TO_TIMESTAMP(t2.timestamp), ''YYYY-MM-DD HH24:MI:SS'') as varchar(20)) as timestamp');
@@ -203,6 +207,7 @@ begin
     MSQuery.SQL.Add('and t1.side=t2.side');
     MSQuery.SQL.Add('where t1.heat = '''+trim(form1.e_heat.Text)+'''');
     MSQuery.SQL.Add('order by t1.tid desc');
+SaveLog.Log(etDebug, MSQuery.SQL.Text);
     MSQuery.Open;
   except
     on E: Exception do

@@ -84,6 +84,9 @@ begin
  {$ENDIF}
 
     try
+         //reconnect
+         ConfigMsSetting(false);
+
          if not MsSqlSettings.configured then
             ConfigMsSetting(true);
          if not OraSqlSettings.configured then
@@ -115,25 +118,30 @@ begin
   for i := 0 to 1 do
   begin
 
-    MSDBLibraryLoader.Enabled := true;
-    MSConnection.Connected := true;
-    MSQuery.Close;
-    MSQuery.sql.Clear;
-    MSQuery.sql.Add('select top 1 tid, heat, rolling_mill, strength_class,');
-    MSQuery.sql.Add('section, grade, standard');
-    MSQuery.sql.Add('FROM temperature_current');
-    MSQuery.sql.Add('where rolling_mill='+InRollingMill+' and side='+inttostr(i)+'');
-    MSQuery.sql.Add('order by timestamp desc');
-    MSQuery.Open;
+    try
+       MSDBLibraryLoader.Enabled := true;
+       MSConnection.Connected := true;
+       MSQuery.Close;
+       MSQuery.sql.Clear;
+       MSQuery.sql.Add('select top 1 tid, heat, rolling_mill, strength_class,');
+       MSQuery.sql.Add('section, grade, standard');
+       MSQuery.sql.Add('FROM temperature_current');
+       MSQuery.sql.Add('where rolling_mill='+InRollingMill+' and side='+inttostr(i)+'');
+       MSQuery.sql.Add('order by timestamp desc');
+       MSQuery.Open;
+    except
+     on E: Exception do
+       SaveLog.Log(etError, E.ClassName + ', с сообщением: ' + E.Message);
+    end;
 
     if i = 0 then
     begin
       left.tid := MSQuery.FieldByName('tid').AsInteger;
-      left.Heat := UTF8Decode(MSQuery.FieldByName('heat').AsString);
-      left.Grade := UTF8Decode(MSQuery.FieldByName('grade').AsString);
-      left.StrengthClass := UTF8Decode(MSQuery.FieldByName('strength_class').AsString);
+      left.Heat := MSQuery.FieldByName('heat').AsString;
+      left.Grade := MSQuery.FieldByName('grade').AsString;
+      left.StrengthClass := MSQuery.FieldByName('strength_class').AsString;
       left.Section := MSQuery.FieldByName('section').AsString;
-      left.Standard := UTF8Decode(MSQuery.FieldByName('standard').AsString);
+      left.Standard := MSQuery.FieldByName('standard').AsString;
       left.RollingMill := MSQuery.FieldByName('rolling_mill').AsString;
 
       // читаем идентификатор старой плавки |номер стана|сторона|
@@ -169,11 +177,11 @@ begin
     else
     begin
       right.tid := MSQuery.FieldByName('tid').AsInteger;
-      right.Heat := UTF8Decode(MSQuery.FieldByName('heat').AsString);
-      right.Grade := UTF8Decode(MSQuery.FieldByName('grade').AsString);
-      right.StrengthClass := UTF8Decode(MSQuery.FieldByName('strength_class').AsString);
+      right.Heat := MSQuery.FieldByName('heat').AsString;
+      right.Grade := MSQuery.FieldByName('grade').AsString;
+      right.StrengthClass := MSQuery.FieldByName('strength_class').AsString;
       right.Section := MSQuery.FieldByName('section').AsString;
-      right.Standard := UTF8Decode(MSQuery.FieldByName('standard').AsString);
+      right.Standard := MSQuery.FieldByName('standard').AsString;
       right.RollingMill := MSQuery.FieldByName('rolling_mill').AsString;
 
       // читаем идентификатор старой плавки |номер стана|сторона|
@@ -411,7 +419,8 @@ begin
   except
     on E : Exception do
       begin
-        SaveLog.Log(etError, UTF8Encode(E.ClassName+', с сообщением: '+E.Message));
+        SaveLog.Log(etError, E.ClassName+', с сообщением: '+E.Message);
+        ConfigOracleSetting(false);
         exit;
       end;
   end;
@@ -562,7 +571,16 @@ begin
       OraQuery.FetchAll;
   except
     on E: Exception do
-      SaveLog.Log(etError, E.ClassName + ', с сообщением: '+E.Message);
+    begin
+      SaveLog.Log(etError, E.ClassName+', с сообщением: '+E.Message);
+      ConfigOracleSetting(false);
+      if InSide = 0 then
+         left.marker := 0
+      else
+         right.marker := 0;
+      ReadSaveOldData('save', RollingMill, inttostr(InSide));
+      exit;
+    end;
   end;
 
 {$IFDEF DEBUG }
@@ -830,12 +848,12 @@ begin
       MSQueryCalculation.sql.Add('where t1.timestamp<=datediff(s, ''01/01/1970'', getdate())');
       MSQueryCalculation.sql.Add('and t1.timestamp>=datediff(s, ''01/01/1970'', getdate())-(2629743*10)');// timestamp 2629743 month * 10
       MSQueryCalculation.sql.Add('and t1.heat in ('+HeatAll+')');
-      MSQueryCalculation.sql.Add('and t1.section <= '+Section+'');
+      MSQueryCalculation.sql.Add('and t1.section = '+Section+'');
       MSQueryCalculation.sql.Add('and dbo.translate(t1.strength_class,');
       MSQueryCalculation.sql.Add('''ЕТОРАНКХСВМеторанкхсвм'',''ETOPAHKXCBMetopahkxcbm'')');
       MSQueryCalculation.sql.Add('= dbo.translate('''+StrengthClass+''',');
       MSQueryCalculation.sql.Add('''ЕТОРАНКХСВМеторанкхсвм'',''ETOPAHKXCBMetopahkxcbm'')');
-      MSQueryCalculation.sql.Add('and t1.side='+inttostr(InSide)+'');
+      MSQueryCalculation.sql.Add('and t1.side = '+inttostr(InSide)+'');
 {      if (strtofloat(Section) = 14) or (strtofloat(Section) = 16) or (strtofloat(Section) = 18) then
           MSQueryCalculation.sql.Add('and t2.rolling_scheme = '''+RollingScheme+''''); для 5го стана}
       MSQueryCalculation.Open;

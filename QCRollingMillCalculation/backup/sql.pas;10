@@ -110,6 +110,7 @@ begin
   end
   else
   begin
+      MsSqlSettings.configured := false;
       FreeAndNil(MSDBLibraryLoader);
       FreeAndNil(MSConnection);
       FreeAndNil(MSQuery);
@@ -275,6 +276,11 @@ begin
    begin
      SaveLog.Log(etError, E.ClassName+', с сообщением: '+E.Message);
      ConfigOracleSetting(false);
+        if InSide = 0 then
+           left.marker := 0
+        else
+           right.marker := 0;
+        ReadSaveOldData('save', RollingMill, inttostr(InSide));
      exit;
    end;
   end;
@@ -341,6 +347,7 @@ begin
    begin
      SaveLog.Log(etError, E.ClassName+', с сообщением: '+E.Message);
      ConfigOracleSetting(false);
+     exit;
    end;
   end;
 

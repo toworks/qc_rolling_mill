@@ -23,10 +23,36 @@ BEGIN
     RETURN @TranslaedData                          
      
 END
- 
- 
 
-/* trigger  flarm*/
+
+/* trigger temperature_historical */
+CREATE TRIGGER [dbo].[tr_temperature_historical]
+   ON  [dbo].[temperature_current]
+    AFTER INSERT, UPDATE, DELETE
+AS
+-- declare @side integer
+BEGIN
+    SET NOCOUNT ON;
+--	declare @tid int, @rolling_mill int, @side int, @temperature int
+	
+	if UPDATE(temperature) and ((select temperature from inserted) > 260)
+	begin
+		insert into temperature_historical
+							(tid, rolling_mill, side, section, strength_class, [timestamp], temperature, rolling_scheme)
+				select tid, rolling_mill, side, section, strength_class, datediff(ss, '1970/01/01', GETDATE()), temperature, section from inserted
+	end
+
+	if exists(select tid from deleted) and not exists(select tid from inserted)
+	begin
+		delete temperature_historical from temperature_historical t1 
+		INNER JOIN deleted t2
+		ON t1.tid=t2.tid and t1.rolling_mill=t2.rolling_mill and t1.side=t2.side
+	end
+END
+
+
+
+/* trigger  alarm */
  
 CREATE TRIGGER [dbo].[tr_alarm]
    ON  [dbo].[temperature_current]

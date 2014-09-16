@@ -12,7 +12,7 @@
         <WindowIndex Value="0"/>
         <TopLine Value="1"/>
         <CursorPos X="1" Y="20"/>
-        <UsageCount Value="87"/>
+        <UsageCount Value="88"/>
       </Unit0>
       <Unit1>
         <Filename Value="gui.pas"/>
@@ -21,12 +21,11 @@
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="gui"/>
-        <IsVisibleTab Value="True"/>
         <EditorIndex Value="0"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="82"/>
-        <CursorPos X="52" Y="110"/>
-        <UsageCount Value="87"/>
+        <TopLine Value="83"/>
+        <CursorPos X="7" Y="95"/>
+        <UsageCount Value="88"/>
         <Loaded Value="True"/>
         <LoadedDesigner Value="True"/>
       </Unit1>
@@ -37,7 +36,7 @@
         <WindowIndex Value="0"/>
         <TopLine Value="40"/>
         <CursorPos X="11" Y="43"/>
-        <UsageCount Value="87"/>
+        <UsageCount Value="88"/>
       </Unit2>
       <Unit3>
         <Filename Value="versioninfo.pas"/>
@@ -46,17 +45,18 @@
         <WindowIndex Value="0"/>
         <TopLine Value="1"/>
         <CursorPos X="1" Y="1"/>
-        <UsageCount Value="87"/>
+        <UsageCount Value="88"/>
       </Unit3>
       <Unit4>
         <Filename Value="sql.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="sql"/>
+        <IsVisibleTab Value="True"/>
         <EditorIndex Value="1"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="150"/>
-        <CursorPos X="22" Y="169"/>
-        <UsageCount Value="87"/>
+        <TopLine Value="182"/>
+        <CursorPos X="55" Y="181"/>
+        <UsageCount Value="88"/>
         <Loaded Value="True"/>
       </Unit4>
     </Units>
