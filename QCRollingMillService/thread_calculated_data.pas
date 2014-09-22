@@ -619,6 +619,10 @@ begin
       PQueryCalculation.sql.Add('and t3.c_min <= '+c+' and t3.c_max >= '+c+'');
       PQueryCalculation.sql.Add('and t3.mn_min <= '+mn+' and t3.mn_max >= '+mn+'');
       PQueryCalculation.sql.Add('and t3.si_min <= '+si+' and t3.si_max >= '+si+'');
+      PQueryCalculation.sql.Add('and translate(t3.strength_class,');
+      PQueryCalculation.sql.Add('''ЕТОРАНКХСВМеторанкхсвм'',''ETOPAHKXCBMetopahkxcbm'')');
+      PQueryCalculation.sql.Add('like translate('''+StrengthClass+''',');
+      PQueryCalculation.sql.Add('''ЕТОРАНКХСВМеторанкхсвм'',''ETOPAHKXCBMetopahkxcbm'')');
       PQueryCalculation.sql.Add('inner JOIN');
       PQueryCalculation.sql.Add('temperature_historical t4');
       PQueryCalculation.sql.Add('on t1.tid=t4.tid');
@@ -627,7 +631,7 @@ begin
       PQueryCalculation.sql.Add('and t2.heat in ('+HeatAll+')');
       PQueryCalculation.sql.Add('and translate(t3.strength_class,');
       PQueryCalculation.sql.Add('''ЕТОРАНКХСВМеторанкхсвм'',''ETOPAHKXCBMetopahkxcbm'')');
-      PQueryCalculation.sql.Add('like translate('''+StrengthClass+''',');
+      PQueryCalculation.sql.Add('like translate(t1.strength_class,');
       PQueryCalculation.sql.Add('''ЕТОРАНКХСВМеторанкхсвм'',''ETOPAHKXCBMetopahkxcbm'')');
       PQueryCalculation.sql.Add('and t3.c_min <= t2.c and t3.c_max >= t2.c');// отсекаем с несовпадающей химией
       PQueryCalculation.sql.Add('and t3.mn_min <= t2.mn and t3.mn_max >= t2.mn');
