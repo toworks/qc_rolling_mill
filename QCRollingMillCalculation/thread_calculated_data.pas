@@ -8,7 +8,7 @@ unit thread_calculated_data;
 interface
 
 uses
-  SysUtils, Classes, Variants, Math, ZDataset, Types{, Collections}, sqldb,
+  SysUtils, Classes, Variants, Math, ZDataset, {Types, Collections,} sqldb,
   mssqlconn;
 
 type
@@ -64,6 +64,7 @@ var
 {delphi  function GetMedian(aArray: TDoubleDynArray): Double;}
   procedure bubbleSort(var list: TDoubleArray);
   function Median(aArray: TDoubleArray): double;
+  function abs2(InData: real): real;
 
 implementation
 
@@ -113,6 +114,9 @@ var
   i: integer;
   HeatAllLeft, HeatAllRight: string;
 begin
+  HeatAllLeft := '';
+  HeatAllRight := '';
+
   // side left=0, side right=1
   i := 0;
   for i := 0 to 1 do
@@ -250,9 +254,6 @@ begin
         CalculatedData(0, 'timestamp=DATEDIFF(s, ''1970/01/01'', GETDATE())');
         CarbonEquivalent(HeatAllLeft, 0);
       end;
-{$IFDEF DEBUG}
-  SaveLog.Log(etDebug, 'disable left.marker -> '+inttostr(left.marker));
-{$ENDIF}
       SaveLog.Log(etInfo, 'end calculation left side, heat -> '+left.Heat+#13#10);
     except
       on E: Exception do
@@ -458,11 +459,9 @@ var
   { yield point - предел текучести
     rupture strength - временное сопротивление }
 
-  Grade: string; // марка стали
-  Section: string; // профиль
-  Standard: string; // стандарт
-  StrengthClass: string; // клас прочности
-  ReturnValue: string;
+  main : TIdHeat;
+
+{  ReturnValue: string;}
   side: string;
   RollingScheme: string;
 
@@ -471,50 +470,60 @@ var
 
   i, a, b, CoefficientCount, AdjustmentMin, AdjustmentMax,
   LimitRolledProductsMin, LimitRolledProductsMax, HeatCount: integer;
-  m: boolean;
+{  m: boolean;}
   CoefficientYieldPointValue, CoefficientRuptureStrengthValue, MechanicsAvg,
     MechanicsStdDev, MechanicsMin, MechanicsMax, MechanicsDiff, CoefficientMin,
     CoefficientMax, TempAvg, TempStdDev, TempMin, TempMax, TempDiff, R: real;
-  TypeRolledProducts, HeatAll, HeatWorks, HeatTableAll: WideString;
-  HeatArray, HeatTableArray: Array of string;
+  TypeRolledProducts, HeatAll{, HeatWorks, HeatTableAll}: WideString;
+{  HeatArray, HeatTableArray: Array of string;}
   MechanicsArray, TempArray: Array of Double;
   RawTempArray: TDoubleArray {TDoubleDynArray};
-  st, HeatTmp: TStringList;
-  c, mn, si, HeatMechanics, RollingMill, technological_sample: string;
+{  st, HeatTmp: TStringList;}
+  HeatMechanics: string;
 begin
+
+  HeatMechanics := '';
+  HeatCount := 0;
+  SetLength(MechanicsArray, 0);
+  SetLength(RawTempArray, 0);
+  SetLength(TempArray, 0);
+
+  main := TIdHeat.Create;
+
   if InSide = 0 then
   begin
-    Grade := left.Grade;
-    Section := left.Section;
-    Standard := left.Standard;
-    StrengthClass := left.StrengthClass;
-    c := left.c;
-    mn := left.mn;
-    si := left.si;
+    main.Grade := left.Grade;
+    main.Section := left.Section;
+    main.Standard := left.Standard;
+    main.StrengthClass := left.StrengthClass;
+    main.RollingMill := left.RollingMill;
+    main.technological_sample := left.technological_sample;
+    main.c := left.c;
+    main.mn := left.mn;
+    main.si := left.si;
     side := 'Левая';
     RollingScheme := right.Section; // схема прокатки 14x16, 16x16, 18x16
-    RollingMill := left.RollingMill;
-    technological_sample := inttostr(left.technological_sample);
   end
   else
   begin
-    Grade := right.Grade;
-    Section := right.Section;
-    Standard := right.Standard;
-    StrengthClass := right.StrengthClass;
-    c := right.c;
-    mn := right.mn;
-    si := right.si;
+    main.Grade := right.Grade;
+    main.Section := right.Section;
+    main.Standard := right.Standard;
+    main.StrengthClass := right.StrengthClass;
+    main.c := right.c;
+    main.mn := right.mn;
+    main.si := right.si;
+    main.RollingMill := right.RollingMill;
+    main.technological_sample := right.technological_sample;
     side := 'Правая';
     RollingScheme := left.Section; // схема прокатки 14x16, 16x16, 18x16
-    RollingMill := right.RollingMill;
-    technological_sample := inttostr(right.technological_sample);
   end;
 
   if InHeat = '' then
   begin
     SaveLog.Log(etWarning, 'сторона -> '+side);
     SaveLog.Log(etWarning, 'недостаточно данных по прокатанным плавкам для расчета по плавке -> '+InHeat);
+    FreeAndNil(main);
     exit;
   end;
 
@@ -548,18 +557,18 @@ begin
 //--      OraQuery.SQL.Add('''ETOPAHKXCBMetopahkxcbm'',''ЕТОРАНКХСВМеторанкхсвм'')');
 //--      OraQuery.SQL.Add('and n.GOST like translate('''+CutChar(Standard)+''','); //переводим Eng буквы похожие на кирилицу
 //--      OraQuery.SQL.Add('''ETOPAHKXCBMetopahkxcbm'',''ЕТОРАНКХСВМеторанкхсвм'')');
-      OraQuery.SQL.Add('and n.razm1 = '+Section+'');
+      OraQuery.SQL.Add('and n.razm1 = '+main.Section+'');
       OraQuery.SQL.Add('and translate(n.klass,');
       OraQuery.SQL.Add('''ЕТОРАНКХСВМеторанкхсвм'',''ETOPAHKXCBMetopahkxcbm'')');
-      OraQuery.SQL.Add('like translate('''+CutChar(StrengthClass)+''',');
+      OraQuery.SQL.Add('like translate('''+CutChar(main.StrengthClass)+''',');
       OraQuery.SQL.Add('''ЕТОРАНКХСВМеторанкхсвм'',''ETOPAHKXCBMetopahkxcbm'')');
       OraQuery.SQL.Add('and n.data=v.data and v.npart=n.npart');
-      OraQuery.SQL.Add('and n.npart like '''+RollingMill+'%'''); // номер стана
+      OraQuery.SQL.Add('and n.npart like '''+main.RollingMill+'%'''); // номер стана
       if InSide = 0  then
         OraQuery.SQL.Add('and mod(n.npart,2)=1')// проверка на четность | 0 четная - левая | 1 - нечетная правая
       else
         OraQuery.SQL.Add('and mod(n.npart,2)=0');// проверка на четность | 0 четная - левая | 1 - нечетная правая
-      if (StrengthClass = 'S400') or (StrengthClass = 'S400W') then // классы при которых берется до 15 проб
+      if (main.StrengthClass = 'S400') or (main.StrengthClass = 'S400W') then // классы при которых берется до 15 проб
         OraQuery.SQL.Add('and nvl(n.npach,0)=nvl(v.npach,0) and NI<=15')
       else
         OraQuery.SQL.Add('and nvl(n.npach,0)=nvl(v.npach,0) and NI<=3');
@@ -578,7 +587,8 @@ begin
          left.marker := 0
       else
          right.marker := 0;
-      ReadSaveOldData('save', RollingMill, inttostr(InSide));
+      ReadSaveOldData('save', main.RollingMill, inttostr(InSide));
+      FreeAndNil(main);
       exit;
     end;
   end;
@@ -592,6 +602,7 @@ begin
   begin
     SaveLog.Log(etWarning, 'сторона -> '+side);
     SaveLog.Log(etWarning, 'недостаточно данных для расчета по плавкам -> '+HeatAll);
+    FreeAndNil(main);
     exit;
   end;
 
@@ -645,7 +656,7 @@ begin
   try
       SQuery.Close;
       SQuery.sql.Clear;
-      SQuery.sql.Add('delete from mechanics where rolling_mill='+RollingMill+'');
+      SQuery.sql.Add('delete from mechanics where rolling_mill='+main.RollingMill+'');
       SQuery.sql.Add('and side='+inttostr(InSide)+'');
       SQuery.ExecSQL;
   except
@@ -658,14 +669,14 @@ begin
   begin
     if i <= CoefficientCount then
     begin
-        if (OraQuery.FieldByName('heat').AsString <> HeatMechanics) or
+{        if (OraQuery.FieldByName('heat').AsString <> HeatMechanics) or
            (HeatCount <= 3) then
         begin
           if HeatCount = 4 then
             HeatCount := 0;
 
           HeatMechanics := OraQuery.FieldByName('heat').AsString;
-          inc(HeatCount);
+          inc(HeatCount);} // для отбора только 3х проб (но это реализовано в запросе)
 
           try
               SQuery.Close;
@@ -681,14 +692,14 @@ begin
               SQuery.sql.Add(', '''+OraQuery.FieldByName('strength_class').AsString+'''');
               SQuery.sql.Add(', '''+OraQuery.FieldByName('yield_point').AsString+'''');
               SQuery.sql.Add(', '''+OraQuery.FieldByName('rupture_strength').AsString+'''');
-              SQuery.sql.Add(', '''+RollingMill+'''');
+              SQuery.sql.Add(', '''+main.RollingMill+'''');
               SQuery.sql.Add(', '''+inttostr(InSide)+''')');
               SQuery.ExecSQL;
           except
             on E: Exception do
               SaveLog.Log(etError, E.ClassName + ', с сообщением: '+E.Message);
           end;
-        end;
+        //end;
     end;
     inc(i);
     OraQuery.Next;
@@ -699,10 +710,10 @@ begin
       SQuery.Close;
       SQuery.sql.Clear;
       SQuery.sql.Add('select distinct heat from mechanics');
-      SQuery.sql.Add('where rolling_mill = '+RollingMill+'');
+      SQuery.sql.Add('where rolling_mill = '+main.RollingMill+'');
       SQuery.sql.Add('and side = '+inttostr(InSide)+'');
-      SQuery.sql.Add('and section = '+Section+'');
-      SQuery.sql.Add('and strength_class = '''+StrengthClass+'''');
+      SQuery.sql.Add('and section = '+main.Section+'');
+      SQuery.sql.Add('and strength_class = '''+main.StrengthClass+'''');
       SQuery.Open;
   except
     on E: Exception do
@@ -736,7 +747,7 @@ begin
       MSQueryData.sql.Clear;
       MSQueryData.sql.Add('SELECT limit_min, limit_max, [type]');
       MSQueryData.sql.Add('FROM technological_sample');
-      MSQueryData.sql.Add('where id = '+technological_sample+'');
+      MSQueryData.sql.Add('where id = '+inttostr(main.technological_sample)+'');
 {$IFDEF DEBUG }
   SaveLog.Log(etDebug, UTF8Decode('MSQueryData.SQL.Text -> '+MSQueryData.SQL.Text));
 {$ENDIF}
@@ -754,6 +765,7 @@ begin
   begin
     SaveLog.Log(etWarning, 'сторона -> '+side);
     SaveLog.Log(etWarning, 'недостаточно данных по технологической инструкции для -> '+InHeat);
+    FreeAndNil(main);
     exit;
   end;
 
@@ -789,6 +801,7 @@ begin
   begin
     SaveLog.Log(etWarning, 'сторона -> '+side);
     SaveLog.Log(etWarning, 'недостаточно данных по мех. испытаниям для расчета по плавкам -> '+HeatAll);
+    FreeAndNil(main);
     exit;
   end;
 
@@ -839,7 +852,7 @@ begin
   SaveLog.Log(etDebug, 'MechanicsDiff -> ' + floattostr(MechanicsDiff));
   SaveLog.Log(etDebug, 'CoefficientMin -> ' + floattostr(CoefficientMin));
   SaveLog.Log(etDebug, 'CoefficientMax -> ' + floattostr(CoefficientMax));
-  SaveLog.Log(etDebug, 'Section -> ' + Section);
+  SaveLog.Log(etDebug, 'Section -> ' + main.Section);
   SaveLog.Log(etDebug, 'RollingScheme -> ' + RollingScheme);
 {$ENDIF}
 
@@ -864,10 +877,10 @@ begin
       MSQueryCalculation.sql.Add('where t1.timestamp<=datediff(s, ''01/01/1970'', getdate())');
       MSQueryCalculation.sql.Add('and t1.timestamp>=datediff(s, ''01/01/1970'', getdate())-(2629743*10)');// timestamp 2629743 month * 10
       MSQueryCalculation.sql.Add('and t1.heat in ('+HeatAll+')');
-      MSQueryCalculation.sql.Add('and t1.section = '+Section+'');
+      MSQueryCalculation.sql.Add('and t1.section = '+main.Section+'');
       MSQueryCalculation.sql.Add('and dbo.translate(t1.strength_class,');
       MSQueryCalculation.sql.Add('''ЕТОРАНКХСВМеторанкхсвм'',''ETOPAHKXCBMetopahkxcbm'')');
-      MSQueryCalculation.sql.Add('= dbo.translate('''+StrengthClass+''',');
+      MSQueryCalculation.sql.Add('= dbo.translate('''+main.StrengthClass+''',');
       MSQueryCalculation.sql.Add('''ЕТОРАНКХСВМеторанкхсвм'',''ETOPAHKXCBMetopahkxcbm'')');
       MSQueryCalculation.sql.Add('and t1.side = '+inttostr(InSide)+'');
 {      if (strtofloat(Section) = 14) or (strtofloat(Section) = 16) or (strtofloat(Section) = 18) then
@@ -887,6 +900,7 @@ begin
   begin
     SaveLog.Log(etWarning, 'сторона -> '+side);
     SaveLog.Log(etWarning, 'недостаточно данных по температуре для расчета по плавкам -> '+HeatAll);
+    FreeAndNil(main);
     exit;
   end;
 
@@ -980,6 +994,7 @@ begin
 {$ENDIF}
       inc(left.step); // маркер 2го прохода
       // возвращаем плавки по которым произволдился расчет
+      FreeAndNil(main);
       Result := HeatAll;
       exit;
     end;
@@ -999,6 +1014,7 @@ begin
 {$ENDIF}
 //      left.step := 0; // сброс этапа перенесен в начало
       // возвращаем плавки по которым произволдился расчет
+      FreeAndNil(main);
       Result := HeatAll;
       exit;
     end;
@@ -1019,6 +1035,7 @@ begin
 {$ENDIF}
       inc(right.step); // маркер 2го прохода
       // возвращаем плавки по которым произволдился расчет
+      FreeAndNil(main);
       Result := HeatAll;
       exit;
     end;
@@ -1038,6 +1055,7 @@ begin
 {$ENDIF}
 //      right.step := 0; // сброс этапа перенесен в начало
       // возвращаем плавки по которым произволдился расчет
+      FreeAndNil(main);
       Result := HeatAll;
       exit;
     end;
@@ -1049,7 +1067,7 @@ var
   CeMin, CeMax, CeAvg, CeMinP, CeMaxM, CeAvgP, CeAvgM, rangeMin: real;
   i, a, b, c, rangeM: integer;
   CeArray: TArrayArrayVariant; // array of array of variant;
-  CeMinHeat, CeHeatStringMin, CeHeatStringMax, CeHeatStringAvg: string;
+  CeHeatStringMin, CeHeatStringMax, CeHeatStringAvg: string;
   range: array of variant;
 begin
 
@@ -1134,13 +1152,16 @@ begin
 
 {$IFDEF DEBUG}
   SaveLog.Log(etDebug, 'CeInHeat -> ' + InHeat);
+  SaveLog.Log(etDebug, 'CeHeatStringMin -> ' + CeHeatStringMin);
+  SaveLog.Log(etDebug, 'CeHeatStringMax -> ' + CeHeatStringMax);
+  SaveLog.Log(etDebug, 'CeHeatStringAvg -> ' + CeHeatStringAvg);
   SaveLog.Log(etDebug, 'CeMin -> ' + floattostr(CeMin));
-  SaveLog.Log(etDebug, 'CeMax -> ' + floattostr(CeMax));
-  SaveLog.Log(etDebug, 'CeAvg -> ' + floattostr(CeAvg));
   SaveLog.Log(etDebug, 'CeMinP -> ' + floattostr(CeMinP));
   SaveLog.Log(etDebug, 'CeMaxM -> ' + floattostr(CeMaxM));
-  SaveLog.Log(etDebug, 'CeAvgP -> ' + floattostr(CeAvgP));
+  SaveLog.Log(etDebug, 'CeMax -> ' + floattostr(CeMax));
+  SaveLog.Log(etDebug, 'CeAvg -> ' + floattostr(CeAvg));
   SaveLog.Log(etDebug, 'CeAvgM -> ' + floattostr(CeAvgM));
+  SaveLog.Log(etDebug, 'CeAvgP -> ' + floattostr(CeAvgP));
 {$ENDIF}
 
   SetLength(CeArray, 0); // обнуляем массив
@@ -1160,7 +1181,7 @@ begin
   begin
     // -- Се по текущей плавке
     CeArray[0, 0] := right.Heat;
-    CeArray[0, 1] := right.ce;
+    CeArray[0, 1] := strtofloat(right.ce);
 {$IFDEF DEBUG}
   SaveLog.Log(etDebug, 'Currentright.Heat -> ' + CeArray[0, 0]);
   SaveLog.Log(etDebug, 'CurrentCeRight -> ' + floattostr(CeArray[0, 1]));
@@ -1169,97 +1190,63 @@ begin
 
   // -- текущая плавка к какому из диапозонов относится min,max,avg
   if InRange(CeArray[0, 1], CeMin, CeMinP) and (CeHeatStringMin <> '') then
+//  if (CeArray[0, 1] >= CeMin) and (CeArray[0, 1] <= CeMinP) and (CeHeatStringMin <> '') then
   begin
 {$IFDEF DEBUG}
   SaveLog.Log(etDebug, 'CurrentCeMinRange -> ' + CeArray[0, 0]);
   SaveLog.Log(etDebug, 'CurrentCeMinRangeValue -> '+floattostr(CeArray[0, 1]));
 {$ENDIF}
-//-- расчет осуществляется на ближаешем значение от min
-{    // -- report
-    CalculatedData(InSide, 'ce_category=''min''');
-    // -- report
-    if InSide = 0 then
-    begin
-{$IFDEF DEBUG}
-  SaveLog('debug' + #9#9 + 'CeMinRangeleft.Heat -> ' + CeHeatStringMin);
-{$ENDIF}
-        CalculatingInMechanicalCharacteristics(CeHeatStringMin, 0);
-    end
-    else
-    begin
-{$IFDEF DEBUG}
-  SaveLog('debug' + #9#9 + 'CeMinRangeright.Heat -> ' + CeHeatStringMin);
-{$ENDIF}
-        CalculatingInMechanicalCharacteristics(CeHeatStringMin, 1);
-    end;}
-//-- расчет осуществляется на ближаешем значение от min
   end;
 
   if InRange(CeArray[0, 1], CeMaxM, CeMax) and (CeHeatStringMax <> '') then
+//  if (CeArray[0, 1] >= CeMaxM) and ( CeArray[0, 1] <= CeMax) and (CeHeatStringMax <> '') then
   begin
 {$IFDEF DEBUG}
   SaveLog.Log(etDebug, 'CurrentCeMaxRange -> ' + CeArray[0, 0]);
   SaveLog.Log(etDebug, 'CurrentCeMaxRangeValue -> '+floattostr(CeArray[0, 1]));
 {$ENDIF}
-//-- расчет осуществляется на ближаешем значение от max
-{    // -- report
-    CalculatedData(InSide, 'ce_category=''max''');
-    // -- report
-    if InSide = 0 then
-    begin
-{$IFDEF DEBUG}
-  SaveLog('debug' + #9#9 + 'CeMaxRangeleft.Heat -> ' + CeHeatStringMax);
-{$ENDIF}
-        CalculatingInMechanicalCharacteristics(CeHeatStringMax, 0);
-    end
-    else
-    begin
-{$IFDEF DEBUG}
-  SaveLog('debug' + #9#9 + 'CeMaxRangeright.Heat -> ' + CeHeatStringMax);
-{$ENDIF}
-        CalculatingInMechanicalCharacteristics(CeHeatStringMax, 1);
-    end;}
-//-- расчет осуществляется на ближаешем значение от max
   end;
 
   if InRange(CeArray[0, 1], CeAvgM, CeAvgP) and (CeHeatStringAvg <> '') then
+//  if (CeArray[0, 1] >= CeAvgM) and (CeArray[0, 1] <= CeAvgP) and (CeHeatStringAvg <> '') then
   begin
 {$IFDEF DEBUG}
   SaveLog.Log(etDebug, 'CurrentCeAvgRange -> ' + CeArray[0, 0]);
   SaveLog.Log(etDebug, 'CurrentCeAvgRangeValue -> '+floattostr(CeArray[0, 1]));
 {$ENDIF}
-//-- расчет осуществляется на ближаешем значение от avg
-{    // -- report
-    CalculatedData(InSide, 'ce_category=''avg''');
-    // -- report
-    if InSide = 0 then
-    begin
-{$IFDEF DEBUG}
-  SaveLog('debug' + #9#9 + 'CeAvgRangeleft.Heat -> ' + CeHeatStringAvg);
-{$ENDIF}
-        CalculatingInMechanicalCharacteristics(CeHeatStringAvg, 0);
-    end
-    else
-    begin
-{$IFDEF DEBUG}
-  SaveLog('debug' + #9#9 + 'CeAvgRangeright.Heat -> ' + CeHeatStringAvg);
-{$ENDIF}
-        CalculatingInMechanicalCharacteristics(CeHeatStringAvg, 1);
-    end;}
-//-- расчет осуществляется на ближаешем значение от avg
   end;
 
   SetLength(range, 3);
   //получаем минимальную разницу
+ {I think the problem when convert Currency to Real in Abs function.
+ /* i know it is Pascal problem not lazarus */
   range[0] := ABS(CeMin - CeArray[0, 1]);
   range[1] := ABS(CeMax - CeArray[0, 1]);
-  range[2] := ABS(CeAvg - CeArray[0, 1]);
+  range[2] := ABS(CeAvg - CeArray[0, 1]);}
+
+  range[0] := abs2(CeMin - CeArray[0, 1]);
+  range[1] := abs2(CeMax - CeArray[0, 1]);
+  range[2] := abs2(CeAvg - CeArray[0, 1]);
 
   rangeMin := range[0];
 
+{$IFDEF DEBUG}
+  SaveLog.Log(etDebug, 'CeMin -> ' + floattostr(CeMin));
+  SaveLog.Log(etDebug, 'CeArray[0, 1]) -> ' + floattostr(CeArray[0, 1]));
+  SaveLog.Log(etDebug, 'abs2(CeMin - CeArray[0, 1]) -> ' + floattostr(abs2(CeMin - CeArray[0, 1])));
+  SaveLog.Log(etDebug, 'abs2(CeMax - CeArray[0, 1]) -> ' + floattostr(abs2(CeMax - CeArray[0, 1])));
+  SaveLog.Log(etDebug, 'abs2(CeAvg - CeArray[0, 1]) -> ' + floattostr(abs2(CeAvg - CeArray[0, 1])));
+  SaveLog.Log(etDebug, 'ABS(CeMin - CeArray[0, 1]) -> ' + floattostr(ABS(CeMin - CeArray[0, 1])));
+  SaveLog.Log(etDebug, 'ABS(CeMax - CeArray[0, 1]) -> ' + floattostr(ABS(CeMax - CeArray[0, 1])));
+  SaveLog.Log(etDebug, 'ABS(CeAvg - CeArray[0, 1]) -> ' + floattostr(ABS(CeAvg - CeArray[0, 1])));
+{$ENDIF}
+
+{$IFDEF DEBUG}
   for i := low(range) To high(range) Do
     if range[i] < rangeMin then
       rangeMin := range[i];  // к какому из пределов ближе
+    SaveLog.Log(etDebug, 'rangeMin -> ' + floattostr(rangeMin));
+{$ENDIF}
 
   for i := low(range) To high(range) Do
   begin
@@ -1376,6 +1363,8 @@ var
   digits: string;
   i: integer;
 begin
+  digits := '';
+
   for i := 1 to length(InData) do
   begin
     if not(InData[i] in ['0' .. '9']) then
@@ -1428,6 +1417,15 @@ begin
     Result := aArray[lMiddleIndex + 1]
   else
     Result := (aArray[lMiddleIndex + 1] + aArray[lMiddleIndex]) / 2;
+end;
+
+
+function abs2(InData: real): real;
+begin
+     if InData < 0 then
+        Result := InData*-1
+     else
+        Result := InData;
 end;
 
 

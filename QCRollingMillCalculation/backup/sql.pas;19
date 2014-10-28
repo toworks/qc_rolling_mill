@@ -110,6 +110,7 @@ begin
   end
   else
   begin
+      MsSqlSettings.configured := false;
       FreeAndNil(MSDBLibraryLoader);
       FreeAndNil(MSConnection);
       FreeAndNil(MSQuery);
@@ -122,17 +123,24 @@ function RolledMelting(InSide: integer): string;
 var
   i: integer;
   // -- Side - 1 правая - не четная, 2 левая - четная, сторона | мс5 0 лева 1 правая
-  Grade: string; // марка стали
-  Section: string; // профиль
-  Standard: string; // стандарт
-  StrengthClass: string; // клас прочности
-  c, mn, si: string;
-  RollingMill: string;
+  main : TIdHeat;
   heats: string;
   ReturnValue: string;
   MSQueryCalculation: TSQLQuery;
   c_min, c_max, mn_min, mn_max, si_min, si_max: real;
 begin
+  main := TIdHeat.Create;
+  {$IFDEF DEBUG}
+    SaveLog.Log(etDebug, 'empty main.Grade -> '+main.Grade);
+    SaveLog.Log(etDebug, 'empty main.Section -> '+main.Section);
+    SaveLog.Log(etDebug, 'empty main.Standard -> '+main.Standard);
+    SaveLog.Log(etDebug, 'empty main.StrengthClass -> '+main.StrengthClass);
+    SaveLog.Log(etDebug, 'empty main.RollingMill -> '+main.RollingMill);
+    SaveLog.Log(etDebug, 'empty main.c -> '+main.c);
+    SaveLog.Log(etDebug, 'empty main.mn    -> '+main.mn);
+    SaveLog.Log(etDebug, 'empty main.si -> '+main.si);
+  {$ENDIF}
+
   MSQueryCalculation := TSQLQuery.Create(nil);
   MSQueryCalculation.DataBase := MSConnection;
   MSQueryCalculation.Transaction := MSTransaction;
@@ -140,25 +148,25 @@ begin
 
   if InSide = 0 then
   begin
-    Grade := left.Grade;
-    Section := left.Section;
-    Standard := left.Standard;
-    StrengthClass := left.StrengthClass;
-    RollingMill := left.RollingMill;
-    c :=  left.c;
-    mn := left.mn;
-    si := left.si;
+    main.Grade := left.Grade;
+    main.Section := left.Section;
+    main.Standard := left.Standard;
+    main.StrengthClass := left.StrengthClass;
+    main.RollingMill := left.RollingMill;
+    main.c :=  left.c;
+    main.mn := left.mn;
+    main.si := left.si;
   end
   else
   begin
-    Grade := right.Grade;
-    Section := right.Section;
-    Standard := right.Standard;
-    StrengthClass := right.StrengthClass;
-    RollingMill := right.RollingMill;
-    c := right.c;
-    mn := right.mn;
-    si := right.si;
+    main.Grade := right.Grade;
+    main.Section := right.Section;
+    main.Standard := right.Standard;
+    main.StrengthClass := right.StrengthClass;
+    main.RollingMill := right.RollingMill;
+    main.c := right.c;
+    main.mn := right.mn;
+    main.si := right.si;
   end;
 
   try
@@ -170,13 +178,13 @@ begin
      MSQueryCalculation.sql.Add('select * FROM technological_sample');
      MSQueryCalculation.sql.Add('where dbo.translate(strength_class, ');
      MSQueryCalculation.sql.Add('''ЕТОРАНКХСВМеторанкхсвм'',''ETOPAHKXCBMetopahkxcbm'')');
-     MSQueryCalculation.sql.Add('= dbo.translate('''+StrengthClass+''', ');
+     MSQueryCalculation.sql.Add('= dbo.translate('''+main.StrengthClass+''', ');
      MSQueryCalculation.sql.Add('''ЕТОРАНКХСВМеторанкхсвм'',''ETOPAHKXCBMetopahkxcbm'')');
-     MSQueryCalculation.sql.Add('and section_min <= '+Section+' and section_max >= '+Section+'');
-     MSQueryCalculation.sql.Add('and c_min <= '+c+' and c_max >= '+c+'');
-     MSQueryCalculation.sql.Add('and mn_min <= '+mn+' and mn_max >= '+mn+'');
-     MSQueryCalculation.sql.Add('and si_min <= '+si+' and si_max >= '+si+'');
-     MSQueryCalculation.sql.Add('and rolling_mill='+RollingMill+'');
+     MSQueryCalculation.sql.Add('and section_min <= '+main.Section+' and section_max >= '+main.Section+'');
+     MSQueryCalculation.sql.Add('and c_min <= '+main.c+' and c_max >= '+main.c+'');
+     MSQueryCalculation.sql.Add('and mn_min <= '+main.mn+' and mn_max >= '+main.mn+'');
+     MSQueryCalculation.sql.Add('and si_min <= '+main.si+' and si_max >= '+main.si+'');
+     MSQueryCalculation.sql.Add('and rolling_mill='+main.RollingMill+'');
      MSQueryCalculation.Open;
   except
    on E: Exception do
@@ -218,14 +226,17 @@ begin
      MSConnection.Connected := true;
      MSQueryCalculation.Close;
      MSQueryCalculation.sql.Clear;
-     MSQueryCalculation.sql.Add('select * FROM temperature_current');
+{     MSQueryCalculation.sql.Add('select * FROM temperature_current');}
+     { OCI_ERROR: ORA-01795: maximum number of expressions IN a list is 1000 }
+     MSQueryCalculation.sql.Add('select top 1000 * FROM temperature_current');
      MSQueryCalculation.sql.Add('where dbo.translate(strength_class, ');
      MSQueryCalculation.sql.Add('''ЕТОРАНКХСВМеторанкхсвм'',''ETOPAHKXCBMetopahkxcbm'')');
-     MSQueryCalculation.sql.Add('= dbo.translate('''+StrengthClass+''', ');
+     MSQueryCalculation.sql.Add('= dbo.translate('''+main.StrengthClass+''', ');
      MSQueryCalculation.sql.Add('''ЕТОРАНКХСВМеторанкхсвм'',''ETOPAHKXCBMetopahkxcbm'')');
-     MSQueryCalculation.sql.Add('and section = '+Section+'');
+     MSQueryCalculation.sql.Add('and section = '+main.Section+'');
      MSQueryCalculation.sql.Add('and side = '+inttostr(InSide)+'');
-     MSQueryCalculation.sql.Add('and rolling_mill='+RollingMill+'');
+     MSQueryCalculation.sql.Add('and rolling_mill = '+main.RollingMill+'');
+     MSQueryCalculation.sql.Add('order by timestamp desc');
      MSQueryCalculation.Open;
   except
    on E: Exception do
@@ -258,11 +269,6 @@ begin
   SaveLog.Log(etDebug, 'count -> '+inttostr(i));
 {$ENDIF}
 
-  if not OraConnect.Connected then begin
-     ConfigOracleSetting(false);
-     ConfigOracleSetting(true);
-  end;
-
   try
      OraQuery.Close;
      OraQuery.SQL.Clear;
@@ -277,7 +283,16 @@ begin
      OraQuery.FetchAll;
   except
    on E: Exception do
+   begin
      SaveLog.Log(etError, E.ClassName+', с сообщением: '+E.Message);
+     ConfigOracleSetting(false);
+        if InSide = 0 then
+           left.marker := 0
+        else
+           right.marker := 0;
+        ReadSaveOldData('save', main.RollingMill, inttostr(InSide));
+     exit;
+   end;
   end;
 
   i := 0;
@@ -325,11 +340,6 @@ var
   i: integer;
   HeatCeArray: TArrayArrayVariant;
 begin
-   if not OraConnect.Connected then begin
-      ConfigOracleSetting(false);
-      ConfigOracleSetting(true);
-   end;
-
   try
      OraQuery.Close;
      OraQuery.SQL.Clear;
@@ -344,7 +354,11 @@ begin
      OraQuery.FetchAll;
   except
    on E: Exception do
+   begin
      SaveLog.Log(etError, E.ClassName+', с сообщением: '+E.Message);
+     ConfigOracleSetting(false);
+     exit;
+   end;
   end;
 
 {{  PQueryCe.Close;

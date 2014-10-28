@@ -4,11 +4,11 @@
     <PathDelim Value="\"/>
     <Version Value="9"/>
     <BuildModes Active="Release"/>
-    <Units Count="10">
+    <Units Count="9">
       <Unit0>
         <Filename Value="QCRollingMillCalculation.lpr"/>
         <IsPartOfProject Value="True"/>
-        <UnitName Value="QCRollingMillCalculation"/>
+        <UnitName Value="QCReadExternalSql"/>
         <UsageCount Value="252"/>
       </Unit0>
       <Unit1>
@@ -55,8 +55,8 @@
         <UnitName Value="sql"/>
         <EditorIndex Value="1"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="146"/>
-        <CursorPos X="50" Y="180"/>
+        <TopLine Value="241"/>
+        <CursorPos X="71" Y="241"/>
         <UsageCount Value="206"/>
         <Loaded Value="True"/>
       </Unit5>
@@ -67,8 +67,8 @@
         <IsVisibleTab Value="True"/>
         <EditorIndex Value="0"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="539"/>
-        <CursorPos X="21" Y="686"/>
+        <TopLine Value="1210"/>
+        <CursorPos X="49" Y="1238"/>
         <UsageCount Value="209"/>
         <Loaded Value="True"/>
       </Unit6>
@@ -78,7 +78,7 @@
         <WindowIndex Value="0"/>
         <TopLine Value="157"/>
         <CursorPos X="8" Y="182"/>
-        <UsageCount Value="176"/>
+        <UsageCount Value="138"/>
       </Unit7>
       <Unit8>
         <Filename Value="QCRollingMillCalculation.pas"/>
@@ -86,48 +86,133 @@
         <WindowIndex Value="0"/>
         <TopLine Value="1"/>
         <CursorPos X="39" Y="7"/>
-        <UsageCount Value="152"/>
+        <UsageCount Value="114"/>
       </Unit8>
-      <Unit9>
-        <Filename Value="..\reports_new\gui.lfm"/>
-        <ComponentName Value="Form1"/>
-        <HasResources Value="True"/>
-        <ResourceBaseClass Value="Form"/>
-        <WindowIndex Value="0"/>
-        <TopLine Value="1"/>
-        <CursorPos X="1" Y="1"/>
-        <UsageCount Value="5"/>
-        <DefaultSyntaxHighlighter Value="LFM"/>
-      </Unit9>
     </Units>
     <General>
       <ActiveWindowIndexAtStart Value="0"/>
     </General>
-    <JumpHistory Count="6" HistoryIndex="5">
+    <JumpHistory Count="30" HistoryIndex="29">
       <Position1>
-        <Filename Value="sql.pas"/>
-        <Caret Line="9" Column="50" TopLine="1"/>
+        <Filename Value="thread_calculated_data.pas"/>
+        <Caret Line="291" Column="10" TopLine="274"/>
       </Position1>
       <Position2>
         <Filename Value="thread_calculated_data.pas"/>
-        <Caret Line="841" Column="61" TopLine="394"/>
+        <Caret Line="472" Column="16" TopLine="458"/>
       </Position2>
       <Position3>
         <Filename Value="thread_calculated_data.pas"/>
-        <Caret Line="731" Column="53" TopLine="706"/>
+        <Caret Line="476" Column="57" TopLine="459"/>
       </Position3>
       <Position4>
-        <Filename Value="sql.pas"/>
-        <Caret Line="322" Column="42" TopLine="315"/>
+        <Filename Value="thread_calculated_data.pas"/>
+        <Caret Line="480" Column="30" TopLine="459"/>
       </Position4>
       <Position5>
-        <Filename Value="sql.pas"/>
-        <Caret Line="171" Column="68" TopLine="154"/>
+        <Filename Value="thread_calculated_data.pas"/>
+        <Caret Line="1373" Column="31" TopLine="1266"/>
       </Position5>
       <Position6>
         <Filename Value="thread_calculated_data.pas"/>
-        <Caret Line="731" Column="53" TopLine="706"/>
+        <Caret Line="1069" Column="15" TopLine="1051"/>
       </Position6>
+      <Position7>
+        <Filename Value="thread_calculated_data.pas"/>
+        <Caret Line="1397" Column="1" TopLine="1381"/>
+      </Position7>
+      <Position8>
+        <Filename Value="thread_calculated_data.pas"/>
+        <Caret Line="11" Column="67" TopLine="1"/>
+      </Position8>
+      <Position9>
+        <Filename Value="thread_calculated_data.pas"/>
+        <Caret Line="1069" Column="13" TopLine="1056"/>
+      </Position9>
+      <Position10>
+        <Filename Value="thread_calculated_data.pas"/>
+        <Caret Line="117" Column="1" TopLine="88"/>
+      </Position10>
+      <Position11>
+        <Filename Value="thread_calculated_data.pas"/>
+        <Caret Line="116" Column="15" TopLine="90"/>
+      </Position11>
+      <Position12>
+        <Filename Value="thread_calculated_data.pas"/>
+        <Caret Line="117" Column="3" TopLine="90"/>
+      </Position12>
+      <Position13>
+        <Filename Value="thread_calculated_data.pas"/>
+        <Caret Line="270" Column="34" TopLine="255"/>
+      </Position13>
+      <Position14>
+        <Filename Value="thread_calculated_data.pas"/>
+        <Caret Line="116" Column="18" TopLine="99"/>
+      </Position14>
+      <Position15>
+        <Filename Value="thread_calculated_data.pas"/>
+        <Caret Line="117" Column="19" TopLine="99"/>
+      </Position15>
+      <Position16>
+        <Filename Value="thread_calculated_data.pas"/>
+        <Caret Line="288" Column="10" TopLine="261"/>
+      </Position16>
+      <Position17>
+        <Filename Value="thread_calculated_data.pas"/>
+        <Caret Line="681" Column="1" TopLine="664"/>
+      </Position17>
+      <Position18>
+        <Filename Value="thread_calculated_data.pas"/>
+        <Caret Line="283" Column="11" TopLine="257"/>
+      </Position18>
+      <Position19>
+        <Filename Value="thread_calculated_data.pas"/>
+        <Caret Line="1056" Column="45" TopLine="1287"/>
+      </Position19>
+      <Position20>
+        <Filename Value="thread_calculated_data.pas"/>
+        <Caret Line="282" Column="25" TopLine="268"/>
+      </Position20>
+      <Position21>
+        <Filename Value="thread_calculated_data.pas"/>
+        <Caret Line="61" Column="28" TopLine="43"/>
+      </Position21>
+      <Position22>
+        <Filename Value="thread_calculated_data.pas"/>
+        <Caret Line="254" Column="25" TopLine="226"/>
+      </Position22>
+      <Position23>
+        <Filename Value="thread_calculated_data.pas"/>
+        <Caret Line="282" Column="25" TopLine="254"/>
+      </Position23>
+      <Position24>
+        <Filename Value="thread_calculated_data.pas"/>
+        <Caret Line="1319" Column="49" TopLine="1291"/>
+      </Position24>
+      <Position25>
+        <Filename Value="thread_calculated_data.pas"/>
+        <Caret Line="60" Column="50" TopLine="42"/>
+      </Position25>
+      <Position26>
+        <Filename Value="thread_calculated_data.pas"/>
+        <Caret Line="249" Column="60" TopLine="221"/>
+      </Position26>
+      <Position27>
+        <Filename Value="thread_calculated_data.pas"/>
+        <Caret Line="277" Column="61" TopLine="249"/>
+      </Position27>
+      <Position28>
+        <Filename Value="thread_calculated_data.pas"/>
+        <Caret Line="459" Column="48" TopLine="682"/>
+      </Position28>
+      <Position29>
+        <Filename Value="thread_calculated_data.pas"/>
+        <Caret Line="1056" Column="69" TopLine="1032"/>
+      </Position29>
+      <Position30>
+        <Filename Value="thread_calculated_data.pas"/>
+        <Caret Line="271" Column="17" TopLine="340"/>
+      </Position30>
     </JumpHistory>
   </ProjectSession>
   <EditorMacros Count="0"/>
