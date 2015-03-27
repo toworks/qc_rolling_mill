@@ -400,7 +400,6 @@ end;
 function CalculatedData(InSide: integer; InData: string): boolean;
 var
   MSQueryCalculatedData: TSQLQuery;
-  tid, heat, step, rolling_mill: string;
   main : TIdHeat;
 begin
   main := TIdHeat.Create;
@@ -412,15 +411,15 @@ begin
 
   if InSide = 0 then
   begin
-    heat := left.Heat;
-    step := inttostr(left.step);
-    rolling_mill := left.RollingMill;
+    main.Heat := left.Heat;
+    main.step := left.step;
+    main.RollingMill := left.RollingMill;
   end
   else
   begin
-    heat := right.Heat;
-    step := inttostr(right.step);
-    rolling_mill := right.RollingMill;
+    main.Heat := right.Heat;
+    main.step := right.step;
+    main.rolling_mill := right.RollingMill;
   end;
 
   MSDBLibraryLoader.Enabled := true;
@@ -437,7 +436,7 @@ begin
 {$ENDIF}}
   MSQueryCalculatedData.Open;
 
-  tid := MSQueryCalculatedData.FieldByName('tid').AsString;
+  main.tid := MSQueryCalculatedData.FieldByName('tid').AsString;
 
   // delete report recalculated
   if InData = '' then
@@ -447,7 +446,7 @@ begin
     MSQueryCalculatedData.Close;
     MSQueryCalculatedData.sql.Clear;
     MSQueryCalculatedData.sql.Add('DELETE FROM calculated_data');
-    MSQueryCalculatedData.sql.Add('where cid='+tid+'');
+    MSQueryCalculatedData.sql.Add('where cid='+main.tid+'');
     MSQueryCalculatedData.sql.Add('and rolling_mill='+rolling_mill+'');
     MSQueryCalculatedData.sql.Add('and side='+inttostr(InSide)+'');
 {{$IFDEF DEBUG}

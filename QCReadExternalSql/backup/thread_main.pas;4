@@ -126,7 +126,7 @@ begin
         on E: Exception do
           SaveLog.Log(etError, E.ClassName + ', с сообщением: '+UTF8Encode(E.Message));
       end;
-      if not FbSqlSettings[3].configured then
+      if not FConnect[3].Connected then
          ConfigFirebirdSetting(false, 3);
       CriticalSection.Leave;
     until Terminated;

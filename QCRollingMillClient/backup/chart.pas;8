@@ -262,7 +262,7 @@ end;
 function ViewsGreenLimintsRight: boolean;
 begin
   // max
-  if (right.LowGreen > right.LowRed) and (right.HighGreen < right.HighRed) and
+  if (right.HighGreen < right.HighRed) and
      (right.HighGreen > right.LowGreen) then begin
      with form1.ChartRightLineSeriesGreenHight do begin
          if right.HighGreen > 0 then
@@ -275,8 +275,8 @@ begin
   end;
 
   // min
-  if (right.LowGreen > right.LowRed) and (right.LowGreen < right.HighRed) and
-     (right.HighGreen > right.LowRed) then begin
+  if (right.LowGreen > right.LowRed) and
+     (right.LowGreen < right.HighGreen) then begin
      with form1.ChartRightLineSeriesGreenLow do begin
          if right.LowGreen > 0 then
            AddXY(now, right.LowGreen, '', ColorWarningLine)

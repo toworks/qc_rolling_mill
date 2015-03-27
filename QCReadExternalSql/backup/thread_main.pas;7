@@ -29,7 +29,7 @@ var
    ThreadRM3: TThreadRM3;
    CriticalSection: TCriticalSection;
 
-   {$DEFINE DEBUG}
+//   {$DEFINE DEBUG}
 
    function ThreadMainCreateAndDestroy(InData: boolean): boolean;
 
@@ -86,10 +86,6 @@ begin
  {$ENDIF}
       CriticalSection.Enter;
       try
-{{$IFDEF DEBUG}
-  SaveLog.Log(etDebug, 'FbSqlSettings[1].configured ' + booltostr(FbSqlSettings[1].configured));
-  SaveLog.Log(etDebug, 'FbSqlSettings[1].enable ' + inttostr(FbSqlSettings[1].enable));
-{$ENDIF}}
          if (not FbSqlSettings[1].configured) and (FbSqlSettings[1].enable = 1) then
              ConfigFirebirdSettingToOldIB(true);
          if FbSqlSettings[1].configured then ReadSqlOld;
@@ -97,6 +93,8 @@ begin
         on E: Exception do
           SaveLog.Log(etError, E.ClassName + ', с сообщением: '+UTF8Encode(E.Message));
       end;
+      if not FConnectOld.Connected then
+           ConfigFirebirdSettingToOldIB(false);
       CriticalSection.Leave;
     until Terminated;
     SaveLog.Log(etInfo, 'tread loop rolling mill 1: stopped');
@@ -120,10 +118,6 @@ begin
       SaveLog.Log(etDebug, 'thread loop rolling mill 3 ' + Format('tick :%d', [i]));
  {$ENDIF}
       CriticalSection.Enter;
-{{$IFDEF DEBUG}
-  SaveLog.Log(etDebug, 'FbSqlSettings[3].configured ' + booltostr(FbSqlSettings[3].configured));
-  SaveLog.Log(etDebug, 'FbSqlSettings[3].enable ' + inttostr(FbSqlSettings[3].enable));
-{$ENDIF}}
       try
          if (not FbSqlSettings[3].configured) and (FbSqlSettings[3].enable = 1) then
             ConfigFirebirdSetting(true, 3);

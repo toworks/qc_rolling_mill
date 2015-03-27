@@ -130,16 +130,6 @@ var
   c_min, c_max, mn_min, mn_max, si_min, si_max: real;
 begin
   main := TIdHeat.Create;
-  {$IFDEF DEBUG}
-    SaveLog.Log(etDebug, 'empty main.Grade -> '+main.Grade);
-    SaveLog.Log(etDebug, 'empty main.Section -> '+main.Section);
-    SaveLog.Log(etDebug, 'empty main.Standard -> '+main.Standard);
-    SaveLog.Log(etDebug, 'empty main.StrengthClass -> '+main.StrengthClass);
-    SaveLog.Log(etDebug, 'empty main.RollingMill -> '+main.RollingMill);
-    SaveLog.Log(etDebug, 'empty main.c -> '+main.c);
-    SaveLog.Log(etDebug, 'empty main.mn    -> '+main.mn);
-    SaveLog.Log(etDebug, 'empty main.si -> '+main.si);
-  {$ENDIF}
 
   MSQueryCalculation := TSQLQuery.Create(nil);
   MSQueryCalculation.DataBase := MSConnection;
@@ -151,7 +141,7 @@ begin
     main.Grade := left.Grade;
     main.Section := left.Section;
     main.Standard := left.Standard;
-    main.StrengthClass := left.StrengthClass;
+    main.StrengthClass := CutChar(left.StrengthClass);
     main.RollingMill := left.RollingMill;
     main.c :=  left.c;
     main.mn := left.mn;
@@ -162,7 +152,7 @@ begin
     main.Grade := right.Grade;
     main.Section := right.Section;
     main.Standard := right.Standard;
-    main.StrengthClass := right.StrengthClass;
+    main.StrengthClass := CutChar(right.StrengthClass);
     main.RollingMill := right.RollingMill;
     main.c := right.c;
     main.mn := right.mn;
@@ -229,7 +219,7 @@ begin
 {     MSQueryCalculation.sql.Add('select * FROM temperature_current');}
      { OCI_ERROR: ORA-01795: maximum number of expressions IN a list is 1000 }
      MSQueryCalculation.sql.Add('select * FROM ('); //1000 но последних 10 плавок
-     MSQueryCalculation.sql.Add('select top 1010 ROW_NUMBER() OVER(ORDER BY timestamp DESC) AS row_num, * FROM temperature_current');
+     MSQueryCalculation.sql.Add('select top 1001 ROW_NUMBER() OVER(ORDER BY timestamp DESC) AS row_num, * FROM temperature_current');
      MSQueryCalculation.sql.Add('where dbo.translate(strength_class, ');
      MSQueryCalculation.sql.Add('''ЕТОРАНКХСВМеторанкхсвм'',''ETOPAHKXCBMetopahkxcbm'')');
      MSQueryCalculation.sql.Add('= dbo.translate('''+main.StrengthClass+''', ');
@@ -238,7 +228,8 @@ begin
      MSQueryCalculation.sql.Add('and side = '+inttostr(InSide)+'');
      MSQueryCalculation.sql.Add('and rolling_mill = '+main.RollingMill+'');
      MSQueryCalculation.sql.Add('order by timestamp desc) t1');
-     MSQueryCalculation.sql.Add('where t1.row_num NOT BETWEEN 1 AND 10');
+//     MSQueryCalculation.sql.Add('where t1.row_num NOT BETWEEN 1 AND 10'); // пропускаем последние 10 плавок
+     MSQueryCalculation.sql.Add('where t1.row_num NOT BETWEEN 1 AND 1');
      MSQueryCalculation.Open;
   except
    on E: Exception do

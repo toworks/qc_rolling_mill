@@ -228,7 +228,8 @@ begin
      MSQueryCalculation.sql.Clear;
 {     MSQueryCalculation.sql.Add('select * FROM temperature_current');}
      { OCI_ERROR: ORA-01795: maximum number of expressions IN a list is 1000 }
-     MSQueryCalculation.sql.Add('select top 1000 * FROM temperature_current');
+     MSQueryCalculation.sql.Add('select * FROM ('); //1000 но последних 10 плавок
+     MSQueryCalculation.sql.Add('select top 1010 ROW_NUMBER() OVER(ORDER BY timestamp DESC) AS row_num, * FROM temperature_current');
      MSQueryCalculation.sql.Add('where dbo.translate(strength_class, ');
      MSQueryCalculation.sql.Add('''ЕТОРАНКХСВМеторанкхсвм'',''ETOPAHKXCBMetopahkxcbm'')');
      MSQueryCalculation.sql.Add('= dbo.translate('''+main.StrengthClass+''', ');
@@ -236,7 +237,8 @@ begin
      MSQueryCalculation.sql.Add('and section = '+main.Section+'');
      MSQueryCalculation.sql.Add('and side = '+inttostr(InSide)+'');
      MSQueryCalculation.sql.Add('and rolling_mill = '+main.RollingMill+'');
-     MSQueryCalculation.sql.Add('order by timestamp desc');
+     MSQueryCalculation.sql.Add('order by timestamp desc) t1');
+     MSQueryCalculation.sql.Add('where t1.row_num <> 10');
      MSQueryCalculation.Open;
   except
    on E: Exception do
@@ -478,8 +480,8 @@ begin
     MSQueryCalculatedData.sql.Clear;
     MSQueryCalculatedData.sql.Add('INSERT INTO calculated_data (cid, rolling_mill,');
     MSQueryCalculatedData.sql.Add('side, step)');
-    MSQueryCalculatedData.sql.Add('VALUES ('+tid+', '+rolling_mill+',');
-    MSQueryCalculatedData.sql.Add(''+inttostr(InSide)+', '+step+')');
+    MSQueryCalculatedData.sql.Add('VALUES ('+inttostr(main.tid)+', '+main.RollingMill+',');
+    MSQueryCalculatedData.sql.Add(''+inttostr(InSide)+', '+inttostr(main.step)+')');
 {{$IFDEF DEBUG}
   SaveLog.Log(etDebug, 'MSQueryCalculatedData INSERT -> '+MSQueryCalculatedData.sql.Text);
 {$ENDIF}}
@@ -502,6 +504,7 @@ begin
     MSQueryCalculatedData.ExecSQL;
   end;
 
+  FreeAndNil(main);
   FreeAndNil(MSQueryCalculatedData);
 
 end;

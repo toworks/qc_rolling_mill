@@ -10,7 +10,7 @@ Uses
 {$R *.res}
 
 begin
-  Application.Title:='daemon application';
+  Application.Title:='QCReadExternalSql daemon application';
   Application.Initialize;
   Application.Run;
 end.

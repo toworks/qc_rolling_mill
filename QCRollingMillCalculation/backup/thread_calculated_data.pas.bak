@@ -254,9 +254,6 @@ begin
         CalculatedData(0, 'timestamp=DATEDIFF(s, ''1970/01/01'', GETDATE())');
         CarbonEquivalent(HeatAllLeft, 0);
       end;
-{$IFDEF DEBUG}
-  SaveLog.Log(etDebug, 'disable left.marker -> '+inttostr(left.marker));
-{$ENDIF}
       SaveLog.Log(etInfo, 'end calculation left side, heat -> '+left.Heat+#13#10);
     except
       on E: Exception do
@@ -498,7 +495,7 @@ begin
     main.Grade := left.Grade;
     main.Section := left.Section;
     main.Standard := left.Standard;
-    main.StrengthClass := left.StrengthClass;
+    main.StrengthClass := CutChar(left.StrengthClass);
     main.RollingMill := left.RollingMill;
     main.technological_sample := left.technological_sample;
     main.c := left.c;
@@ -512,7 +509,7 @@ begin
     main.Grade := right.Grade;
     main.Section := right.Section;
     main.Standard := right.Standard;
-    main.StrengthClass := right.StrengthClass;
+    main.StrengthClass := CutChar(right.StrengthClass);
     main.c := right.c;
     main.mn := right.mn;
     main.si := right.si;
@@ -550,7 +547,7 @@ begin
       OraQuery.SQL.Clear;
       OraQuery.SQL.Add('select * from');
       OraQuery.SQL.Add('(select n.nplav heat, n.mst grade, n.GOST standard');
-      OraQuery.SQL.Add(',n.razm1 section, n.klass strength_class');
+      OraQuery.SQL.Add(',n.razm1 section, REPLACE(n.klass, '' '', '''') strength_class');
       OraQuery.SQL.Add(',v.limtek yield_point, v.limproch rupture_strength');
       OraQuery.SQL.Add(',ROW_NUMBER() OVER (PARTITION BY n.nplav ORDER BY n.data desc) AS number_row');
       OraQuery.SQL.Add('from czl_v v, czl_n n');
@@ -561,9 +558,9 @@ begin
 //--      OraQuery.SQL.Add('and n.GOST like translate('''+CutChar(Standard)+''','); //переводим Eng буквы похожие на кирилицу
 //--      OraQuery.SQL.Add('''ETOPAHKXCBMetopahkxcbm'',''ЕТОРАНКХСВМеторанкхсвм'')');
       OraQuery.SQL.Add('and n.razm1 = '+main.Section+'');
-      OraQuery.SQL.Add('and translate(n.klass,');
+      OraQuery.SQL.Add('and translate(REPLACE(n.klass, '' '', ''''),');
       OraQuery.SQL.Add('''ЕТОРАНКХСВМеторанкхсвм'',''ETOPAHKXCBMetopahkxcbm'')');
-      OraQuery.SQL.Add('like translate('''+CutChar(main.StrengthClass)+''',');
+      OraQuery.SQL.Add('like translate('''+main.StrengthClass+''',');
       OraQuery.SQL.Add('''ЕТОРАНКХСВМеторанкхсвм'',''ETOPAHKXCBMetopahkxcbm'')');
       OraQuery.SQL.Add('and n.data=v.data and v.npart=n.npart');
       OraQuery.SQL.Add('and n.npart like '''+main.RollingMill+'%'''); // номер стана
@@ -571,14 +568,18 @@ begin
         OraQuery.SQL.Add('and mod(n.npart,2)=1')// проверка на четность | 0 четная - левая | 1 - нечетная правая
       else
         OraQuery.SQL.Add('and mod(n.npart,2)=0');// проверка на четность | 0 четная - левая | 1 - нечетная правая
-      if (main.StrengthClass = 'S400') or (main.StrengthClass = 'S400W') then // классы при которых берется до 15 проб
-        OraQuery.SQL.Add('and nvl(n.npach,0)=nvl(v.npach,0) and NI<=15')
+{      if (main.StrengthClass = 'S400') or (main.StrengthClass = 'S400W') then // классы при которых берется до 15 проб
+        OraQuery.SQL.Add('and nvl(n.npach,0)=nvl(v.npach,0) and NI<=15') NI - количество проб
       else
-        OraQuery.SQL.Add('and nvl(n.npach,0)=nvl(v.npach,0) and NI<=3');
+        OraQuery.SQL.Add('and nvl(n.npach,0)=nvl(v.npach,0) and NI<=3');}
+      OraQuery.SQL.Add('and nvl(n.npach,0)=nvl(v.npach,0)');
       OraQuery.SQL.Add('and prizn=''*'' and ROWNUM <= 251');
       OraQuery.SQL.Add('and n.nplav in('+HeatAll+')');
       OraQuery.SQL.Add('order by n.data desc)');
-      OraQuery.SQL.Add('where number_row <= 3');
+      if (main.StrengthClass = 'S400') or (main.StrengthClass = 'S400W') then // классы при которых берется до 15 проб
+         OraQuery.SQL.Add('where number_row <= 15')
+      else
+         OraQuery.SQL.Add('where number_row <= 3');
       OraQuery.Open;
       OraQuery.FetchAll;
   except
@@ -984,8 +985,8 @@ begin
     if ((InSide = 0) and (left.step = 0)) then
     begin
       // увеличиваем диапозон на 10 градусов
-      left.LowRed := Round(TempMin + AdjustmentMax) - 10;
-      left.HighRed := Round(TempMax + AdjustmentMin) + 10;
+      left.LowRed := Round(TempMin + AdjustmentMax - 5); //вместо 10
+      left.HighRed := Round(TempMax + AdjustmentMin + 5); //вместо 10
       // -- report
       CalculatedData(InSide, 'low=''' + inttostr(left.LowRed) + '''');
       CalculatedData(InSide, 'high=''' + inttostr(left.HighRed) + '''');
@@ -1004,8 +1005,8 @@ begin
     if ((InSide = 0) and (left.step = 1)) then
     begin
       // увеличиваем диапозон на 5 градусов
-      left.LowGreen := Round(TempMin + AdjustmentMax) - 5; //вместо 2.5 ибо округляется
-      left.HighGreen := Round(TempMax + AdjustmentMin) + 5;
+      left.LowGreen := Round(TempMin + AdjustmentMax - 2.5); //вместо 5
+      left.HighGreen := Round(TempMax + AdjustmentMin + 2.5); //вместо 5
       // -- report
       CalculatedData(InSide, 'low=''' + inttostr(left.LowGreen) + '''');
       CalculatedData(InSide, 'high=''' + inttostr(left.HighGreen) + '''');
@@ -1025,8 +1026,8 @@ begin
     if ((InSide = 1) and (right.step = 0)) then
     begin
       // увеличиваем диапозон на 10 градусов
-      right.LowRed := Round(TempMin + AdjustmentMax) - 10;
-      right.HighRed := Round(TempMax + AdjustmentMin) + 10;
+      right.LowRed := Round(TempMin + AdjustmentMax - 5); //вместо 10
+      right.HighRed := Round(TempMax + AdjustmentMin + 5); //вместо 10
       // -- report
       CalculatedData(InSide, 'low=''' + inttostr(right.LowRed) + '''');
       CalculatedData(InSide, 'high=''' + inttostr(right.HighRed) + '''');
@@ -1045,8 +1046,8 @@ begin
     if ((InSide = 1) and (right.step = 1)) then
     begin
       // увеличиваем диапозон на 5 градусов
-      right.LowGreen := Round(TempMin + AdjustmentMax) - 5;
-      right.HighGreen := Round(TempMax + AdjustmentMin) + 5;
+      right.LowGreen := Round(TempMin + AdjustmentMax - 2.5); //вместо 5
+      right.HighGreen := Round(TempMax + AdjustmentMin + 2.5); //вместо 5
       // -- report
       CalculatedData(InSide, 'low=''' + inttostr(right.LowGreen) + '''');
       CalculatedData(InSide, 'high=''' + inttostr(right.HighGreen) + '''');
@@ -1221,8 +1222,8 @@ begin
 
   SetLength(range, 3);
   //получаем минимальную разницу
-{I think the problem when convert Currency to Real in Abs function.
-/* i know it is Pascal problem not lazarus */
+ {I think the problem when convert Currency to Real in Abs function.
+ /* i know it is Pascal problem not lazarus */
   range[0] := ABS(CeMin - CeArray[0, 1]);
   range[1] := ABS(CeMax - CeArray[0, 1]);
   range[2] := ABS(CeAvg - CeArray[0, 1]);}
@@ -1249,7 +1250,7 @@ begin
     if range[i] < rangeMin then
       rangeMin := range[i];  // к какому из пределов ближе
     SaveLog.Log(etDebug, 'rangeMin -> ' + floattostr(rangeMin));
-{$ENDIF}}
+{$ENDIF}
 
   for i := low(range) To high(range) Do
   begin

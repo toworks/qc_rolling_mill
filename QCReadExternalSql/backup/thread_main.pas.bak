@@ -29,7 +29,7 @@ var
    ThreadRM3: TThreadRM3;
    CriticalSection: TCriticalSection;
 
-//   {$DEFINE DEBUG}
+   {$DEFINE DEBUG}
 
    function ThreadMainCreateAndDestroy(InData: boolean): boolean;
 
@@ -78,7 +78,7 @@ begin
   SaveLog.Log(etInfo, 'thread rolling mill 1: execute');
   try
     repeat
-      { 2 секунды - не нагружать interbase}
+      { 2 секунды - не нагружать interbase }
       Sleep(2000); //milliseconds
  {$IFDEF DEBUG}
       inc(i);
@@ -86,8 +86,19 @@ begin
  {$ENDIF}
       CriticalSection.Enter;
       try
+{{$IFDEF DEBUG}
+  SaveLog.Log(etDebug, 'FbSqlSettings[1].configured ' + booltostr(FbSqlSettings[1].configured));
+  SaveLog.Log(etDebug, 'FbSqlSettings[1].enable ' + inttostr(FbSqlSettings[1].enable));
+{$ENDIF}}
          if (not FbSqlSettings[1].configured) and (FbSqlSettings[1].enable = 1) then
+         begin
+{$IFDEF DEBUG}
+  SaveLog.Log(etDebug, 'FbSqlSettings[1].configured ' + booltostr(FbSqlSettings[1].configured));
+  SaveLog.Log(etDebug, 'FbSqlSettings[1].enable ' + inttostr(FbSqlSettings[1].enable));
+{$ENDIF}
              ConfigFirebirdSettingToOldIB(true);
+             sleep(30000); //30 sec
+         end;
          if FbSqlSettings[1].configured then ReadSqlOld;
       except
         on E: Exception do
@@ -116,6 +127,10 @@ begin
       SaveLog.Log(etDebug, 'thread loop rolling mill 3 ' + Format('tick :%d', [i]));
  {$ENDIF}
       CriticalSection.Enter;
+{{$IFDEF DEBUG}
+  SaveLog.Log(etDebug, 'FbSqlSettings[3].configured ' + booltostr(FbSqlSettings[3].configured));
+  SaveLog.Log(etDebug, 'FbSqlSettings[3].enable ' + inttostr(FbSqlSettings[3].enable));
+{$ENDIF}}
       try
          if (not FbSqlSettings[3].configured) and (FbSqlSettings[3].enable = 1) then
             ConfigFirebirdSetting(true, 3);

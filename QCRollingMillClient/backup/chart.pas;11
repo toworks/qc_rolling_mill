@@ -262,7 +262,7 @@ end;
 function ViewsGreenLimintsRight: boolean;
 begin
   // max
-  if (right.LowGreen > right.LowRed) and (right.HighGreen < right.HighRed) and
+//  if (right.LowGreen > right.LowRed) and (right.HighGreen < right.HighRed) and
      (right.HighGreen > right.LowGreen) then begin
      with form1.ChartRightLineSeriesGreenHight do begin
          if right.HighGreen > 0 then
@@ -272,7 +272,7 @@ begin
          if Count > CountLineSeries then
            ListSource.Delete(0);
      end;
-  end;
+//  end;
 
   // min
   if (right.LowGreen > right.LowRed) and (right.LowGreen < right.HighRed) and
@@ -312,7 +312,7 @@ begin
        end;
   end;
 
-//  if (right.LowGreen > right.HighRed) or (right.HighGreen < right.LowRed) then
+  if (right.LowGreen > right.HighRed) or (right.HighGreen < right.LowRed) then
   begin
     with form1.ChartRightLineSeriesGreenLow do begin
         AddX(0, '', clNone);

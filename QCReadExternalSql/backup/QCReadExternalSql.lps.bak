@@ -17,7 +17,7 @@
         <HasResources Value="True"/>
         <UnitName Value="daemon"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="48"/>
+        <TopLine Value="34"/>
         <CursorPos X="21" Y="42"/>
         <UsageCount Value="206"/>
       </Unit1>
@@ -26,27 +26,34 @@
         <IsPartOfProject Value="True"/>
         <HasResources Value="True"/>
         <UnitName Value="daemonmapper"/>
+        <EditorIndex Value="0"/>
         <WindowIndex Value="0"/>
         <TopLine Value="64"/>
         <CursorPos X="37" Y="89"/>
         <UsageCount Value="206"/>
+        <Loaded Value="True"/>
       </Unit2>
       <Unit3>
         <Filename Value="settings.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="settings"/>
+        <EditorIndex Value="3"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="80"/>
-        <CursorPos X="1" Y="186"/>
+        <TopLine Value="1"/>
+        <CursorPos X="32" Y="16"/>
         <UsageCount Value="206"/>
+        <Loaded Value="True"/>
       </Unit3>
       <Unit4>
         <Filename Value="thread_main.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="thread_main"/>
-        <TopLine Value="110"/>
-        <CursorPos X="15" Y="120"/>
+        <EditorIndex Value="2"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="2"/>
+        <CursorPos X="35" Y="5"/>
         <UsageCount Value="206"/>
+        <Loaded Value="True"/>
       </Unit4>
       <Unit5>
         <Filename Value="versioninfo.pas"/>
@@ -62,10 +69,10 @@
         <IsPartOfProject Value="True"/>
         <UnitName Value="sql"/>
         <IsVisibleTab Value="True"/>
-        <EditorIndex Value="0"/>
+        <EditorIndex Value="1"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="478"/>
-        <CursorPos X="35" Y="498"/>
+        <TopLine Value="302"/>
+        <CursorPos X="23" Y="311"/>
         <UsageCount Value="206"/>
         <Loaded Value="True"/>
       </Unit6>
@@ -73,27 +80,19 @@
     <General>
       <ActiveWindowIndexAtStart Value="0"/>
     </General>
-    <JumpHistory Count="5" HistoryIndex="4">
+    <JumpHistory Count="3" HistoryIndex="2">
       <Position1>
-        <Filename Value="sql.pas"/>
-        <Caret Line="510" Column="5" TopLine="489"/>
+        <Filename Value="thread_main.pas"/>
+        <Caret Line="75" Column="52" TopLine="67"/>
       </Position1>
       <Position2>
-        <Filename Value="sql.pas"/>
-        <Caret Line="478" Column="41" TopLine="431"/>
+        <Filename Value="settings.pas"/>
+        <Caret Line="186" Column="1" TopLine="50"/>
       </Position2>
       <Position3>
         <Filename Value="sql.pas"/>
-        <Caret Line="442" Column="37" TopLine="427"/>
+        <Caret Line="413" Column="1" TopLine="404"/>
       </Position3>
-      <Position4>
-        <Filename Value="sql.pas"/>
-        <Caret Line="450" Column="55" TopLine="436"/>
-      </Position4>
-      <Position5>
-        <Filename Value="sql.pas"/>
-        <Caret Line="458" Column="34" TopLine="445"/>
-      </Position5>
     </JumpHistory>
   </ProjectSession>
   <EditorMacros Count="0"/>

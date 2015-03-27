@@ -27,7 +27,7 @@ var
   ColorWarningLine: TColor = $0000A800;
   ColorAlarmLine: TColor = clRed;
 
-  {$DEFINE DEBUG}
+//  {$DEFINE DEBUG}
 
   function ViewsChartsLeft: boolean;
   function ViewsGreenLimintsLeft: boolean;
@@ -122,7 +122,7 @@ end;
 function ViewsGreenLimintsLeft: boolean;
 begin
   // max
-  if (left.LowGreen > left.LowRed) and (left.HighGreen < left.HighRed) and
+  if (left.HighGreen < left.HighRed) and
      (left.HighGreen > left.LowGreen) then begin
      with form1.ChartLeftLineSeriesGreenHight do begin
         if left.HighGreen > 0 then
@@ -135,8 +135,8 @@ begin
   end;
 
   // min
-  if (left.LowGreen > left.LowRed) and (left.LowGreen < left.HighRed) and
-     (left.HighGreen > left.LowRed) then begin
+  if (left.LowGreen > left.LowRed) and
+     (left.LowGreen < left.HighGreen) then begin
      with form1.ChartLeftLineSeriesGreenLow do begin
         if left.LowGreen > 0 then
           AddXY(now, left.LowGreen, '', ColorWarningLine)
@@ -330,12 +330,20 @@ end;
 
 function LimitMinMax(InTemperature, InSide: integer): TLimits;
 begin
+{$IFDEF DEBUG}
+    SaveLog.Log(etDebug, 'left.LowRed -> '+inttostr(left.LowRed));
+    SaveLog.Log(etDebug, 'left.HighRed -> '+inttostr(left.HighRed));
+{$ENDIF}
   // side left=0, side right=1
   if (left.LowRed <> 0) and (left.HighRed <> 0) and
      (InSide = 0) then
   begin
     Result.min := left.LowRed-30;
     Result.max := left.HighRed+30;
+{$IFDEF DEBUG}
+  SaveLog.Log(etDebug, 'left.LowRed -30 -> '+inttostr(Result.min));
+  SaveLog.Log(etDebug, 'left.HighRed +30 -> '+inttostr(Result.max));
+{$ENDIF}
     exit;
   end;
 

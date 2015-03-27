@@ -27,7 +27,7 @@ var
   ColorWarningLine: TColor = $0000A800;
   ColorAlarmLine: TColor = clRed;
 
-  {$DEFINE DEBUG}
+//  {$DEFINE DEBUG}
 
   function ViewsChartsLeft: boolean;
   function ViewsGreenLimintsLeft: boolean;

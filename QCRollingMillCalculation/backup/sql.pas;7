@@ -464,7 +464,7 @@ begin
   MSQueryCalculatedData.sql.Add('where cid='+inttostr(main.tid)+'');
   MSQueryCalculatedData.sql.Add('and rolling_mill='+main.RollingMill+'');
   MSQueryCalculatedData.sql.Add('and side='+inttostr(InSide)+'');
-  MSQueryCalculatedData.sql.Add('and step='+main.step+'');
+  MSQueryCalculatedData.sql.Add('and step='+inttostr(main.step)+'');
 {{$IFDEF DEBUG}
   SaveLog.Log(etDebug, 'MSQueryCalculatedData calculated_data -> '+MSQueryCalculatedData.sql.Text);
 {$ENDIF}}
@@ -478,8 +478,8 @@ begin
     MSQueryCalculatedData.sql.Clear;
     MSQueryCalculatedData.sql.Add('INSERT INTO calculated_data (cid, rolling_mill,');
     MSQueryCalculatedData.sql.Add('side, step)');
-    MSQueryCalculatedData.sql.Add('VALUES ('+tid+', '+rolling_mill+',');
-    MSQueryCalculatedData.sql.Add(''+inttostr(InSide)+', '+step+')');
+    MSQueryCalculatedData.sql.Add('VALUES ('+inttostr(main.tid)+', '+main.RollingMill+',');
+    MSQueryCalculatedData.sql.Add(''+inttostr(InSide)+', '+inttostr(main.step)+')');
 {{$IFDEF DEBUG}
   SaveLog.Log(etDebug, 'MSQueryCalculatedData INSERT -> '+MSQueryCalculatedData.sql.Text);
 {$ENDIF}}
@@ -492,16 +492,17 @@ begin
     MSQueryCalculatedData.Close;
     MSQueryCalculatedData.sql.Clear;
     MSQueryCalculatedData.sql.Add('UPDATE calculated_data SET ' + InData + '');
-    MSQueryCalculatedData.sql.Add('where cid='+tid+'');
-    MSQueryCalculatedData.sql.Add('and rolling_mill='+rolling_mill+'');
+    MSQueryCalculatedData.sql.Add('where cid='+inttostr(main.tid)+'');
+    MSQueryCalculatedData.sql.Add('and rolling_mill='+main.RollingMill+'');
     MSQueryCalculatedData.sql.Add('and side='+inttostr(InSide)+'');
-    MSQueryCalculatedData.sql.Add('and step='+step+'');
+    MSQueryCalculatedData.sql.Add('and step='+inttostr(main.step)+'');
 {{$IFDEF DEBUG}
   SaveLog.Log(etDebug, 'MSQueryCalculatedData  UPDATE -> '+MSQueryCalculatedData.sql.Text);
 {$ENDIF}}
     MSQueryCalculatedData.ExecSQL;
   end;
 
+  FreeAndNil(main);
   FreeAndNil(MSQueryCalculatedData);
 
 end;

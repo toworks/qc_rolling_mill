@@ -27,8 +27,8 @@ var
   FConnectOld: TIBConnection;
   FTransactionOld: TSQLTransaction;
   FQueryOld: TSQLQuery;
-  FConnect: TZConnection;
-  FQuery: TZQuery;
+  FConnect: array [2..5] of TZConnection;
+  FQuery: array [2..5] of TZQuery;
 
 //  {$DEFINE DEBUG}
 
@@ -78,6 +78,7 @@ begin
   end
   else
   begin
+        FbSqlSettings[1].configured := false;
         FreeAndNil(FTransactionOld);
         FreeAndNil(FQueryOld);
         FreeAndNil(FConnectOld);
@@ -91,20 +92,20 @@ begin
   if InData then
   begin
       try
-        FConnect := TZConnection.Create(nil);
-        FQuery := TZQuery.Create(nil);
-        FConnect.LibraryLocation := '.\fbclient.dll';// отказался от полных путей не читает
-        FConnect.Protocol := 'firebird-2.5';
-        FConnect.Database := FbSqlSettings[InRollingMill].db_name;
-        FConnect.HostName := FbSqlSettings[InRollingMill].ip;
-        FConnect.User := FbSqlSettings[InRollingMill].user;
-        FConnect.Password := FbSqlSettings[InRollingMill].password;
-        FConnect.ReadOnly := True;
-        FConnect.LoginPrompt := false;
-        FConnect.Port := 3050;
-        FConnect.AutoCommit := False;
-        FConnect.TransactIsolationLevel := tiReadCommitted;
-        with FConnect.Properties do
+        FConnect[InRollingMill] := TZConnection.Create(nil);
+        FQuery[InRollingMill] := TZQuery.Create(nil);
+        FConnect[InRollingMill].LibraryLocation := '.\fbclient.dll';// отказался от полных путей не читает
+        FConnect[InRollingMill].Protocol := 'firebird-2.5';
+        FConnect[InRollingMill].Database := FbSqlSettings[InRollingMill].db_name;
+        FConnect[InRollingMill].HostName := FbSqlSettings[InRollingMill].ip;
+        FConnect[InRollingMill].User := FbSqlSettings[InRollingMill].user;
+        FConnect[InRollingMill].Password := FbSqlSettings[InRollingMill].password;
+        FConnect[InRollingMill].ReadOnly := True;
+        FConnect[InRollingMill].LoginPrompt := false;
+        FConnect[InRollingMill].Port := 3050;
+        FConnect[InRollingMill].AutoCommit := False;
+        FConnect[InRollingMill].TransactIsolationLevel := tiReadCommitted;
+        with FConnect[InRollingMill].Properties do
         begin
              Add('Dialect='+FbSqlSettings[InRollingMill].dialect);
              Add('isc_tpb_read_committed');
@@ -117,9 +118,9 @@ begin
 //             Add('codepage=win1251');
 //             Add('client_encoding=UTF8');
         end;
-        FConnect.Connect;
+        FConnect[InRollingMill].Connect;
         FbSqlSettings[InRollingMill].configured := true;
-        FQuery.Connection := FConnect;
+        FQuery[InRollingMill].Connection := FConnect[InRollingMill];
       except
         on E: Exception do
           SaveLog.Log(etError, E.ClassName + ', с сообщением: ' + E.Message);
@@ -127,8 +128,9 @@ begin
   end
   else
   begin
-        FreeAndNil(FQuery);
-        FreeAndNil(FConnect);
+        FbSqlSettings[InRollingMill].configured := false;
+        FreeAndNil(FQuery[InRollingMill]);
+        FreeAndNil(FConnect[InRollingMill]);
   end;
 
 end;
@@ -145,36 +147,27 @@ var
   str: TStringList;
 begin
   try
-      if FConnect <> nil then begin
-         if not FConnect.Ping then
-            FConnect.Reconnect;
-      end;
-  except
-    on E: Exception do
-      SaveLog.Log(etError, E.ClassName + ', с сообщением: ' + E.Message);
-  end;
-
-  try
-      FQuery.Close;
-      FQuery.SQL.Clear;
-      FQuery.SQL.Add('select FIRST 1 begindt, NOPLAV as heat,');
-      FQuery.SQL.Add('MARKA as grade, STANDART as standard');
-      FQuery.SQL.Add('FROM melts where state=1 order by begindt desc');
-      FQuery.Open;
+      FQuery[InRollingMill].Close;
+      FQuery[InRollingMill].SQL.Clear;
+      FQuery[InRollingMill].SQL.Add('select FIRST 1 begindt, NOPLAV as heat,');
+      FQuery[InRollingMill].SQL.Add('MARKA as grade, STANDART as standard');
+      FQuery[InRollingMill].SQL.Add('FROM melts where state=1 order by begindt desc');
+      FQuery[InRollingMill].Open;
   except
     on E: Exception do begin
       SaveLog.Log(etError, E.ClassName + ', с сообщением: ' + E.Message);
+      ConfigFirebirdSetting(false, InRollingMill);
       exit;
     end;
   end;
 
   try
-    heat := FQuery.FieldByName('heat').AsString;
-    grade := FQuery.FieldByName('grade').AsString;
-    standard := FQuery.FieldByName('standard').AsString;
+    heat := FQuery[InRollingMill].FieldByName('heat').AsString;
+    grade := FQuery[InRollingMill].FieldByName('grade').AsString;
+    standard := FQuery[InRollingMill].FieldByName('standard').AsString;
 
     heat_local := StringReplace(heat,'-','_', [rfReplaceAll]);
-    timestamp := FQuery.FieldByName('begindt').AsDateTime;
+    timestamp := FQuery[InRollingMill].FieldByName('begindt').AsDateTime;
     table_name := 'P'+FormatDateTime('yymmdd', timestamp)+'N'+heat_local
   except
     on E: Exception do
@@ -182,16 +175,17 @@ begin
   end;
 
   try
-      FQuery.Close;
-      FQuery.SQL.Clear;
-      FQuery.SQL.Add('select *');
-      FQuery.SQL.Add('FROM '+table_name);
-      FQuery.SQL.Add('where recordid=(select max(recordid)');
-      FQuery.SQL.Add('FROM '+table_name+')');
-      FQuery.Open;
+      FQuery[InRollingMill].Close;
+      FQuery[InRollingMill].SQL.Clear;
+      FQuery[InRollingMill].SQL.Add('select *');
+      FQuery[InRollingMill].SQL.Add('FROM '+table_name);
+      FQuery[InRollingMill].SQL.Add('where recordid=(select max(recordid)');
+      FQuery[InRollingMill].SQL.Add('FROM '+table_name+')');
+      FQuery[InRollingMill].Open;
   except
     on E: Exception do begin
       SaveLog.Log(etError, E.ClassName + ', с сообщением: ' + E.Message);
+      ConfigFirebirdSetting(false, InRollingMill);
       exit;
     end;
   end;
@@ -199,18 +193,18 @@ begin
   try
      tid := inttostr(DateTimeToUnix(timestamp));
      str := TStringList.Create;
-     recordid := FQuery.FieldByName('recordid').AsString;
-     str.Text := StringReplace(FQuery.FieldByName('SECL').AsString, '_', #13#10, [rfReplaceAll]);
+     recordid := FQuery[InRollingMill].FieldByName('recordid').AsString;
+     str.Text := StringReplace(FQuery[InRollingMill].FieldByName('SECL').AsString, '_', #13#10, [rfReplaceAll]);
      SectionLeft := str.Strings[0];
      StrengthClassLeft := UpperCase(str.Strings[1]);
      str.Free;
      str := TStringList.Create;
-     str.Text := StringReplace(FQuery.FieldByName('SECR').AsString, '_', #13#10, [rfReplaceAll]);
+     str.Text := StringReplace(FQuery[InRollingMill].FieldByName('SECR').AsString, '_', #13#10, [rfReplaceAll]);
      SectionRight := str.Strings[0];
      StrengthClassRight := UpperCase(str.Strings[1]);
      str.Free;
-     TempLeft := FQuery.FieldByName('TMOUTL').AsInteger;
-     TempRight := FQuery.FieldByName('TMOUTR').AsInteger;
+     TempLeft := FQuery[InRollingMill].FieldByName('TMOUTL').AsInteger;
+     TempRight := FQuery[InRollingMill].FieldByName('TMOUTR').AsInteger;
   except
     on E: Exception do begin
       SaveLog.Log(etError, E.ClassName + ', с сообщением: ' + E.Message);
@@ -233,43 +227,46 @@ begin
     SaveLog.Log(etDebug, 'rolling mill -> '+inttostr(InRollingMill));
   {$ENDIF}
 
-  if 250 < TempLeft then begin
-     with OutToSql do begin
-          tid_ := tid;
-          heat_ := heat;
-          grade_ := grade;
-          StrengthClass_ := StrengthClassLeft;
-          section_ := SectionLeft;
-          standard_ := standard;
-          rolling_mill_ := inttostr(InRollingMill);
-          temperature_ := inttostr(TempLeft);
-          side_ := '0';
-          recordid_ := recordid;
-     end;
-     MSSqlWrite(OutToSql);
-     //free memory
-     Finalize(OutToSql);
-     FillChar(OutToSql,sizeof(OutToSql),0);
-  end;
 
-  if 250 < TempRight then begin
-     with OutToSql do begin
-          tid_ := tid;
-          heat_ := heat;
-          grade_ := grade;
-          StrengthClass_ := StrengthClassRight;
-          section_ := SectionRight;
-          standard_ := standard;
-          rolling_mill_ := inttostr(InRollingMill);
-          temperature_ := inttostr(TempRight);
-          side_ := '1';
-          recordid_ := recordid;
-     end;
-     MSSqlWrite(OutToSql);
-     //free memory
-     Finalize(OutToSql);
-     FillChar(OutToSql,sizeof(OutToSql),0);
+  with OutToSql do begin
+       tid_ := tid;
+       heat_ := heat;
+       grade_ := grade;
+       StrengthClass_ := StrengthClassLeft;
+       section_ := SectionLeft;
+       standard_ := standard;
+       rolling_mill_ := inttostr(InRollingMill);
+       if 250 < TempLeft then
+          temperature_ := inttostr(TempLeft)
+       else
+          temperature_ := '0';
+       side_ := '0';
+       recordid_ := recordid;
   end;
+  MSSqlWrite(OutToSql);
+  //free memory
+  Finalize(OutToSql);
+  FillChar(OutToSql,sizeof(OutToSql),0);
+
+  with OutToSql do begin
+       tid_ := tid;
+       heat_ := heat;
+       grade_ := grade;
+       StrengthClass_ := StrengthClassRight;
+       section_ := SectionRight;
+       standard_ := standard;
+       rolling_mill_ := inttostr(InRollingMill);
+       if 250 < TempRight then
+          temperature_ := inttostr(TempRight)
+       else
+          temperature_ := '0';
+       side_ := '1';
+       recordid_ := recordid;
+  end;
+  MSSqlWrite(OutToSql);
+  //free memory
+  Finalize(OutToSql);
+  FillChar(OutToSql,sizeof(OutToSql),0);
 end;
 
 
@@ -283,15 +280,6 @@ var
    OutToSql: TMeltingCharacteristics;
    str: TStringList;
 begin
-  try
-      if FConnectOld <> nil then begin
-         if not FConnectOld.Connected then
-            FConnectOld.Connected := true;
-      end;
-  except
-    on E: Exception do
-      SaveLog.Log(etError, E.ClassName + ', с сообщением: ' + E.Message);
-  end;
   {$IFDEF DEBUG}
     SaveLog.Log(etDebug, 'configured -> '+booltostr(FbSqlSettings[1].configured));
   {$ENDIF}
@@ -306,6 +294,7 @@ begin
   except
     on E: Exception do begin
       SaveLog.Log(etError, E.ClassName + ', с сообщением: ' + E.Message);
+      ConfigFirebirdSettingToOldIB(false);
       exit;
     end;
   end;
@@ -335,6 +324,7 @@ begin
   except
     on E: Exception do begin
       SaveLog.Log(etError, E.ClassName + ', с сообщением: ' + E.Message);
+      ConfigFirebirdSettingToOldIB(false);
       exit;
     end;
   end;
@@ -376,44 +366,45 @@ begin
   SaveLog.Log(etDebug, 'rolling mill -> 1');//+inttostr(InRollingMill));
 {$ENDIF}
 
-  if 250 < TempLeft then begin
-     with OutToSql do begin
-          tid_ := tid;
-          heat_ := heat;
-          grade_ := grade;
-          StrengthClass_ := StrengthClassLeft;
-          section_ := SectionLeft;
-          standard_ := standard;
-          rolling_mill_ := '1';
-          temperature_ := inttostr(TempLeft);
-          side_ := '0';
-          recordid_ := recordid;
-     end;
-     MSSqlWrite(OutToSql);
-     //free memory
-     Finalize(OutToSql);
-     FillChar(OutToSql,sizeof(OutToSql),0);
+  with OutToSql do begin
+       tid_ := tid;
+       heat_ := heat;
+       grade_ := grade;
+       StrengthClass_ := StrengthClassLeft;
+       section_ := SectionLeft;
+       standard_ := standard;
+       rolling_mill_ := '1';
+       if 250 < TempLeft then
+          temperature_ := inttostr(TempLeft)
+       else
+          temperature_ := '0';
+       side_ := '0';
+       recordid_ := recordid;
   end;
+  MSSqlWrite(OutToSql);
+  //free memory
+  Finalize(OutToSql);
+  FillChar(OutToSql,sizeof(OutToSql),0);
 
-  if 250 < TempRight then begin
-     with OutToSql do begin
-          tid_ := tid;
-          heat_ := heat;
-          grade_ := grade;
-          StrengthClass_ := StrengthClassRight;
-          section_ := SectionRight;
-          standard_ := standard;
-          rolling_mill_ := '1';
-          temperature_ := inttostr(TempRight);
-          side_ := '1';
-          recordid_ := recordid;
-     end;
-     MSSqlWrite(OutToSql);
-     //free memory
-     Finalize(OutToSql);
-     FillChar(OutToSql,sizeof(OutToSql),0);
+  with OutToSql do begin
+       tid_ := tid;
+       heat_ := heat;
+       grade_ := grade;
+       StrengthClass_ := StrengthClassRight;
+       section_ := SectionRight;
+       standard_ := standard;
+       rolling_mill_ := '1';
+       if 250 < TempRight then
+          temperature_ := inttostr(TempRight)
+       else
+          temperature_ := '0';
+       side_ := '1';
+       recordid_ := recordid;
   end;
-
+  MSSqlWrite(OutToSql);
+  //free memory
+  Finalize(OutToSql);
+  FillChar(OutToSql,sizeof(OutToSql),0);
 end;
 
 
@@ -425,7 +416,7 @@ var
    MSTransaction: TSQLTransaction;
 begin
 
-  {$IFDEF DEBUG}
+{  {$IFDEF DEBUG}}
     SaveLog.Log(etDebug, 'ms tid -> '+InData.tid_);
     SaveLog.Log(etDebug, 'ms heat -> '+InData.heat_);
     SaveLog.Log(etDebug, 'ms grade -> '+InData.grade_);
@@ -436,7 +427,7 @@ begin
     SaveLog.Log(etDebug, 'ms temperature -> '+InData.temperature_);
     SaveLog.Log(etDebug, 'ms side -> '+InData.side_);
     SaveLog.Log(etDebug, 'ms rolling_mill -> '+InData.rolling_mill_);
-  {$ENDIF}
+{  {$ENDIF}}
 
 {    MSConnect := TZConnection.Create(nil);
     MSQuery := TZQuery.Create(nil);}
@@ -453,6 +444,9 @@ begin
        MSConnection.DatabaseName := MsSqlSettings.db_name;
        MSConnection.HostName := MsSqlSettings.ip;
        MSConnection.Transaction := MSTransaction;
+       MSConnection.CharSet := 'UTF-8';
+       MSConnection.Params.Add('AutoCommit=true'); //без опции через время не
+                                                   //проходят транзакции
 
        MSTransaction.DataBase := MSConnection;
        MSTransaction.Action := caCommit;
@@ -487,7 +481,11 @@ begin
        MSConnection.Connected := true;
        MSQuery.Close;
        MSQuery.SQL.Clear;
-       MSQuery.SQL.Add('UPDATE temperature_current SET temperature='+InData.temperature_+'');
+       MSQuery.SQL.Add('UPDATE temperature_current SET heat='''+UTF8Encode(InData.heat_)+''',');
+       MSQuery.SQL.Add('grade='''+UTF8Encode(InData.grade_)+''',');
+       MSQuery.SQL.Add('strength_class='''+UTF8Encode(InData.StrengthClass_)+''',');
+       MSQuery.SQL.Add('section='+InData.section_+', standard='''+UTF8Encode(InData.standard_)+''',');
+       MSQuery.SQL.Add('temperature='+InData.temperature_+'');
        MSQuery.SQL.Add('where tid='+InData.tid_+' and rolling_mill='+InData.rolling_mill_+' and side='+InData.side_+'');
        MSQuery.SQL.Add('IF @@ROWCOUNT=0');
        MSQuery.SQL.Add('INSERT INTO temperature_current (tid, [timestamp], ');
@@ -498,9 +496,9 @@ begin
        MSQuery.SQL.Add(''''+UTF8Encode(InData.grade_)+''', '''+UTF8Encode(InData.StrengthClass_)+''', ');
        MSQuery.SQL.Add(''+InData.section_+', '''+UTF8Encode(InData.standard_)+''', ');
        MSQuery.SQL.Add(''+InData.side_+', '+InData.temperature_+' ) ');
-{{$IFDEF DEBUG}           }
+{{$IFDEF DEBUG}
   SaveLog.Log(etDebug, 'MSQuery.SQL.Text -> '+MSQuery.SQL.Text);
-{{$ENDIF}}
+{$ENDIF}}
        MSQuery.ExecSQL;
     except
       on E : Exception do

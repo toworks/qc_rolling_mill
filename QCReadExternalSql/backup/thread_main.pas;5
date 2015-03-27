@@ -126,6 +126,8 @@ begin
         on E: Exception do
           SaveLog.Log(etError, E.ClassName + ', с сообщением: '+UTF8Encode(E.Message));
       end;
+      if not FConnect[3].Connected then
+         ConfigFirebirdSetting(false, 3);
       CriticalSection.Leave;
     until Terminated;
     SaveLog.Log(etInfo, 'tread loop rolling mill 3: stopped');

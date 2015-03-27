@@ -418,8 +418,8 @@ begin
   else
   begin
     main.Heat := right.Heat;
-    main.step := inttostr(right.step);
-    main.rolling_mill := right.RollingMill;
+    main.step := right.step;
+    main.RollingMill := right.RollingMill;
   end;
 
   MSDBLibraryLoader.Enabled := true;
@@ -427,8 +427,8 @@ begin
   MSQueryCalculatedData.Close;
   MSQueryCalculatedData.sql.Clear;
   MSQueryCalculatedData.sql.Add('select TOP 1 tid FROM temperature_current');
-  MSQueryCalculatedData.sql.Add('where heat='''+heat+'''');
-  MSQueryCalculatedData.sql.Add('and rolling_mill='+rolling_mill+'');
+  MSQueryCalculatedData.sql.Add('where heat='''+main.Heat+'''');
+  MSQueryCalculatedData.sql.Add('and rolling_mill='+main.RollingMill+'');
   MSQueryCalculatedData.sql.Add('and side='+inttostr(InSide)+'');
   MSQueryCalculatedData.sql.Add('ORDER BY timestamp desc');
 {{$IFDEF DEBUG}
@@ -436,7 +436,7 @@ begin
 {$ENDIF}}
   MSQueryCalculatedData.Open;
 
-  main.tid := MSQueryCalculatedData.FieldByName('tid').AsString;
+  main.tid := MSQueryCalculatedData.FieldByName('tid').AsInteger;
 
   // delete report recalculated
   if InData = '' then

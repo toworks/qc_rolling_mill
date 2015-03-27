@@ -80,7 +80,7 @@
       <Unit0>
         <Filename Value="QCRollingMillCalculation.lpr"/>
         <IsPartOfProject Value="True"/>
-        <UnitName Value="QCRollingMillCalculation"/>
+        <UnitName Value="QCReadExternalSql"/>
       </Unit0>
       <Unit1>
         <Filename Value="daemon.pas"/>

@@ -9,7 +9,7 @@
       </Flags>
       <SessionStorage Value="InProjectDir"/>
       <MainUnit Value="0"/>
-      <Title Value="QCReadExternalSql daemon application"/>
+      <Title Value="daemon application"/>
       <UseAppBundle Value="False"/>
       <ResourceType Value="res"/>
       <Icon Value="0"/>
@@ -20,7 +20,7 @@
     <VersionInfo>
       <UseVersionInfo Value="True"/>
       <AutoIncrementBuild Value="True"/>
-      <BuildNr Value="13"/>
+      <BuildNr Value="15"/>
       <StringTable ProductVersion="0.1alpha"/>
     </VersionInfo>
     <BuildModes Count="2">
@@ -29,12 +29,9 @@
         <CompilerOptions>
           <Version Value="11"/>
           <PathDelim Value="\"/>
-          <Target>
-            <Filename Value="lib\$(TargetCPU)-$(TargetOS)\QCReadExternalSql"/>
-          </Target>
           <SearchPaths>
             <IncludeFiles Value="$(ProjOutDir)"/>
-            <Libraries Value="lib\$(TargetCPU)-$(TargetOS)"/>
+            <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
           </SearchPaths>
           <CodeGeneration>
             <SmartLinkUnit Value="True"/>
@@ -81,7 +78,7 @@
     </RequiredPackages>
     <Units Count="7">
       <Unit0>
-        <Filename Value="QCReadExternalSql.lpr"/>
+        <Filename Value="QCRollingMillCalculation.lpr"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="QCReadExternalSql"/>
       </Unit0>
@@ -103,19 +100,19 @@
         <UnitName Value="settings"/>
       </Unit3>
       <Unit4>
-        <Filename Value="thread_main.pas"/>
-        <IsPartOfProject Value="True"/>
-        <UnitName Value="thread_main"/>
-      </Unit4>
-      <Unit5>
         <Filename Value="versioninfo.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="versioninfo"/>
-      </Unit5>
-      <Unit6>
+      </Unit4>
+      <Unit5>
         <Filename Value="sql.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="sql"/>
+      </Unit5>
+      <Unit6>
+        <Filename Value="thread_calculated_data.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="thread_calculated_data"/>
       </Unit6>
     </Units>
   </ProjectOptions>

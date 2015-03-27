@@ -228,7 +228,8 @@ begin
      MSQueryCalculation.sql.Clear;
 {     MSQueryCalculation.sql.Add('select * FROM temperature_current');}
      { OCI_ERROR: ORA-01795: maximum number of expressions IN a list is 1000 }
-     MSQueryCalculation.sql.Add('select top 1000 * FROM temperature_current');
+     MSQueryCalculation.sql.Add('select * FROM ('); //1000 но последних 10 плавок
+     MSQueryCalculation.sql.Add('select top 1010 * FROM temperature_current');
      MSQueryCalculation.sql.Add('where dbo.translate(strength_class, ');
      MSQueryCalculation.sql.Add('''ЕТОРАНКХСВМеторанкхсвм'',''ETOPAHKXCBMetopahkxcbm'')');
      MSQueryCalculation.sql.Add('= dbo.translate('''+main.StrengthClass+''', ');
@@ -478,8 +479,8 @@ begin
     MSQueryCalculatedData.sql.Clear;
     MSQueryCalculatedData.sql.Add('INSERT INTO calculated_data (cid, rolling_mill,');
     MSQueryCalculatedData.sql.Add('side, step)');
-    MSQueryCalculatedData.sql.Add('VALUES ('+tid+', '+rolling_mill+',');
-    MSQueryCalculatedData.sql.Add(''+inttostr(InSide)+', '+step+')');
+    MSQueryCalculatedData.sql.Add('VALUES ('+inttostr(main.tid)+', '+main.RollingMill+',');
+    MSQueryCalculatedData.sql.Add(''+inttostr(InSide)+', '+inttostr(main.step)+')');
 {{$IFDEF DEBUG}
   SaveLog.Log(etDebug, 'MSQueryCalculatedData INSERT -> '+MSQueryCalculatedData.sql.Text);
 {$ENDIF}}
@@ -492,16 +493,17 @@ begin
     MSQueryCalculatedData.Close;
     MSQueryCalculatedData.sql.Clear;
     MSQueryCalculatedData.sql.Add('UPDATE calculated_data SET ' + InData + '');
-    MSQueryCalculatedData.sql.Add('where cid='+tid+'');
-    MSQueryCalculatedData.sql.Add('and rolling_mill='+rolling_mill+'');
+    MSQueryCalculatedData.sql.Add('where cid='+inttostr(main.tid)+'');
+    MSQueryCalculatedData.sql.Add('and rolling_mill='+main.RollingMill+'');
     MSQueryCalculatedData.sql.Add('and side='+inttostr(InSide)+'');
-    MSQueryCalculatedData.sql.Add('and step='+step+'');
+    MSQueryCalculatedData.sql.Add('and step='+inttostr(main.step)+'');
 {{$IFDEF DEBUG}
   SaveLog.Log(etDebug, 'MSQueryCalculatedData  UPDATE -> '+MSQueryCalculatedData.sql.Text);
 {$ENDIF}}
     MSQueryCalculatedData.ExecSQL;
   end;
 
+  FreeAndNil(main);
   FreeAndNil(MSQueryCalculatedData);
 
 end;

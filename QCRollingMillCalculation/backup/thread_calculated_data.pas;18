@@ -64,6 +64,7 @@ var
 {delphi  function GetMedian(aArray: TDoubleDynArray): Double;}
   procedure bubbleSort(var list: TDoubleArray);
   function Median(aArray: TDoubleArray): double;
+  function abs2(InData: real): real;
 
 implementation
 
@@ -236,7 +237,7 @@ begin
             right.OldStrengthClass);
   end;
 
-{  if left.marker = 1 {and (left.ce <> '')} then
+  if left.marker = 1 {and (left.ce <> '')} then
   begin
     try
       // сброс этапа расчета
@@ -1220,28 +1221,35 @@ begin
 
   SetLength(range, 3);
   //получаем минимальную разницу
+{I think the problem when convert Currency to Real in Abs function.
+/* i know it is Pascal problem not lazarus */
   range[0] := ABS(CeMin - CeArray[0, 1]);
   range[1] := ABS(CeMax - CeArray[0, 1]);
-  range[2] := ABS(CeAvg - CeArray[0, 1]);
+  range[2] := ABS(CeAvg - CeArray[0, 1]);}
+
+  range[0] := abs2(CeMin - CeArray[0, 1]);
+  range[1] := abs2(CeMax - CeArray[0, 1]);
+  range[2] := abs2(CeAvg - CeArray[0, 1]);
 
   rangeMin := range[0];
 
 {$IFDEF DEBUG}
+  SaveLog.Log(etDebug, 'CeMin -> ' + floattostr(CeMin));
+  SaveLog.Log(etDebug, 'CeArray[0, 1]) -> ' + floattostr(CeArray[0, 1]));
+  SaveLog.Log(etDebug, 'abs2(CeMin - CeArray[0, 1]) -> ' + floattostr(abs2(CeMin - CeArray[0, 1])));
+  SaveLog.Log(etDebug, 'abs2(CeMax - CeArray[0, 1]) -> ' + floattostr(abs2(CeMax - CeArray[0, 1])));
+  SaveLog.Log(etDebug, 'abs2(CeAvg - CeArray[0, 1]) -> ' + floattostr(abs2(CeAvg - CeArray[0, 1])));
   SaveLog.Log(etDebug, 'ABS(CeMin - CeArray[0, 1]) -> ' + floattostr(ABS(CeMin - CeArray[0, 1])));
   SaveLog.Log(etDebug, 'ABS(CeMax - CeArray[0, 1]) -> ' + floattostr(ABS(CeMax - CeArray[0, 1])));
   SaveLog.Log(etDebug, 'ABS(CeAvg - CeArray[0, 1]) -> ' + floattostr(ABS(CeAvg - CeArray[0, 1])));
-  SaveLog.Log(etDebug, 'min range[0] -> ' + floattostr(range[0]));
-  SaveLog.Log(etDebug, 'max range[1] -> ' + floattostr(range[1]));
-  SaveLog.Log(etDebug, 'avg range[2] -> ' + floattostr(range[2]));
 {$ENDIF}
 
+{$IFDEF DEBUG}
   for i := low(range) To high(range) Do
     if range[i] < rangeMin then
       rangeMin := range[i];  // к какому из пределов ближе
-{$IFDEF DEBUG}
-  SaveLog.Log(etDebug, 'rangeMin -> ' + floattostr(rangeMin));
-{$ENDIF}
-exit;
+    SaveLog.Log(etDebug, 'rangeMin -> ' + floattostr(rangeMin));
+{$ENDIF}}
 
   for i := low(range) To high(range) Do
   begin
@@ -1412,6 +1420,15 @@ begin
     Result := aArray[lMiddleIndex + 1]
   else
     Result := (aArray[lMiddleIndex + 1] + aArray[lMiddleIndex]) / 2;
+end;
+
+
+function abs2(InData: real): real;
+begin
+     if InData < 0 then
+        Result := InData*-1
+     else
+        Result := InData;
 end;
 
 

@@ -71,10 +71,12 @@ begin
 
   // устанавливаем приделы шкалы
   LimitLeft := LimitMinMax(temperature, 0);
-  form1.ChartLeft.Extent.YMin := LimitLeft.min;
-  form1.ChartLeft.Extent.YMax := LimitLeft.max;
-  form1.ChartLeft.Extent.UseYMin := true;
-  form1.ChartLeft.Extent.UseYMax := true;
+  if LimitLeft.max > LimitLeft.min then begin //мин недолжно быть больше мах
+    form1.ChartLeft.Extent.YMin := LimitLeft.min;
+    form1.ChartLeft.Extent.YMax := LimitLeft.max;
+    form1.ChartLeft.Extent.UseYMin := true;
+    form1.ChartLeft.Extent.UseYMax := true;
+  end;
 
   ViewsRedLimintsLeft;
   ViewsGreenLimintsLeft;
@@ -214,10 +216,12 @@ begin
 
   // устанавливаем приделы шкалы
   LimitRight := LimitMinMax(temperature, 1);
-  form1.ChartRight.Extent.YMin := LimitRight.min;
-  form1.ChartRight.Extent.YMax := LimitRight.max;
-  form1.ChartRight.Extent.UseYMin := true;
-  form1.ChartRight.Extent.UseYMax := true;
+  if LimitRight.max > LimitRight.min then begin //мин недолжно быть больше мах
+    form1.ChartRight.Extent.YMin := LimitRight.min;
+    form1.ChartRight.Extent.YMax := LimitRight.max;
+    form1.ChartRight.Extent.UseYMin := true;
+    form1.ChartRight.Extent.UseYMax := true;
+  end;
 
   ViewsRedLimintsRight;
   ViewsGreenLimintsRight;
@@ -297,8 +301,7 @@ begin
   end;
 
   // max -3 градуса от high красных
-  if (right.HighGreen <> 0) and (right.HighGreen >= right.HighRed) and
-     (right.LowGreen < right.HighRed) then begin
+//  if (right.HighGreen >= right.HighRed) then begin
        with form1.ChartRightLineSeriesGreenHight do begin
            if right.HighRed > 0 then
              AddXY(now, right.HighRed-3, '', ColorWarningLine)
@@ -307,19 +310,17 @@ begin
            if Count > CountLineSeries then
              ListSource.Delete(0);
        end;
-  end;
+//  end;
 
   if (right.LowGreen > right.HighRed) or (right.HighGreen < right.LowRed) then
   begin
     with form1.ChartRightLineSeriesGreenLow do begin
-//        SeriesColor := clNone;
-        AddXY(now, 0, '', clNone);
+        AddX(0, '', clNone);
         if Count > CountLineSeries then
            ListSource.Delete(0);// min в 0
     end;
     with form1.ChartRightLineSeriesGreenHight do begin
-//        SeriesColor := clNone;
-        AddXY(now, 0, '', clNone);
+        AddX(0, '', clNone);
         if Count > CountLineSeries then
            ListSource.Delete(0);// max в 0
     end;

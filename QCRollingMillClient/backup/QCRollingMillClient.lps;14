@@ -60,8 +60,8 @@
         <IsVisibleTab Value="True"/>
         <EditorIndex Value="0"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="192"/>
-        <CursorPos X="33" Y="219"/>
+        <TopLine Value="1"/>
+        <CursorPos X="37" Y="6"/>
         <UsageCount Value="204"/>
         <Loaded Value="True"/>
       </Unit5>
@@ -81,7 +81,7 @@
         <WindowIndex Value="0"/>
         <TopLine Value="101"/>
         <CursorPos X="5" Y="95"/>
-        <UsageCount Value="157"/>
+        <UsageCount Value="163"/>
       </Unit7>
       <Unit8>
         <Filename Value="thread_heat_test.pas"/>

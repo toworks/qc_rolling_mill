@@ -416,7 +416,7 @@ var
    MSTransaction: TSQLTransaction;
 begin
 
-  {$IFDEF DEBUG}
+{$IFDEF DEBUG}
     SaveLog.Log(etDebug, 'ms tid -> '+InData.tid_);
     SaveLog.Log(etDebug, 'ms heat -> '+InData.heat_);
     SaveLog.Log(etDebug, 'ms grade -> '+InData.grade_);
@@ -427,7 +427,7 @@ begin
     SaveLog.Log(etDebug, 'ms temperature -> '+InData.temperature_);
     SaveLog.Log(etDebug, 'ms side -> '+InData.side_);
     SaveLog.Log(etDebug, 'ms rolling_mill -> '+InData.rolling_mill_);
-  {$ENDIF}
+{$ENDIF}
 
 {    MSConnect := TZConnection.Create(nil);
     MSQuery := TZQuery.Create(nil);}
@@ -444,6 +444,9 @@ begin
        MSConnection.DatabaseName := MsSqlSettings.db_name;
        MSConnection.HostName := MsSqlSettings.ip;
        MSConnection.Transaction := MSTransaction;
+       MSConnection.CharSet := 'UTF-8';
+       MSConnection.Params.Add('AutoCommit=true'); //без опции через время не
+                                                   //проходят транзакции
 
        MSTransaction.DataBase := MSConnection;
        MSTransaction.Action := caCommit;

@@ -64,7 +64,7 @@ var
 {delphi  function GetMedian(aArray: TDoubleDynArray): Double;}
   procedure bubbleSort(var list: TDoubleArray);
   function Median(aArray: TDoubleArray): double;
-  function bb(InData: double): double;
+  function abs2(InData: real): real;
 
 implementation
 
@@ -237,7 +237,7 @@ begin
             right.OldStrengthClass);
   end;
 
-{  if left.marker = 1 {and (left.ce <> '')} then
+  if left.marker = 1 {and (left.ce <> '')} then
   begin
     try
       // сброс этапа расчета
@@ -254,9 +254,6 @@ begin
         CalculatedData(0, 'timestamp=DATEDIFF(s, ''1970/01/01'', GETDATE())');
         CarbonEquivalent(HeatAllLeft, 0);
       end;
-{$IFDEF DEBUG}
-  SaveLog.Log(etDebug, 'disable left.marker -> '+inttostr(left.marker));
-{$ENDIF}
       SaveLog.Log(etInfo, 'end calculation left side, heat -> '+left.Heat+#13#10);
     except
       on E: Exception do
@@ -264,7 +261,7 @@ begin
     end;
     HeatAllLeft := '';
   end;
-}
+
   if right.marker = 1 {and (right.ce <> '')} then
   begin
     try
@@ -1025,8 +1022,8 @@ begin
     if ((InSide = 1) and (right.step = 0)) then
     begin
       // увеличиваем диапозон на 10 градусов
-      right.LowRed := Round(TempMin + AdjustmentMax) - 10;
-      right.HighRed := Round(TempMax + AdjustmentMin) + 10;
+      right.LowRed := Round(TempMin + AdjustmentMax) - 5;//10;
+      right.HighRed := Round(TempMax + AdjustmentMin) + 5;//10;
       // -- report
       CalculatedData(InSide, 'low=''' + inttostr(right.LowRed) + '''');
       CalculatedData(InSide, 'high=''' + inttostr(right.HighRed) + '''');
@@ -1045,8 +1042,8 @@ begin
     if ((InSide = 1) and (right.step = 1)) then
     begin
       // увеличиваем диапозон на 5 градусов
-      right.LowGreen := Round(TempMin + AdjustmentMax) - 5;
-      right.HighGreen := Round(TempMax + AdjustmentMin) + 5;
+      right.LowGreen := Round(TempMin + AdjustmentMax) - 3;//5;
+      right.HighGreen := Round(TempMax + AdjustmentMin) + 3;//5;
       // -- report
       CalculatedData(InSide, 'low=''' + inttostr(right.LowGreen) + '''');
       CalculatedData(InSide, 'high=''' + inttostr(right.HighGreen) + '''');
@@ -1221,31 +1218,35 @@ begin
 
   SetLength(range, 3);
   //получаем минимальную разницу
+ {I think the problem when convert Currency to Real in Abs function.
+ /* i know it is Pascal problem not lazarus */
   range[0] := ABS(CeMin - CeArray[0, 1]);
   range[1] := ABS(CeMax - CeArray[0, 1]);
-  range[2] := ABS(CeAvg - CeArray[0, 1]);
+  range[2] := ABS(CeAvg - CeArray[0, 1]);}
+
+  range[0] := abs2(CeMin - CeArray[0, 1]);
+  range[1] := abs2(CeMax - CeArray[0, 1]);
+  range[2] := abs2(CeAvg - CeArray[0, 1]);
 
   rangeMin := range[0];
 
 {$IFDEF DEBUG}
   SaveLog.Log(etDebug, 'CeMin -> ' + floattostr(CeMin));
   SaveLog.Log(etDebug, 'CeArray[0, 1]) -> ' + floattostr(CeArray[0, 1]));
-  SaveLog.Log(etDebug, 'CeMin - CeArray[0, 1] -> ' + floattostr(CeMin - CeArray[0, 1]));
+  SaveLog.Log(etDebug, 'abs2(CeMin - CeArray[0, 1]) -> ' + floattostr(abs2(CeMin - CeArray[0, 1])));
+  SaveLog.Log(etDebug, 'abs2(CeMax - CeArray[0, 1]) -> ' + floattostr(abs2(CeMax - CeArray[0, 1])));
+  SaveLog.Log(etDebug, 'abs2(CeAvg - CeArray[0, 1]) -> ' + floattostr(abs2(CeAvg - CeArray[0, 1])));
   SaveLog.Log(etDebug, 'ABS(CeMin - CeArray[0, 1]) -> ' + floattostr(ABS(CeMin - CeArray[0, 1])));
   SaveLog.Log(etDebug, 'ABS(CeMax - CeArray[0, 1]) -> ' + floattostr(ABS(CeMax - CeArray[0, 1])));
   SaveLog.Log(etDebug, 'ABS(CeAvg - CeArray[0, 1]) -> ' + floattostr(ABS(CeAvg - CeArray[0, 1])));
-  SaveLog.Log(etDebug, 'min range[0] -> ' + floattostr(range[0]));
-  SaveLog.Log(etDebug, 'max range[1] -> ' + floattostr(range[1]));
-  SaveLog.Log(etDebug, 'avg range[2] -> ' + floattostr(range[2]));
 {$ENDIF}
 
+{$IFDEF DEBUG}
   for i := low(range) To high(range) Do
     if range[i] < rangeMin then
       rangeMin := range[i];  // к какому из пределов ближе
-{$IFDEF DEBUG}
-  SaveLog.Log(etDebug, 'rangeMin -> ' + floattostr(rangeMin));
+    SaveLog.Log(etDebug, 'rangeMin -> ' + floattostr(rangeMin));
 {$ENDIF}
-exit;
 
   for i := low(range) To high(range) Do
   begin
@@ -1419,7 +1420,7 @@ begin
 end;
 
 
-function bb(InData: double): double;
+function abs2(InData: real): real;
 begin
      if InData < 0 then
         Result := InData*-1

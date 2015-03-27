@@ -304,7 +304,7 @@ begin
   if (right.HighGreen >= right.HighRed) then begin
        with form1.ChartRightLineSeriesGreenHight do begin
            if right.HighRed > 0 then
-             AddXY(now, right.HighRed-3, '', ColorWarningLine)
+             AddXY(now, right.HighRed-30, '', ColorWarningLine)
            else
              AddX(0, '', clNone);
            if Count > CountLineSeries then

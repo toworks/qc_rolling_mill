@@ -436,7 +436,7 @@ begin
 {$ENDIF}}
   MSQueryCalculatedData.Open;
 
-  main.tid := MSQueryCalculatedData.FieldByName('tid').AsString;
+  main.tid := MSQueryCalculatedData.FieldByName('tid').AsInteger;
 
   // delete report recalculated
   if InData = '' then
@@ -446,8 +446,8 @@ begin
     MSQueryCalculatedData.Close;
     MSQueryCalculatedData.sql.Clear;
     MSQueryCalculatedData.sql.Add('DELETE FROM calculated_data');
-    MSQueryCalculatedData.sql.Add('where cid='+main.tid+'');
-    MSQueryCalculatedData.sql.Add('and rolling_mill='+rolling_mill+'');
+    MSQueryCalculatedData.sql.Add('where cid='+inttostr(main.tid)+'');
+    MSQueryCalculatedData.sql.Add('and rolling_mill='+main.RollingMill+'');
     MSQueryCalculatedData.sql.Add('and side='+inttostr(InSide)+'');
 {{$IFDEF DEBUG}
   SaveLog.Log(etDebug, 'MSQueryCalculatedData DELETE -> '+MSQueryCalculatedData.sql.Text);
@@ -461,10 +461,10 @@ begin
   MSQueryCalculatedData.Close;
   MSQueryCalculatedData.sql.Clear;
   MSQueryCalculatedData.sql.Add('select cid FROM calculated_data');
-  MSQueryCalculatedData.sql.Add('where cid='+tid+'');
-  MSQueryCalculatedData.sql.Add('and rolling_mill='+rolling_mill+'');
+  MSQueryCalculatedData.sql.Add('where cid='+inttostr(main.tid)+'');
+  MSQueryCalculatedData.sql.Add('and rolling_mill='+main.RollingMill+'');
   MSQueryCalculatedData.sql.Add('and side='+inttostr(InSide)+'');
-  MSQueryCalculatedData.sql.Add('and step='+step+'');
+  MSQueryCalculatedData.sql.Add('and step='+main.step+'');
 {{$IFDEF DEBUG}
   SaveLog.Log(etDebug, 'MSQueryCalculatedData calculated_data -> '+MSQueryCalculatedData.sql.Text);
 {$ENDIF}}

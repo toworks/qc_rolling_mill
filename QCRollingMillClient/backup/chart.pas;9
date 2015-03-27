@@ -262,7 +262,7 @@ end;
 function ViewsGreenLimintsRight: boolean;
 begin
   // max
-  if (right.LowGreen > right.LowRed) and (right.HighGreen < right.HighRed) and
+  if (right.HighGreen < right.HighRed) and
      (right.HighGreen > right.LowGreen) then begin
      with form1.ChartRightLineSeriesGreenHight do begin
          if right.HighGreen > 0 then
@@ -301,7 +301,7 @@ begin
   end;
 
   // max -3 градуса от high красных
-//  if (right.HighGreen >= right.HighRed) then begin
+  if (right.HighGreen >= right.HighRed) then begin
        with form1.ChartRightLineSeriesGreenHight do begin
            if right.HighRed > 0 then
              AddXY(now, right.HighRed-3, '', ColorWarningLine)
@@ -310,7 +310,7 @@ begin
            if Count > CountLineSeries then
              ListSource.Delete(0);
        end;
-//  end;
+  end;
 
   if (right.LowGreen > right.HighRed) or (right.HighGreen < right.LowRed) then
   begin
