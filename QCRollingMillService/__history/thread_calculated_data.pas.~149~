@@ -356,10 +356,7 @@ begin
       OraQuery.SQL.Add('and prizn=''*'' and ROWNUM <= 251');
       OraQuery.SQL.Add('and n.nplav in('+HeatAll+')');
       OraQuery.SQL.Add('order by n.data desc)');
-      if (StrengthClass = 'S400') or (StrengthClass = 'S400W') then // классы при которых берется до 15 проб
-        OraQuery.SQL.Add('where number_row <= 15')
-      else
-        OraQuery.SQL.Add('where number_row <= 3');
+      OraQuery.SQL.Add('where number_row <= 3');
       OraQuery.Open;
       OraQuery.FetchAll;
   except

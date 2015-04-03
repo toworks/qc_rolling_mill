@@ -63,11 +63,10 @@ var
 
   FbSqlConfigArray: Array [1 .. 6] of String;
   PgSqlConfigArray: Array [1 .. 6] of String;
+  OraSqlConfigArray: Array [1 .. 5] of String;
   OpcConfigArray: Array [1 .. 3] of String;
   RollingMillConfigArray: Array [1 .. 3] of String;
   TcpConfigArray: Array [1 .. 2] of String;
-
-  OraSqlSettings: TConfigSql;
 
   // {$DEFINE DEBUG}
 
@@ -178,15 +177,15 @@ begin
 
     // orasql
     if SQuery.FieldByName('name').AsString = '::OraSql::ip' then
-      OraSqlSettings.ip := SQuery.FieldByName('value').AsString;
+      OraSqlConfigArray[1] := SQuery.FieldByName('value').AsString;
     if SQuery.FieldByName('name').AsString = '::OraSql::port' then
-      OraSqlSettings.port := SQuery.FieldByName('value').AsInteger;
+      OraSqlConfigArray[2] := SQuery.FieldByName('value').AsString;
     if SQuery.FieldByName('name').AsString = '::OraSql::db_name' then
-      OraSqlSettings.db_name := SQuery.FieldByName('value').AsString;
+      OraSqlConfigArray[3] := SQuery.FieldByName('value').AsString;
     if SQuery.FieldByName('name').AsString = '::OraSql::user' then
-      OraSqlSettings.user := SQuery.FieldByName('value').AsString;
+      OraSqlConfigArray[4] := SQuery.FieldByName('value').AsString;
     if SQuery.FieldByName('name').AsString = '::OraSql::password' then
-      OraSqlSettings.password := SQuery.FieldByName('value').AsString;
+      OraSqlConfigArray[5] := SQuery.FieldByName('value').AsString;
 
     // opc
     if SQuery.FieldByName('name').AsString = '::OPC::server_name' then

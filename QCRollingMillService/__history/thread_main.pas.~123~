@@ -95,7 +95,6 @@ begin
     on E : Exception do
       begin
         SaveLog('error'+#9#9+E.ClassName+', с сообщением: '+E.Message);
-        ConfigOracleSetting(false);
         exit;
       end;
   end;

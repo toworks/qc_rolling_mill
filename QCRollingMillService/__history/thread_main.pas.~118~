@@ -42,10 +42,6 @@ end;
 procedure WrapperMain;
 begin
   try
-      //reconnect
-      if not OraSqlSettings.configured then
-         ConfigOracleSetting(true);
-
       // точка вместо запятой при преобразовании в строку
       FormatSettings.DecimalSeparator := '.';
       GetHeat;
@@ -95,7 +91,6 @@ begin
     on E : Exception do
       begin
         SaveLog('error'+#9#9+E.ClassName+', с сообщением: '+E.Message);
-        ConfigOracleSetting(false);
         exit;
       end;
   end;
@@ -103,15 +98,15 @@ begin
   if not OraQuery.FieldByName('NPL').IsNull then
   begin
     ChemicalAnalysisArray[0] := OraQuery.FieldByName('DATE_IN_HIM').AsString;
-    ChemicalAnalysisArray[1] := UTF8Decode(OraQuery.FieldByName('NPL').AsString);
+    ChemicalAnalysisArray[1] := OraQuery.FieldByName('NPL').AsString;
     if OraQuery.FieldByName('MST').IsNull then
       ChemicalAnalysisArray[2] := '0'
     else
-      ChemicalAnalysisArray[2] := UTF8Decode(OraQuery.FieldByName('MST').AsString);
+      ChemicalAnalysisArray[2] := UTF8Encode(OraQuery.FieldByName('MST').AsString);
     if OraQuery.FieldByName('GOST').IsNull then
       ChemicalAnalysisArray[3] := '0'
     else
-      ChemicalAnalysisArray[3] := UTF8Decode(OraQuery.FieldByName('GOST').AsString);
+      ChemicalAnalysisArray[3] := UTF8Encode(OraQuery.FieldByName('GOST').AsString);
     if OraQuery.FieldByName('C').IsNull then
       ChemicalAnalysisArray[4] := '0'
     else

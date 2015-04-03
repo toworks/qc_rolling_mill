@@ -45,7 +45,6 @@ begin
       //reconnect
       if not OraSqlSettings.configured then
          ConfigOracleSetting(true);
-
       // точка вместо запятой при преобразовании в строку
       FormatSettings.DecimalSeparator := '.';
       GetHeat;
@@ -95,7 +94,6 @@ begin
     on E : Exception do
       begin
         SaveLog('error'+#9#9+E.ClassName+', с сообщением: '+E.Message);
-        ConfigOracleSetting(false);
         exit;
       end;
   end;

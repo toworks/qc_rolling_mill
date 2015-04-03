@@ -84,24 +84,28 @@ begin
 
       try
          ConnectString:='(DESCRIPTION = (ADDRESS_LIST = (ADDRESS = (PROTOCOL = TCP)(HOST = '
-                +OraSqlSettings.ip+')(PORT = '+inttostr(OraSqlSettings.port)
+                +OraSqlConfigArray[1]+')(PORT = '+OraSqlConfigArray[2]
                 +'))) (CONNECT_DATA = (SERVICE_NAME = '+
-                OraSqlSettings.db_name+')))';
-         OraConnect.Database := ConnectString;
-         OraConnect.LibraryLocation := '.\oci.dll';// отказался от полных путей не читает
-         OraConnect.Protocol := 'oracle';
-         OraConnect.User := OraSqlSettings.user;
-         OraConnect.Password := OraSqlSettings.password;
-         OraConnect.AutoEncodeStrings := true;// перекодировка с сервера в клиент
-         OraConnect.ClientCodepage := 'CL8MSWIN1251';// кодировка на сервере
-         OraConnect.ControlsCodePage := cCP_UTF8;// кодировка на клиенте
-         // or
-{         OraConnect.Properties.Add('AutoEncodeStrings=ON');// перекодировка с сервера в клиент
-         OraConnect.Properties.Add('codepage=CL8MSWIN1251"');// кодировка на сервере
-         OraConnect.Properties.Add('controls_cp=CP_UTF8');// кодировка на клиенте}
-         OraConnect.Connect;
-         OraQuery.Connection := OraConnect;
-         OraSqlSettings.configured := true;
+                OraSqlConfigArray[3]+')))';//'krr-sql13:1521:ovp68';
+        OraConnect.Database := ConnectString;
+        OraConnect.LibraryLocation := 'oci.dll';// отказался от полных путей не читает
+        OraConnect.Protocol := 'oracle';
+        OraConnect.User := OraSqlConfigArray[4];
+        OraConnect.Password := OraSqlConfigArray[5];
+        OraConnect.AutoEncodeStrings := true;// перекодировка с сервера в клиент
+        OraConnect.ClientCodepage := 'CL8MSWIN1251';// кодировка на сервере
+        OraConnect.ControlsCodePage := cCP_UTF8;// кодировка на клиенте
+        // or
+{        OraConnect.Properties.Add('AutoEncodeStrings=ON');// перекодировка с сервера в клиент
+        OraConnect.Properties.Add('codepage=CL8MSWIN1251"');// кодировка на сервере
+        OraConnect.Properties.Add('controls_cp=CP_UTF8');// кодировка на клиенте}
+        { I can solved this problem ORA-12705
+          Windows - The NLS_LANG must be unset in the Windows registry
+          (re-named is best). Look for the NLS_LANG subkey in the registry at
+          HKEY_LOCAL_MACHINESOFTWAREORACLE, and rename it.}
+        OraConnect.Connect;
+        OraQuery.Connection := OraConnect;
+        OraSqlSettings.configured := true;
       except
         on E: Exception do
           SaveLog('error' + #9#9 + E.ClassName + ', с сообщением: ' + E.Message);
@@ -109,7 +113,6 @@ begin
   end
   else
   begin
-        OraSqlSettings.configured := false;
         FreeAndNil(OraConnect);
         FreeAndNil(OraQuery);
   end;

@@ -8,7 +8,7 @@ unit thread_calculated_data;
 interface
 
 uses
-  SysUtils, Classes, Windows, ActiveX, System.Variants, Math,
+  SysUtils, Classes, Windows, ActiveX, System.Variants, Math, DBAccess, Ora,
   ZAbstractDataset, ZDataset, ZAbstractConnection, ZConnection, ZAbstractRODataset,
   Types, Generics.Collections;
 
@@ -323,6 +323,7 @@ begin
   HeatAll := HeatToIn(InHeat);
 
   try
+      OraQuery.FetchAll := true;
       OraQuery.Close;
       OraQuery.SQL.Clear;
       OraQuery.SQL.Add('select * from');
@@ -348,27 +349,18 @@ begin
         OraQuery.SQL.Add('and mod(n.npart,2)=1')// проверка на четность | 0 четная - левая | 1 - нечетная правая
       else
         OraQuery.SQL.Add('and mod(n.npart,2)=0');// проверка на четность | 0 четная - левая | 1 - нечетная правая
-{      if (StrengthClass = 'S400') or (StrengthClass = 'S400W') then // классы при которых берется до 15 проб
+      if (StrengthClass = 'S400') or (StrengthClass = 'S400W') then // классы при которых берется до 15 проб
         OraQuery.SQL.Add('and nvl(n.npach,0)=nvl(v.npach,0) and NI<=15')
       else
-        OraQuery.SQL.Add('and nvl(n.npach,0)=nvl(v.npach,0) and NI<=3');}
-      OraQuery.SQL.Add('and nvl(n.npach,0)=nvl(v.npach,0)');
+        OraQuery.SQL.Add('and nvl(n.npach,0)=nvl(v.npach,0) and NI<=3');
       OraQuery.SQL.Add('and prizn=''*'' and ROWNUM <= 251');
       OraQuery.SQL.Add('and n.nplav in('+HeatAll+')');
       OraQuery.SQL.Add('order by n.data desc)');
-      if (StrengthClass = 'S400') or (StrengthClass = 'S400W') then // классы при которых берется до 15 проб
-        OraQuery.SQL.Add('where number_row <= 15')
-      else
-        OraQuery.SQL.Add('where number_row <= 3');
+      OraQuery.SQL.Add('where number_row <= 3');
       OraQuery.Open;
-      OraQuery.FetchAll;
   except
     on E: Exception do
-    begin
       SaveLog('error' + #9#9 + E.ClassName + ', с сообщением: ' + E.Message);
-      ConfigOracleSetting(false);
-      exit;
-    end;
   end;
 
 {$IFDEF DEBUG }
@@ -436,13 +428,13 @@ begin
   begin
     if i <= CoefficientCount then
     begin
-        if (UTF8Decode(OraQuery.FieldByName('heat').AsString) <> HeatMechanics) or
+        if (OraQuery.FieldByName('heat').AsString <> HeatMechanics) or
            (HeatCount <= 3) then
         begin
           if HeatCount = 4 then
             HeatCount := 0;
 
-          HeatMechanics := UTF8Decode(OraQuery.FieldByName('heat').AsString);
+          HeatMechanics := OraQuery.FieldByName('heat').AsString;
           inc(HeatCount);
 
           try
@@ -450,12 +442,12 @@ begin
               SQuery.sql.Clear;
               SQuery.sql.Add('insert into mechanics (heat, timestamp, grade, standard');
               SQuery.sql.Add(', section , strength_class, yield_point, rupture_strength, side)');
-              SQuery.sql.Add('values (''' + UTF8Decode(OraQuery.FieldByName('heat').AsString)+'''');
+              SQuery.sql.Add('values (''' + OraQuery.FieldByName('heat').AsString+'''');
               SQuery.sql.Add(', strftime(''%s'', ''now'')');
               SQuery.sql.Add(', ''NULL''');
-              SQuery.sql.Add(', '''+UTF8Decode(OraQuery.FieldByName('standard').AsString)+'''');
+              SQuery.sql.Add(', '''+OraQuery.FieldByName('standard').AsString+'''');
               SQuery.sql.Add(', '''+OraQuery.FieldByName('section').AsString+'''');
-              SQuery.sql.Add(', '''+UTF8Decode(OraQuery.FieldByName('strength_class').AsString)+'''');
+              SQuery.sql.Add(', '''+OraQuery.FieldByName('strength_class').AsString+'''');
               SQuery.sql.Add(', '''+OraQuery.FieldByName('yield_point').AsString+'''');
               SQuery.sql.Add(', '''+OraQuery.FieldByName('rupture_strength').AsString+'''');
               SQuery.sql.Add(', '''+inttostr(InSide)+''')');

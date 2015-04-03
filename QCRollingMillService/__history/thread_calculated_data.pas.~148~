@@ -348,18 +348,14 @@ begin
         OraQuery.SQL.Add('and mod(n.npart,2)=1')// проверка на четность | 0 четная - левая | 1 - нечетная правая
       else
         OraQuery.SQL.Add('and mod(n.npart,2)=0');// проверка на четность | 0 четная - левая | 1 - нечетная правая
-{      if (StrengthClass = 'S400') or (StrengthClass = 'S400W') then // классы при которых берется до 15 проб
+      if (StrengthClass = 'S400') or (StrengthClass = 'S400W') then // классы при которых берется до 15 проб
         OraQuery.SQL.Add('and nvl(n.npach,0)=nvl(v.npach,0) and NI<=15')
       else
-        OraQuery.SQL.Add('and nvl(n.npach,0)=nvl(v.npach,0) and NI<=3');}
-      OraQuery.SQL.Add('and nvl(n.npach,0)=nvl(v.npach,0)');
+        OraQuery.SQL.Add('and nvl(n.npach,0)=nvl(v.npach,0) and NI<=3');
       OraQuery.SQL.Add('and prizn=''*'' and ROWNUM <= 251');
       OraQuery.SQL.Add('and n.nplav in('+HeatAll+')');
       OraQuery.SQL.Add('order by n.data desc)');
-      if (StrengthClass = 'S400') or (StrengthClass = 'S400W') then // классы при которых берется до 15 проб
-        OraQuery.SQL.Add('where number_row <= 15')
-      else
-        OraQuery.SQL.Add('where number_row <= 3');
+      OraQuery.SQL.Add('where number_row <= 3');
       OraQuery.Open;
       OraQuery.FetchAll;
   except
