@@ -1,0 +1,21 @@
+
+mssql:
+    host: KRR-SQL-PACLX02
+    database: KRR-PA-MGT-QCRollingMill
+
+mc1:
+    firebird:
+        host: 10.21.120.114
+        database: D:\db_New\Termo.gdb
+        dialect: 1
+        username: sysdba
+        password: masterkey
+
+mc3:
+    firebird:
+        host: 10.21.124.4
+        database: C:\Asvp\AsvpDb\AsvpSysDb\ASVPSETDB.GDB
+        database1: C:\Asvp\AsvpDb\AsvpSysDb\ASVPARCDB.GDB
+        dialect: 1
+        username: A3
+        password: 8
