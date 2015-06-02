@@ -523,8 +523,8 @@ sub execute_mc1 {
 			my $side = $_;
 
 			$mssql->mssql_send($heat{'tid'}, $heat{'heat'}, 1,
-							   $heat{'grade'}, $values{$side}{'strength_class'}, $values{$side}{'section'}, $heat{'standard'},
-							   $side, $values{$side}{'temp'});
+							   $heat{'grade'}||undef, $values{$side}{'strength_class'}||undef, $values{$side}{'section'}||undef, $heat{'standard'}||undef,
+							   $side, $values{$side}{'temp'}||undef);
 
 #			$log->save(4, "end side $_");
 		}
