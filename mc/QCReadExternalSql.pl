@@ -17,7 +17,8 @@ package LOG;{
     my($class) = @_;
     # создаем хэш, содержащий свойства объекта
     my $self = {
-	  filename => basename($0).".log",
+#	  filename => basename($0).".log",
+	  filename => get_name().".log",
 	};
 
     # хэш превращается, превращается хэш...
@@ -30,6 +31,14 @@ package LOG;{
 	#$self->set_log;
 
     return $self;
+  }
+
+  sub get_name {
+	my ( $name, $path, $suffix ) = fileparse( $0, qr{\.[^.]*$} );
+#	print "NAME=$name\n";
+#	print "PATH=$path\n";
+#	print "SFFX=$suffix\n";
+	return $name;
   }
 
 =pod
@@ -407,29 +416,26 @@ package mssql;{
 		$self->{log}->save(4, "connected mssql");
 	}
 
-	$self->{log}->save(4, "mssql -> $tid | $heat | $rolling_mill | $grade | $StrengthClass | $section | $standard | $side | $temperature");
+#	$self->{log}->save(4, "mssql -> $tid | $heat | $rolling_mill | $grade | $StrengthClass | $section | $standard | $side | $temperature");
 
-	$query = "UPDATE temperature_current SET heat='$heat', ".
-			 "grade=N'$grade', strength_class=N'$StrengthClass', ".
-			 "section=$section, standard=N'$standard', ".
-			 "temperature=$temperature where tid='$tid' ".
-			 "and rolling_mill=$rolling_mill and side=$side ".
-			 "IF \@\@ROWCOUNT=0 ".
-			 "INSERT INTO temperature_current (tid, [timestamp], ".
-			 "rolling_mill, heat, grade, strength_class, section, ".
-			 "standard, side, temperature) values ( ".
-			 "$tid, datediff(ss, '1970/01/01', GETDATE()), ".
-			 "$rolling_mill, '$heat', N'$grade', N'$StrengthClass', ".
-			 "$section, N'$standard', $side, $temperature )";
+	$query = "UPDATE temperature_current SET heat='$heat', ";
+	$query .= "grade=N'$grade', strength_class=N'$StrengthClass', ";
+	$query .= "section=$section, standard=N'$standard', ";
+	$query .= "temperature=$temperature where tid='$tid' ";
+	$query .= "and rolling_mill=$rolling_mill and side=$side ";
+	$query .= "IF \@\@ROWCOUNT=0 ";
+	$query .= "INSERT INTO temperature_current (tid, [timestamp], ";
+	$query .= "rolling_mill, heat, grade, strength_class, section, ";
+	$query .= "standard, side, temperature) values ( ";
+	$query .= "$tid, datediff(ss, '1970/01/01', GETDATE()), ";
+	$query .= "$rolling_mill, '$heat', N'$grade', N'$StrengthClass', ";
+	$query .= "$section, N'$standard', $side, $temperature )";
 
 	#$self->{log}->save(4, "mssql query -> $query");
 	eval{ $sth = $self->{dbh}->prepare($query) || die $self->{log}->save(2, "Couldn't execute statement: " . $DBI::errstr); };# обработка ошибки
-	unless($@) {
-		$sth->execute() || die $self->{log}->save(2, "Couldn't execute statement: " . $DBI::errstr);
-		$sth->finish() || die $self->{log}->save(2, "Couldn't execute statement: " . $DBI::errstr);
-	} else { 
-		$self->{error} = 1;
-	}
+	eval{ $sth->execute() || die $self->{log}->save(2, "Couldn't execute statement: " . $DBI::errstr); };# обработка ошибки
+	eval{ $sth->finish() || die $self->{log}->save(2, "Couldn't execute statement: " . $DBI::errstr); };# обработка ошибки
+#	if ($@) { $self->{error} = 1; } не выполняется
 }
 1;  
 
@@ -523,8 +529,8 @@ sub execute_mc1 {
 			my $side = $_;
 
 			$mssql->mssql_send($heat{'tid'}, $heat{'heat'}, 1,
-							   $heat{'grade'}||undef, $values{$side}{'strength_class'}||undef, $values{$side}{'section'}||undef, $heat{'standard'}||undef,
-							   $side, $values{$side}{'temp'}||undef);
+							   $heat{'grade'}, $values{$side}{'strength_class'}, $values{$side}{'section'}, $heat{'standard'},
+							   $side, $values{$side}{'temp'});
 
 #			$log->save(4, "end side $_");
 		}
