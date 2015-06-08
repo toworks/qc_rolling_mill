@@ -432,10 +432,11 @@ package mssql;{
 	$query .= "$section, N'$standard', $side, $temperature )";
 
 	#$self->{log}->save(4, "mssql query -> $query");
-	eval{ $sth = $self->{dbh}->prepare($query) || die $self->{log}->save(2, "Couldn't execute statement: " . $DBI::errstr); };# обработка ошибки
-	eval{ $sth->execute() || die $self->{log}->save(2, "Couldn't execute statement: " . $DBI::errstr); };# обработка ошибки
-	eval{ $sth->finish() || die $self->{log}->save(2, "Couldn't execute statement: " . $DBI::errstr); };# обработка ошибки
-#	if ($@) { $self->{error} = 1; } не выполняется
+	eval{ $sth = $self->{dbh}->prepare($query) || die $self->{log}->save(2, "Couldn't execute statement: " . $DBI::errstr);
+		  $sth->execute() || die $self->{log}->save(2, "Couldn't execute statement: " . $DBI::errstr);
+		  $sth->finish() || die $self->{log}->save(2, "Couldn't execute statement: " . $DBI::errstr);
+	};# обработка ошибки
+	if ($@) { $self->{error} = 1; }
 }
 1;  
 
