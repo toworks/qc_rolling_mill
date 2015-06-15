@@ -434,6 +434,14 @@ package firebird;{
 	unless($@) {
 		$sth->execute();
 		while ($ref = $sth->fetchrow_hashref()) {
+			$ref->{'BEGINDT'} =~ s/(\d+)\.(\d+)\.(\d+)/$3\-$2\-$1/g;
+			#$ref->{'SECTION'} =~ s/(\d)(\d)(.*)(\d)(?=.)/$1$2\.$4/;
+			my ($int, $div) = split(/\./, $ref->{'SECTION'});
+			$int =~ s/(\d)(\d)(\d*)/$1$2/;
+			$div = $div||0;
+			$div =~ s/(\d)(\d)(\d*)/$1$2/;
+			my $section = join('.', $int, $div);
+
 			$timestamp = str2time($ref->{'BEGINDT'});
 #			print(join "\t", $ref->{'HEAT'}, $ref->{'GRADE'}, $ref->{'STANDARD'},
 #							 $ref->{'BEGINDT'}, $timestamp, "\n");
@@ -442,7 +450,7 @@ package firebird;{
 						'timestamp' => $timestamp,
 						'heat' => $ref->{'HEAT'},
 						'grade' => $ref->{'GRADE'},
-						'section' => $ref->{'SECTION'},
+						'section' => $section,
 						'standard' => $ref->{'STANDARD'},
 						'strength_class' => $ref->{'STRENGTH_CLASS'},
 						'side' => $ref->{'SIDE'}
