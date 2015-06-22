@@ -511,26 +511,10 @@ package main;
   # Создаём 3 нити в режиме по прниципу "создал и забыл", тем
   # самым позволив открыть  параллельно несколько нитей. Объект
   # каждой созданной нити помещается в массив @threads
-=comments
-  my $ms_sql = mssql->new();
-  $ms_sql->set_con($conf->get_conf('mssql')->{host}, $conf->get_conf('mssql')->{database}, '', '');
-  my $values = $ms_sql->get_values;
-=cut
+
   my $thread_count = 1;
     push @threads, threads->create(\&execute, 'rm1', $thread_count++);
 	push @threads, threads->create(\&execute, 'rm3', $thread_count++);
-#  push @threads, threads->create(\&execute_rm1, 'rm1', $thread_count++);
-#  push @threads, threads->create(\&execute_rm3, 'rm3', $thread_count++);  
-=comments
-  @table_prefix = get_tables($values, "АЦ1");
-  for my $tp (@table_prefix){
-	push @threads, threads->create(\&execute_ac1, $tp, "АЦ1", $values, $thread_count);
-	$thread_count++;
-  }
-
-
-  push @threads, threads->create(\&execute_weight, "weight", $thread_count++);
-=cut
 
   # Нити успешно созданы,  ссылки на объекты помещены в массив
   # Теперь мы можем для каждого объекта вызвать метод join(),
@@ -588,121 +572,15 @@ sub execute {
 
 #			$log->save(4, "end side $_");
 		}
+		
+		# clear hash
+		delete $heat{$_} for (keys %heat);
+		delete $values{$_} for (keys %values);
+
 		sleep(1);
 	}
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-=pod
-sub execute_rm1 {
-	$0 =~ m/.*[\/\\]/g;
-	my ($rolling_mill) = @_;
-	
-	my $log = LOG->new();
-	$log->save(4, "thread -> $rolling_mill");
-
-	# firebird create object
-	my $fbsql = firebird->new();
-	$fbsql->set_con($conf->get_conf($rolling_mill)->{host}, $conf->get_conf($rolling_mill)->{database},
-					$conf->get_conf($rolling_mill)->{dialect}, $conf->get_conf($rolling_mill)->{username},
-					$conf->get_conf($rolling_mill)->{password});
-
-	# mssql create object
-	my $mssql = mssql->new();
-	$mssql->set_con($conf->get_conf('mssql')->{host}, $conf->get_conf('mssql')->{database});
-
-	while (1) {
-
-		if($fbsql->get_error() == 1) {
-			$fbsql->conn();
-			$log->save(4, "connected fbsql");
-		}
-		
-		my %heat = $fbsql->get_table($rolling_mill);
-#		print Dumper(\%heat);
-		
-		my %values = $fbsql->get_values($heat{'table'});
-#		print Dumper(\%values);
-		
-#		$log->save(4, "left -> $values{'0'}{'recordid'} \t $values{'0'}{'section'} \t $values{'0'}{'strength_class'} \t $values{'0'}{'temp'}");
-#		$log->save(4, "right -> $values{'1'}{'recordid'} \t $values{'1'}{'section'} \t $values{'1'}{'strength_class'} \t $values{'1'}{'temp'}");
-
-		for (0..1) {
-#			$log->save(4, "start side $_");
-
-			my $side = $_;
-
-			$mssql->mssql_send($heat{'tid'}, $heat{'heat'}, 1,
-							   $heat{'grade'}, $values{$side}{'strength_class'}, $values{$side}{'section'}, $heat{'standard'},
-							   $side, $values{$side}{'temp'});
-
-#			$log->save(4, "end side $_");
-		}
-		sleep(1);
-	}
-}
-
-
-sub execute_rm3 {
-	$0 =~ m/.*[\/\\]/g;
-	my ($rolling_mill) = @_;
-	
-	my $log = LOG->new();
-	$log->save(4, "thread -> $rolling_mill");
-
-	# firebird create object
-	my $fbsql = firebird->new();
-	$fbsql->set_con($conf->get_conf($rolling_mill)->{host}, $conf->get_conf($rolling_mill)->{database},
-					$conf->get_conf($rolling_mill)->{dialect}, $conf->get_conf($rolling_mill)->{username},
-					$conf->get_conf($rolling_mill)->{password});
-
-	# mssql create object
-	my $mssql = mssql->new();
-	$mssql->set_con($conf->get_conf('mssql')->{host}, $conf->get_conf('mssql')->{database});
-
-	while (1) {
-
-		if($fbsql->get_error() == 1) {
-			$fbsql->conn();
-			$log->save(4, "connected fbsql");
-		}
-		
-		my %heat = $fbsql->get_table($rolling_mill);
-		print Dumper(\%heat);
-		
-		my %values = $fbsql->get_values($heat{'table'});
-		print Dumper(\%values);
-		
-#		$log->save(4, "left -> $values{'0'}{'recordid'} \t $values{'0'}{'section'} \t $values{'0'}{'strength_class'} \t $values{'0'}{'temp'}");
-#		$log->save(4, "right -> $values{'1'}{'recordid'} \t $values{'1'}{'section'} \t $values{'1'}{'strength_class'} \t $values{'1'}{'temp'}");
-
-		for (0..1) {
-#			$log->save(4, "start side $_");
-
-			my $side = $_;
-
-			$mssql->mssql_send($heat{'tid'}, $heat{'heat'}, 3,
-							   $heat{'grade'}, $values{$side}{'strength_class'}, $values{$side}{'section'}, $heat{'standard'},
-							   $side, $values{$side}{'temp'});
-
-#			$log->save(4, "end side $_");
-		}
-		sleep(1);
-	}
-}
-=cut
 
 
 
