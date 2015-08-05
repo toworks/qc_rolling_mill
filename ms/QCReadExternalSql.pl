@@ -502,6 +502,8 @@ package main;
   
   $ENV{'PATH'} = "$ENV{'PATH'};C:\\bin\\QCReadExternalSql\\";
 
+  $| = 1; #flushing output
+
   my $conf = CONF->new();
 
   # В этом массиве будут храниться ссылки на
