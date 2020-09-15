@@ -2,3 +2,4 @@ Win32/*
 lib/*
 *.dll
 *.exe
+*.log
