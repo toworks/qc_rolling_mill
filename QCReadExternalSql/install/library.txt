@@ -1,0 +1,3 @@
+fbclient.dll
+msdblibr.dll
+sqlite3.dll
