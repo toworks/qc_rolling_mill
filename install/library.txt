@@ -1,0 +1,12 @@
+fbclient.dll
+libeay32.dll
+libiconv.dll
+libintl.dll
+libpq.dll
+libxml2.dll
+libxslt.dll
+oci.dll
+oraociei12.dll
+oraons.dll
+sqlite3.dll
+ssleay32.dll
