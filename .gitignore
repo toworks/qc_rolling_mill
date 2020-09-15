@@ -1,5 +1,5 @@
-Win32/*
-lib/*
+*/Win32/*
+*/lib/*
 *.dll
 *.exe
-*.log
+*.log
