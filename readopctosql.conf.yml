@@ -1,0 +1,15 @@
+
+sql:
+    type: fbsql
+    driver: Firebird
+    host: 192.168.2.171
+    database: E:\termo\db\Ms5db6.fdb
+    table: melts
+    user: sysdba
+    password: masterkey
+    dialect: 3
+
+app:
+    tasks: 2
+    cycle: 10
+    debug: true
