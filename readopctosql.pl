@@ -30,24 +30,24 @@
  
  $DEBUG = $conf->get('app')->{'debug'};
 
- # mssql create object
- my $sql = _sql->new($log);
- $sql->set('DEBUG' => $DEBUG);
- $sql->set('type' => $conf->get('sql')->{type});
- $sql->set_con(		$conf->get('sql')->{'driver'},
-					$conf->get('sql')->{'host'},
-					$conf->get('sql')->{'database'},
+ # create object
+ my $sql_read = _sql->new($log);
+ $sql_read->set('DEBUG' => $DEBUG);
+ $sql_read->set('type' => $conf->get('read')->{sql}->{type});
+ $sql_read->set_con(	$conf->get('read')->{sql}->{'driver'},
+						$conf->get('read')->{sql}->{'host'},
+						$conf->get('read')->{sql}->{'database'},
 					);
- $sql->set('user' => $conf->get('sql')->{'user'});
- $sql->set('password' => $conf->get('sql')->{'password'});
- $sql->set('dialect' => $conf->get('sql')->{'dialect'});
- $sql->set('table' => $conf->get('sql')->{'table'});
+ $sql_read->set('user' => $conf->get('read')->{sql}->{'user'});
+ $sql_read->set('password' => $conf->get('read')->{sql}->{'password'});
+ $sql_read->set('dialect' => $conf->get('read')->{sql}->{'dialect'});
+ $sql_read->set('table' => $conf->get('read')->{sql}->{'table'});
 
  my $queue = Thread::Queue->new();
 
  my @threads;
  for ( 1..$conf->get('app')->{'tasks'} ) {
-	push @threads, threads->create( \&worker, $conf, $log, $sql);
+	push @threads, threads->create( \&worker, $conf, $log, $sql_read);
  }
 
 ## $SIG{'TERM'} = $SIG{'HUP'} = $SIG{'INT'} = sub {
@@ -88,7 +88,7 @@
 
 		my $t0 = [gettimeofday];
 		
-		print Dumper($sql->get_fb_melt());
+		print Dumper($sql_read->get_fb_melt());
 =comm
 		my $message;
 

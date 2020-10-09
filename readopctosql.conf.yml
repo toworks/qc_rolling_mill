@@ -1,13 +1,24 @@
 
-sql:
-    type: fbsql
-    driver: Firebird
-    host: 192.168.2.171
-    database: E:\termo\db\Ms5db6.fdb
-    table: melts
-    user: sysdba
-    password: masterkey
-    dialect: 3
+read:
+     sql:
+         type: fbsql
+         driver: Firebird
+         host: 192.168.2.171
+         database: E:\termo\db\Ms5db6.fdb
+         table: melts
+         user: sysdba
+         password: masterkey
+         dialect: 3
+
+write:
+     sql:
+         type: pgsql
+         driver: Pg
+         host: 192.168.2.200
+         database: QCRollingMill
+         table: temperature_current
+         user: QCRollingMill
+         password: WC7HdvCjC57YJ9
 
 app:
     tasks: 2
