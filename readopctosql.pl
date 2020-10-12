@@ -16,6 +16,7 @@
  use lib ('libs', '.');
  use logging;
  use configuration;
+ use cache;
  use _sql;
 
  my $DEBUG: shared;
@@ -42,6 +43,19 @@
  $sql_read->set('password' => $conf->get('read')->{sql}->{'password'});
  $sql_read->set('dialect' => $conf->get('read')->{sql}->{'dialect'});
  $sql_read->set('table' => $conf->get('read')->{sql}->{'table'});
+
+ # create object
+ my $sql_write = _sql->new($log);
+ $sql_write->set('DEBUG' => $DEBUG);
+ $sql_write->set('type' => $conf->get('write')->{sql}->{type});
+ $sql_write->set_con(	$conf->get('write')->{sql}->{'driver'},
+						$conf->get('write')->{sql}->{'host'},
+						$conf->get('write')->{sql}->{'database'},
+					);
+ $sql_write->set('user' => $conf->get('write')->{sql}->{'user'});
+ $sql_write->set('password' => $conf->get('write')->{sql}->{'password'});
+ $sql_write->set('dialect' => $conf->get('write')->{sql}->{'dialect'});
+ $sql_write->set('table' => $conf->get('write')->{sql}->{'table'});
 
  my $queue = Thread::Queue->new();
 
@@ -87,8 +101,27 @@
 	while (1) {
 
 		my $t0 = [gettimeofday];
+
+		my $cache = cache->new($log, $log->get_name().'.cache.yml');		
+
+		#print Dumper($sql_read->get_fb_melt());
+#		print Dumper($sql_write->get_pg());
+
+		my %cache;
+		my $read_sql = $sql_read->get_fb_melt();
 		
-		print Dumper($sql_read->get_fb_melt());
+		foreach my $index ( keys @{$read_sql} ) {
+			print "index: ", $index, "\n";
+			print Dumper($read_sql->[$index]), "\n";
+			$sql_write->write_pg($read_sql->[$index])
+=comm
+			foreach my $key ( keys %{$read_sql->[$index]} ) {
+				print "key: ", $key, "\tvalue: ", $read_sql->[$index]->{$key}, "\n";
+				#$cache->set('cache' => \%cache);
+				#$cache{$scales->{$scale}}{'zi'} = $calc_params{$scales->{$scale}}->{'pi'};
+			}
+=cut
+		}
 =comm
 		my $message;
 

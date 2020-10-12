@@ -20,6 +20,31 @@ write:
          user: QCRollingMill
          password: WC7HdvCjC57YJ9
 
+values:
+       - 
+         side: left
+         tag: VA.TE4_2
+         name: RMSh2.RM5.TS.TOutBilletLeftSide
+       -
+         side: left
+         tag: VA.TE2_1
+         name: RMSh2.RM5.TS.TInBilletLeftSide
+       -
+         side: right
+         tag: VA.TE3_4
+         name: RMSh2.RM5.TS.TOutBilletRightSide
+       -
+         side: right
+         tag: VA.TE1_3
+         name: RMSh2.RM5.TS.TInBilletRightSide
+
+groups:
+  read:
+          - 'VA.TE4_2'
+          - 'VA.TE3_4'
+          - 'VA.TE2_1'
+          - 'VA.TE1_3'
+
 app:
     tasks: 2
     cycle: 10
