@@ -17,6 +17,7 @@
  use logging;
  use configuration;
  use cache;
+ use _opc;
  use _sql;
 
  my $DEBUG: shared;
@@ -98,30 +99,70 @@
   
 	$log->save('i', "start thread pid $id");
 
+	# opc create object
+	my $opc = _opc->new($log);
+	$opc->set('DEBUG' => $DEBUG);
+	$opc->set('progid' => $conf->get('opc')->{progid});
+	$opc->set('name' => $conf->get('opc')->{name});
+	$opc->set('host' => $conf->get('opc')->{host});
+	$opc->set('groups' => $conf->get('groups'));
+
 	while (1) {
 
 		my $t0 = [gettimeofday];
 
 		my $cache = cache->new($log, $log->get_name().'.cache.yml');		
 
-		#print Dumper($sql_read->get_fb_melt());
-#		print Dumper($sql_write->get_pg());
+		$opc->connect() if $opc->get('error') == 1;
 
-		my %cache;
-		my $read_sql = $sql_read->get_fb_melt();
+		my $values = $opc->read('read');
 		
+		my $sql_values = $sql_read->get_fb_melt();
+		
+		my @values;
+
+		foreach my $index ( keys @{$values} ) {
+			my $tag_name = $conf->get('groups')->{read}->[$index];
+			my $side = $conf->get('values')->{$tag_name}->{side_int};
+#=comm
+			foreach my $i ( keys @{$sql_values} ) {
+#				print "sql index: ", $i, "\n";
+				if ( $sql_values->[$i]->{SIDE} == $side ) {
+					print "sql index: ", $i, "\n";
+					print "---------------\n", Dumper($sql_values->[$i]), "---------------\n";
+					my ($day,$month,$year,$hours,$min,$sec) = split('[:\s\.]', $sql_values->[$i]->{TN});
+					use Time::Local;
+					my $timestamp = timelocal($sec,$min,$hours,$day,$month,$year);
+					#print $sec,$min,$hours,$day,$month,$year, $time,"--\n";
+					push @values, [	$values->[$index], $timestamp, $sql_values->[$i]->{SIDE}, $sql_values->[$i]->{HEAT},
+									$sql_values->[$i]->{STANDARD}, $sql_values->[$i]->{GRADE}, $sql_values->[$i]->{STRENGTH_CLASS},
+									$sql_values->[$i]->{SECTION}];
+				}
+			}
+#=cut
+			print "opc index:", $index ," | ", $tag_name, " | side: ", $side, " | value: ", $values->[$index], "\n";
+		}
+		
+		#print Dumper($sql_read->get_fb_melt());
+		#print Dumper($sql_write->get_pg());
+
+		#print Dumper(@values);
+		$sql_write->write_pg(@values);
+		
+	
+=comm
 		foreach my $index ( keys @{$read_sql} ) {
 			print "index: ", $index, "\n";
 			print Dumper($read_sql->[$index]), "\n";
-			$sql_write->write_pg($read_sql->[$index])
+#			$sql_write->write_pg($read_sql->[$index])
 =comm
 			foreach my $key ( keys %{$read_sql->[$index]} ) {
 				print "key: ", $key, "\tvalue: ", $read_sql->[$index]->{$key}, "\n";
 				#$cache->set('cache' => \%cache);
 				#$cache{$scales->{$scale}}{'zi'} = $calc_params{$scales->{$scale}}->{'pi'};
 			}
-=cut
 		}
+=cut
 =comm
 		my $message;
 
