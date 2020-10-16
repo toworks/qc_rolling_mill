@@ -129,6 +129,7 @@ sub write_pg {
 				$self->{sql}->{dbh}->{AutoCommit} = 0;
 				$sth = $self->{sql}->{dbh}->prepare_cached($query) || die $self->{sql}->{dbh}->errstr;
 				foreach ( @values ) {
+					$_->[7] =~ s/.*?([\d+\.].*)/$1/;
 					# fixed size in section
 					$_->[7] = ($_->[7] !~ /\./g and scalar $_->[7] > 2) ? substr($_->[7], 0, 2) : $_->[7];
 					print "values: ", $_->[7], "\n";
@@ -180,9 +181,9 @@ sub write_pg {
 					$sth->bind_param( 14, 1 ) || die $self->{sql}->{dbh}->errstr;
 					$sth->bind_param( 15, 1574258700 ) || die $self->{sql}->{dbh}->errstr;
 =cut
-
+					$sth->execute() || die $self->{sql}->{dbh}->errstr;
 				}
-				$sth->execute() || die $self->{sql}->{dbh}->errstr;
+				#$sth->execute() || die $self->{sql}->{dbh}->errstr;
 				$self->{sql}->{dbh}->{AutoCommit} = 1;
 	};
 	if ($@) {   $self->set('error' => 1);

@@ -25,18 +25,18 @@ values:
                 side: left
                 side_int: 0
                 name: RMSh2.RM5.TS.TOutBilletLeftSide
-       VA.TE2_1:
-                side: left
-                side_int: 0
-                name: RMSh2.RM5.TS.TInBilletLeftSide
+#       VA.TE2_1:
+#                side: left
+#                side_int: 0
+#                name: RMSh2.RM5.TS.TInBilletLeftSide
        VA.TE3_4:
                 side: right
                 side_int: 1
                 name: RMSh2.RM5.TS.TOutBilletRightSide
-       VA.TE1_3:
-                side: right
-                side_int: 1
-                name: RMSh2.RM5.TS.TInBilletRightSide
+#       VA.TE1_3:
+#                side: right
+#                side_int: 1
+#                name: RMSh2.RM5.TS.TInBilletRightSide
 
 opc:
     #progid: Graybox.OPC.DAWrapper
@@ -53,5 +53,5 @@ groups:
 
 app:
     tasks: 2
-    cycle: 10
+    cycle: 1
     debug: true

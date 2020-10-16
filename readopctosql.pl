@@ -127,9 +127,9 @@
 #=comm
 			foreach my $i ( keys @{$sql_values} ) {
 #				print "sql index: ", $i, "\n";
-				if ( $sql_values->[$i]->{SIDE} == $side ) {
-					print "sql index: ", $i, "\n";
-					print "---------------\n", Dumper($sql_values->[$i]), "---------------\n";
+				if ( defined($sql_values->[$i]->{SIDE}) and defined($side) and $sql_values->[$i]->{SIDE} eq $side ) {
+					print "sql index: ", $i, "\n" if $DEBUG;
+					print "---------------\n", Dumper($sql_values->[$i]), "---------------\n" if $DEBUG;
 					my ($day,$month,$year,$hours,$min,$sec) = split('[:\s\.]', $sql_values->[$i]->{TN});
 					use Time::Local;
 					my $timestamp = timelocal($sec,$min,$hours,$day,$month,$year);
@@ -140,7 +140,7 @@
 				}
 			}
 #=cut
-			print "opc index:", $index ," | ", $tag_name, " | side: ", $side, " | value: ", $values->[$index], "\n";
+			print "opc index:", $index ," | ", $tag_name, " | side: ", $side, " | value: ", $values->[$index], "\n" if $DEBUG;
 		}
 		
 		#print Dumper($sql_read->get_fb_melt());
