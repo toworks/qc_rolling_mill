@@ -21,6 +21,7 @@ write:
          password: WC7HdvCjC57YJ9
 
 values:
+       # side left=0, side right=1
        VA.TE4_2: 
                 side: left
                 side_int: 0

@@ -148,45 +148,7 @@
 
 		#print Dumper(@values);
 		$sql_write->write_pg(@values);
-		
-	
-=comm
-		foreach my $index ( keys @{$read_sql} ) {
-			print "index: ", $index, "\n";
-			print Dumper($read_sql->[$index]), "\n";
-#			$sql_write->write_pg($read_sql->[$index])
-=comm
-			foreach my $key ( keys %{$read_sql->[$index]} ) {
-				print "key: ", $key, "\tvalue: ", $read_sql->[$index]->{$key}, "\n";
-				#$cache->set('cache' => \%cache);
-				#$cache{$scales->{$scale}}{'zi'} = $calc_params{$scales->{$scale}}->{'pi'};
-			}
-		}
-=cut
-=comm
-		my $message;
 
-		for ( my $i = 0 ; $i < scalar @{$conf->get('devices')} ; $i++ ) {
-			if ( $conf->get('devices')->[$i]->{'enable'} ) {
-				$message = http_request(	$conf->get('service')->{'url'} .
-											$conf->get('devices')->[$i]->{'service_preffix'} .
-											"?deviceId=" .
-											$conf->get('devices')->[$i]->{'deviceId'} .
-											"&apitoken=" .
-											$conf->get('service')->{'api_token'}
-											, $ua
-										);
-
-				next if not defined $message;
-				my $value = 1 if $message->{'state'}->{'type'} eq $conf->get('devices')->[$i]->{'state_work'};
-				print Dumper($message->{'state'}->{'type'}), "\n" if $message->{'state'}->{'type'} eq $conf->get('devices')->[$i]->{'state_work'};
-				#print $message->{'state'}->{'type'}, " | " , $type, "\n";
-				#print Dumper($message), "\n";
-				#print Dumper($conf->get('devices')->[$i]->{'state_work'}), "\n";
-				$queue->enqueue( [$i, $value || 0] );
-			}
-		}
-=cut	
 		my $t1 = [gettimeofday];
 		my $tbetween = tv_interval $t0, $t1;
 		my $cycle;

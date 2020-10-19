@@ -106,7 +106,7 @@ sub write_pg {
     $self->conn() if ( $self->{sql}->{error} == 1 or ! $self->{sql}->{dbh}->ping );
 
 	# values, timestamp, side, heat, standard, grade, strength_class, section
-#=comm
+
 	$query  = "WITH upsert AS (UPDATE temperature_current SET timestamp=EXTRACT(EPOCH FROM now()),  ";
     $query .= "heat = ?, ";
     $query .= "grade = ?, ";
@@ -115,7 +115,7 @@ sub write_pg {
     $query .= "standard = ?, ";
     $query .= "temperature = ? ";
     $query .= "WHERE tid = ? and side = ? RETURNING *) ";
-#=cut	
+	
     $query .= "INSERT INTO temperature_current (tid, timestamp, heat, grade, ";
 	$query .= "strength_class, section, standard, side, temperature) ";
 	$query .= "SELECT ?, EXTRACT(EPOCH FROM now()), ?, ?, ";
@@ -143,16 +143,6 @@ sub write_pg {
 					$sth->bind_param(  6, int($_->[0]) ) || die $self->{sql}->{dbh}->errstr;
 					$sth->bind_param(  7, $_->[1] ) || die $self->{sql}->{dbh}->errstr;
 					$sth->bind_param(  8, $_->[2] ) || die $self->{sql}->{dbh}->errstr;
-=comm					
-					$sth->bind_param(  9, $_->[1] ) || die $self->{sql}->{dbh}->errstr;
-					$sth->bind_param( 10, $_->[5] ) || die $self->{sql}->{dbh}->errstr;
-					$sth->bind_param( 11, $_->[6] ) || die $self->{sql}->{dbh}->errstr;
-					#$sth->bind_param( 12, $_->[7] ) || die $self->{sql}->{dbh}->errstr;
-					$sth->bind_param( 12, 10 ) || die $self->{sql}->{dbh}->errstr;
-					$sth->bind_param( 13, $_->[4] || 'o' ) || die $self->{sql}->{dbh}->errstr;
-					$sth->bind_param( 14, $_->[2] ) || die $self->{sql}->{dbh}->errstr;
-					$sth->bind_param( 15, $_->[0] ) || die $self->{sql}->{dbh}->errstr;
-=cut
 
 					$sth->bind_param(  9, $_->[1] ) || die $self->{sql}->{dbh}->errstr;
 					$sth->bind_param( 10, $_->[3] ) || die $self->{sql}->{dbh}->errstr;
@@ -162,25 +152,7 @@ sub write_pg {
 					$sth->bind_param( 14, decode('cp1251', $_->[4]) ) || die $self->{sql}->{dbh}->errstr;
 					$sth->bind_param( 15, $_->[2] ) || die $self->{sql}->{dbh}->errstr;
 					$sth->bind_param( 16, int($_->[0]) ) || die $self->{sql}->{dbh}->errstr;
-=comm
-#=cut
-					$sth->bind_param(  1, 1574258700 ) || die $self->{sql}->{dbh}->errstr;
-					$sth->bind_param(  2, '2-' ) || die $self->{sql}->{dbh}->errstr;
-					$sth->bind_param(  3, '3-' ) || die $self->{sql}->{dbh}->errstr;
-					$sth->bind_param(  4, '4-' ) || die $self->{sql}->{dbh}->errstr;
-					$sth->bind_param(  5, 10 ) || die $self->{sql}->{dbh}->errstr;
-					$sth->bind_param(  6, 11 ) || die $self->{sql}->{dbh}->errstr;
-					$sth->bind_param(  7, 1 ) || die $self->{sql}->{dbh}->errstr;
-					$sth->bind_param(  8, 22 ) || die $self->{sql}->{dbh}->errstr;
-=coom
-					$sth->bind_param(  9, 1574258700 ) || die $self->{sql}->{dbh}->errstr;
-					$sth->bind_param( 10, '-' ) || die $self->{sql}->{dbh}->errstr;
-					$sth->bind_param( 11, '-' ) || die $self->{sql}->{dbh}->errstr;
-					$sth->bind_param( 12, 10 ) || die $self->{sql}->{dbh}->errstr;
-					$sth->bind_param( 13, '-' ) || die $self->{sql}->{dbh}->errstr;
-					$sth->bind_param( 14, 1 ) || die $self->{sql}->{dbh}->errstr;
-					$sth->bind_param( 15, 1574258700 ) || die $self->{sql}->{dbh}->errstr;
-=cut
+
 					$sth->execute() || die $self->{sql}->{dbh}->errstr;
 				}
 				#$sth->execute() || die $self->{sql}->{dbh}->errstr;
