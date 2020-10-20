@@ -120,43 +120,43 @@ sub write_pg {
 	$query .= "strength_class, section, standard, side, temperature) ";
 	$query .= "SELECT ?, EXTRACT(EPOCH FROM now()), ?, ?, ";
 	$query .= "?, ?, ?, ?, ? ";
-    $query .= "WHERE NOT EXISTS (SELECT * FROM upsert) ";
+    $query .= "WHERE NOT EXISTS (SELECT * FROM upsert) ; ";
 	  
 	$self->{log}->save('d', "values: " . join(" | ", @values)) if $self->{sql}->{'DEBUG'};
 	$self->{log}->save('d', "query: ". $query) if $self->{sql}->{'DEBUG'};
 
-	eval{ 		$self->{sql}->{dbh}->{RaiseError} = 1;
+	eval{ 	foreach ( @values ) {
+				$self->{sql}->{dbh}->{RaiseError} = 1;
 				$self->{sql}->{dbh}->{AutoCommit} = 0;
 				$sth = $self->{sql}->{dbh}->prepare_cached($query) || die $self->{sql}->{dbh}->errstr;
-				foreach ( @values ) {
-					$_->[7] =~ s/.*?([\d+\.].*)/$1/;
-					# fixed size in section
-					$_->[7] = ($_->[7] !~ /\./g and scalar $_->[7] > 2) ? substr($_->[7], 0, 2) : $_->[7];
-					print "values: ", $_->[7], "\n";
 
-					use Encode;
-					$sth->bind_param(  1, $_->[3] ) || die $self->{sql}->{dbh}->errstr;
-					$sth->bind_param(  2, decode('cp1251', $_->[5]) ) || die $self->{sql}->{dbh}->errstr;
-					$sth->bind_param(  3, decode('cp1251', $_->[6]) ) || die $self->{sql}->{dbh}->errstr;
-					$sth->bind_param(  4, $_->[7] ) || die $self->{sql}->{dbh}->errstr;
-					$sth->bind_param(  5, decode('cp1251', $_->[4]) ) || die $self->{sql}->{dbh}->errstr;
-					$sth->bind_param(  6, int($_->[0]) ) || die $self->{sql}->{dbh}->errstr;
-					$sth->bind_param(  7, $_->[1] ) || die $self->{sql}->{dbh}->errstr;
-					$sth->bind_param(  8, $_->[2] ) || die $self->{sql}->{dbh}->errstr;
+				$_->[7] =~ s/.*?([\d+\.].*)/$1/;
+				# fixed size in section
+				$_->[7] = ($_->[7] !~ /\./g and scalar $_->[7] > 2) ? substr($_->[7], 0, 2) : $_->[7];
+				print "values: ", $_->[7], "\n";
 
-					$sth->bind_param(  9, $_->[1] ) || die $self->{sql}->{dbh}->errstr;
-					$sth->bind_param( 10, $_->[3] ) || die $self->{sql}->{dbh}->errstr;
-					$sth->bind_param( 11, decode('cp1251', $_->[5]) ) || die $self->{sql}->{dbh}->errstr;
-					$sth->bind_param( 12, decode('cp1251', $_->[6]) ) || die $self->{sql}->{dbh}->errstr;
-					$sth->bind_param( 13, $_->[7] ) || die $self->{sql}->{dbh}->errstr;
-					$sth->bind_param( 14, decode('cp1251', $_->[4]) ) || die $self->{sql}->{dbh}->errstr;
-					$sth->bind_param( 15, $_->[2] ) || die $self->{sql}->{dbh}->errstr;
-					$sth->bind_param( 16, int($_->[0]) ) || die $self->{sql}->{dbh}->errstr;
+				use Encode;
+				$sth->bind_param(  1, $_->[3] ) || die $self->{sql}->{dbh}->errstr;
+				$sth->bind_param(  2, decode('cp1251', $_->[5]) ) || die $self->{sql}->{dbh}->errstr;
+				$sth->bind_param(  3, decode('cp1251', $_->[6]) ) || die $self->{sql}->{dbh}->errstr;
+				$sth->bind_param(  4, $_->[7] ) || die $self->{sql}->{dbh}->errstr;
+				$sth->bind_param(  5, decode('cp1251', $_->[4]) ) || die $self->{sql}->{dbh}->errstr;
+				$sth->bind_param(  6, int($_->[0]) ) || die $self->{sql}->{dbh}->errstr;
+				$sth->bind_param(  7, $_->[1] ) || die $self->{sql}->{dbh}->errstr;
+				$sth->bind_param(  8, $_->[2] ) || die $self->{sql}->{dbh}->errstr;
 
-					$sth->execute() || die $self->{sql}->{dbh}->errstr;
-				}
-				#$sth->execute() || die $self->{sql}->{dbh}->errstr;
+				$sth->bind_param(  9, $_->[1] ) || die $self->{sql}->{dbh}->errstr;
+				$sth->bind_param( 10, $_->[3] ) || die $self->{sql}->{dbh}->errstr;
+				$sth->bind_param( 11, decode('cp1251', $_->[5]) ) || die $self->{sql}->{dbh}->errstr;
+				$sth->bind_param( 12, decode('cp1251', $_->[6]) ) || die $self->{sql}->{dbh}->errstr;
+				$sth->bind_param( 13, $_->[7] ) || die $self->{sql}->{dbh}->errstr;
+				$sth->bind_param( 14, decode('cp1251', $_->[4]) ) || die $self->{sql}->{dbh}->errstr;
+				$sth->bind_param( 15, $_->[2] ) || die $self->{sql}->{dbh}->errstr;
+				$sth->bind_param( 16, int($_->[0]) ) || die $self->{sql}->{dbh}->errstr;
+
+				$sth->execute() || die $self->{sql}->{dbh}->errstr;
 				$self->{sql}->{dbh}->{AutoCommit} = 1;
+			}
 	};
 	if ($@) {   $self->set('error' => 1);
 				$self->{log}->save('e', "$@");

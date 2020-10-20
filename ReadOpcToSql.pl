@@ -12,7 +12,6 @@
  use DateTime;
  use Time::HiRes qw(gettimeofday tv_interval time);
  use POSIX qw(strftime);
- use LWP::UserAgent;
  use lib ('libs', '.');
  use logging;
  use configuration;
@@ -65,12 +64,12 @@
 	push @threads, threads->create( \&worker, $conf, $log, $sql_read);
  }
 
-## $SIG{'TERM'} = $SIG{'HUP'} = $SIG{'INT'} = sub {
-##                      local $SIG{'TERM'} = 'IGNORE';
-###						$log->save('d', "SIGNAL TERM | HUP | INT | $$");
-##					  $log->save('i', "stop app");
-##                      kill TERM => -$$;
-## };
+ $SIG{'TERM'} = $SIG{'HUP'} = $SIG{'INT'} = sub {
+                      local $SIG{'TERM'} = 'IGNORE';
+#						$log->save('d', "SIGNAL TERM | HUP | INT | $$");
+					  $log->save('i', "stop app");
+                      kill TERM => -$$;
+ };
 
  # main
  threads->new(\&main, $$, $conf, $log);
@@ -137,16 +136,17 @@
 					push @values, [	$values->[$index], $timestamp, $sql_values->[$i]->{SIDE}, $sql_values->[$i]->{HEAT},
 									$sql_values->[$i]->{STANDARD}, $sql_values->[$i]->{GRADE}, $sql_values->[$i]->{STRENGTH_CLASS},
 									$sql_values->[$i]->{SECTION}];
+					print "opc index:", $index ," | ", $tag_name, " | side: ", $side, " | value: ", $values->[$index], "\n\n\n\n\n" if $DEBUG;
 				}
 			}
 #=cut
-			print "opc index:", $index ," | ", $tag_name, " | side: ", $side, " | value: ", $values->[$index], "\n" if $DEBUG;
+#			print "opc index:", $index ," | ", $tag_name, " | side: ", $side, " | value: ", $values->[$index], "\n" if $DEBUG;
 		}
 		
 		#print Dumper($sql_read->get_fb_melt());
 		#print Dumper($sql_write->get_pg());
 
-		#print Dumper(@values);
+		print Dumper(@values) if $DEBUG;
 		$sql_write->write_pg(@values);
 
 		my $t1 = [gettimeofday];
@@ -165,43 +165,6 @@
 	}
   }
 
-
- sub http_request {
-	my ($url, $ua) = @_;
-	$log->save("i", "$url") if $DEBUG;
-
-	my $req = HTTP::Request->new(GET => "$url") || die $@;
-	$req->content_type('application/json; charset=utf-8');
-	#$req->content($action);
-	my $message;
-	
-	eval {			 
-			# Pass request to the user agent and get a response back
-			my $res = $ua->request($req);
-
-			#$log->save("d", "http_request: ". Dumper($res) ) if $DEBUG;
-
-			# Check the outcome of the response
-			if ($res->is_success) {
-				print $res->content,"\n" if $DEBUG;
-				use Encode;
-				$message = decode('utf-8', $res->content);
-				use JSON;
-				my $json = JSON->new->allow_nonref;
-				$message = $json->decode( $message );
-				$log->save("d", "http_request: ". Dumper($message) ) if $DEBUG;
-			}
-			else {
-				#print Dumper($res->headers), "\n";
-				#print Dumper($res->headers->{'location'}), "\n";
-				#print $res->status_line, "\n";
-				#$log->save("e", "status: " . $res->status_line);
-				die "status: " . $res->status_line;
-			}
-	};
-	if ($@) { $log->save("e", "$@"); };
-	return $message;
- }
 
  sub worker {
     my($conf, $log, $sql) = @_;
